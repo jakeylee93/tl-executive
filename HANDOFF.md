@@ -8,6 +8,9 @@
 - Replaced the fake quote alert with an anyOS enquiry handoff for the T&L client account.
 - Production project: `anyos/tl-executive`.
 - Canonical testing URL: `https://tl-executive.vercel.app`.
+- Production deployment `dpl_J5NyesoC12NnKoCgWQC6d5jeqrxG` is READY (2026-07-19).
+- Registered in anyOS for client `T & L Executive Cars` with site key `t-l-executive-cars`.
+- Live CMS GET and authenticated write were smoke-tested successfully; quote enquiries route into the T&L account.
 
 ## Coordination
 
