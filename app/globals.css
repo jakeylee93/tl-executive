@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --tl-ink: #171717;
+  --tl-muted: #667085;
+  --tl-line: #e4e7ec;
+  --tl-paper: #ffffff;
+  --tl-soft: #f6f7f8;
+  --tl-champagne: #b6975d;
+  --tl-champagne-soft: #efe7d7;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--tl-paper);
+  color: var(--tl-ink);
+}
+
+::selection {
+  background: var(--tl-champagne-soft);
+  color: var(--tl-ink);
+}
+
+.tl-hero {
+  background-image:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 255, 255, 0.94) 39%, rgba(255, 255, 255, 0.58) 61%, rgba(255, 255, 255, 0.08) 100%),
+    url('/car-sclass.jpg');
+  background-position: center, 72% center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.tl-surface-grid {
+  background-color: #f8f9fa;
+  background-image:
+    linear-gradient(rgba(23, 23, 23, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(23, 23, 23, 0.025) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.tl-form-control {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+@media (max-width: 767px) {
+  .tl-hero {
+    background-image:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.97) 0%, rgba(255, 255, 255, 0.9) 56%, rgba(255, 255, 255, 0.36) 100%),
+      url('/car-sclass.jpg');
+    background-position: center, 62% bottom;
+    background-size: cover;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .client-marquee,
+  .fleet-scroll,
+  .testimonial-scroll {
+    animation-play-state: paused !important;
+  }
+}
+
+@keyframes airportScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-33.33%); }
+}
+
+@keyframes testimonialScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.testimonial-scroll:hover {
+  animation-play-state: paused;
+}
+
+@keyframes fleetScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.fleet-scroll:hover {
+  animation-play-state: paused;
+}
+
+@keyframes clientMarquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-25%); }
+}
+
+.client-marquee {
+  animation: clientMarquee 10s linear infinite;
+  will-change: transform;
+}
+
+.client-marquee:hover {
+  animation-play-state: paused;
+}
