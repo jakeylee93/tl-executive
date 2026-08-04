@@ -21,6 +21,9 @@ const TESTIMONIALS = [
   },
 ]
 
+/** Stable CMS key fragment for a vehicle, so edits survive a rename. */
+const slug = (name: string) => name.toLowerCase().replaceAll(' ', '-')
+
 const VEHICLES = [
   { name: 'Mercedes E Class', passengers: 4, bags: 3, desc: 'Our executive saloon. Perfect for airport transfers and business travel.', image: '/car-eclass.jpg' },
   { name: 'Mercedes S Class', passengers: 4, bags: 3, desc: 'The ultimate in luxury. First class comfort for VIP and corporate clients.', image: '/car-sclass.jpg' },
@@ -331,22 +334,25 @@ export default function Home() {
                 {VEHICLES.map(v => (
                   <div key={`${setIdx}-${v.name}`} className="w-[300px] flex-shrink-0 overflow-hidden rounded-xl border border-black/10 bg-white shadow-sm md:w-[380px]">
                     <div className="aspect-[16/10] relative overflow-hidden">
-                      <img src={v.image} alt={v.name} className="w-full h-full object-cover" loading="lazy" />
+                      {/* Editable in the platform: click the car to upload a new
+                          photo or generate one. Same data-anyos-img contract the
+                          other anyOS sites use. */}
+                      <img data-anyos-img={`fleet.${slug(v.name)}.image`} src={v.image} alt={v.name} className="w-full h-full object-cover" loading="lazy" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                       <div className="absolute bottom-4 left-4 right-4">
-                        <p data-anyos={`fleet.${v.name.toLowerCase().replaceAll(' ', '-')}.name`} className="mb-2 text-sm font-semibold text-white">{v.name}</p>
+                        <p data-anyos={`fleet.${slug(v.name)}.name`} className="mb-2 text-sm font-semibold text-white">{v.name}</p>
                         <div className="flex gap-2">
                           <span className="flex items-center gap-1.5 bg-white/95 text-[#171717] text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm">
-                            👤 {v.passengers} Passengers
+                            👤 <span data-anyos={`fleet.${slug(v.name)}.passengers`}>{v.passengers} Passengers</span>
                           </span>
                           <span className="flex items-center gap-1.5 bg-white/95 text-[#171717] text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm">
-                            🧳 {v.bags} Bags
+                            🧳 <span data-anyos={`fleet.${slug(v.name)}.bags`}>{v.bags} Bags</span>
                           </span>
                         </div>
                       </div>
                     </div>
                     <div className="p-5">
-                      <p data-anyos={`fleet.${v.name.toLowerCase().replaceAll(' ', '-')}.description`} className="text-sm leading-relaxed text-[#667085]">{v.desc}</p>
+                      <p data-anyos={`fleet.${slug(v.name)}.description`} className="text-sm leading-relaxed text-[#667085]">{v.desc}</p>
                     </div>
                   </div>
                 ))}
