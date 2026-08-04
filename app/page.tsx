@@ -63,7 +63,7 @@ const SERVICES = [
 ]
 
 export default function Home() {
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', pickup: '', destination: '', date: '', returnDate: '', passengers: '1', bags: '1', vehicle: '', message: '' })
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', pickup: '', destination: '', date: '', returnDate: '', passengers: '1', bags: '1', vehicle: '', flightIn: '', flightOut: '', message: '' })
   const [tripType, setTripType] = useState<'one-way' | 'return'>('one-way')
   const [selectedCar, setSelectedCar] = useState<number | null>(null)
   const [activeService, setActiveService] = useState<number | null>(null)
@@ -86,19 +86,31 @@ export default function Home() {
       `Travel date: ${formData.date}${tripType === 'return' && formData.returnDate ? `; return: ${formData.returnDate}` : ''}`,
       `${formData.passengers} passenger(s), ${formData.bags} checked bag(s)`,
       formData.vehicle ? `Preferred vehicle: ${formData.vehicle}` : '',
+      formData.flightIn ? `Inbound flight: ${formData.flightIn}` : '',
+      formData.flightOut ? `Outbound flight: ${formData.flightOut}` : '',
       `Phone: ${formData.phone}`,
       formData.message,
     ].filter(Boolean).join('\n')
 
     try {
+      // Structured, so the platform can file pick-up, destination, dates and
+      // flight numbers as real fields instead of one blob of prose.
       const response = await fetch('/api/enquiry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: formData.name, email: formData.email, message: journey, website: '' }),
+        body: JSON.stringify({
+          name: formData.name, email: formData.email, phone: formData.phone,
+          pickup: formData.pickup, destination: formData.destination,
+          travelDate: formData.date, returnDate: formData.returnDate,
+          tripType, passengers: formData.passengers, bags: formData.bags,
+          vehicle: formData.vehicle,
+          flightIn: formData.flightIn, flightOut: formData.flightOut,
+          notes: formData.message, message: journey, website: '',
+        }),
       })
       if (!response.ok) throw new Error('Could not send enquiry')
       setSubmitState('sent')
-      setFormData({ name: '', email: '', phone: '', pickup: '', destination: '', date: '', returnDate: '', passengers: '1', bags: '1', vehicle: '', message: '' })
+      setFormData({ name: '', email: '', phone: '', pickup: '', destination: '', date: '', returnDate: '', passengers: '1', bags: '1', vehicle: '', flightIn: '', flightOut: '', message: '' })
     } catch {
       setSubmitState('error')
     }
@@ -527,6 +539,22 @@ export default function Home() {
                       value={formData.returnDate} onChange={e => setFormData({...formData, returnDate: e.target.value})} />
                   </div>
                 )}
+              </div>
+              {/* Flight numbers: previously people had to bury these in the
+                  "anything else" box, where they were easy to miss. */}
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <div>
+                  <label className="block text-[11px] text-black/40 font-medium mb-1.5 uppercase tracking-wider">Inbound flight <span className="normal-case tracking-normal text-black/25">(optional)</span></label>
+                  <input type="text" placeholder="e.g. BA117" aria-label="Inbound flight number"
+                    className="w-full px-4 py-3 rounded-xl border border-black/10 text-sm focus:outline-none focus:border-[#c9a96e] focus:ring-1 focus:ring-[#c9a96e]/20 transition bg-gray-50/50"
+                    value={formData.flightIn} onChange={e => setFormData({...formData, flightIn: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-[11px] text-black/40 font-medium mb-1.5 uppercase tracking-wider">Outbound flight <span className="normal-case tracking-normal text-black/25">(optional)</span></label>
+                  <input type="text" placeholder="e.g. BA118" aria-label="Outbound flight number"
+                    className="w-full px-4 py-3 rounded-xl border border-black/10 text-sm focus:outline-none focus:border-[#c9a96e] focus:ring-1 focus:ring-[#c9a96e]/20 transition bg-gray-50/50"
+                    value={formData.flightOut} onChange={e => setFormData({...formData, flightOut: e.target.value})} />
+                </div>
               </div>
             </div>
 
