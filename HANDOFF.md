@@ -26,7 +26,16 @@
 
 ## Preview deployment
 
-_Filled in after deployment; see the section at the end of this file._
+- **URL:** https://tl-executive-iehmwvbj3-anyos.vercel.app — also `/airport-transfers`, `/privacy`, `/cookies`.
+- **Deployment:** `dpl_ChGiuHrFUchjypEFMSuiHmTWW2z7`, target **preview**, status Ready.
+  - Built on Vercel with pnpm 10 / Next 14.2.35 from commit **`8bd310e`**. Later commits only touch this handoff.
+- **Protection:** Vercel SSO applies to previews, so sign in to Vercel to open it, including on a phone.
+- **Verified on the preview** (26 Sep, 23:13 BST, via `vercel curl`):
+  - `GET /api/enquiry` returns `{"mode":"dry-run"}`, so preview submissions are never sent.
+  - The home page carries the new design and the unchanged edit.js tag with `data-site="t-l-executive-cars"`.
+  - It has **the same 114 anyOS keys** as the tested local build.
+  - `/airport-transfers` renders.
+- **Production:** `tl-executive.vercel.app` still serves the July site (checked after deploying). Nothing was promoted.
 
 ## What changed (files)
 
