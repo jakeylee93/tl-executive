@@ -1,80 +1,79 @@
+import type { Metadata } from 'next'
+import { LegalPage } from '@/components/LegalPage'
+import { BUSINESS } from '@/lib/site'
+
+export const metadata: Metadata = {
+  title: 'Privacy notice',
+  description: 'How Theydon & Loughton Executive Cars uses the details you give us when you ask for a quote or book a journey.',
+  alternates: { canonical: '/privacy' },
+}
+
+// Describes what this website actually does (see AUDIT.md). Business
+// practices beyond the website (retention, payment handling) should be
+// confirmed by the owner — listed in HANDOFF.md.
 export default function Privacy() {
   return (
-    <main className="min-h-screen bg-white">
-      <div className="max-w-3xl mx-auto px-6 py-20 md:py-28">
-        <a href="/" className="text-sm text-black/40 hover:text-black transition mb-8 inline-block">← Back to Home</a>
+    <LegalPage title="Privacy notice" updated="September 2026">
+      <section>
+        <h2>Who we are</h2>
+        <p>
+          {BUSINESS.name} is an executive car service based in {BUSINESS.locality}, Essex, run by {BUSINESS.founder}. We are the
+          data controller for the personal details you give us. Contact us about anything in this notice at{' '}
+          <a href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a> or on <a href={BUSINESS.phoneHref}>{BUSINESS.phoneDisplay}</a>.
+        </p>
+      </section>
 
-        <h1 className="text-3xl md:text-4xl text-black mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-          Privacy Policy
-        </h1>
-        <p className="text-sm text-black/40 mb-12">Last updated: March 2026</p>
+      <section>
+        <h2>What we collect</h2>
+        <p>When you ask for a quote on this website, or contact us by phone or email, we collect:</p>
+        <ul>
+          <li>your name, email address and phone number;</li>
+          <li>journey details: pick-up and destination, dates and times, number of passengers and suitcases, and flight numbers if you give them;</li>
+          <li>anything else you choose to tell us, such as a preferred vehicle or accessibility needs.</li>
+        </ul>
+        <p>Please only give us details about other passengers that are needed for the journey.</p>
+      </section>
 
-        <div className="space-y-8 text-sm text-black/70 leading-relaxed">
-          <section>
-            <h2 className="text-lg font-semibold text-black mb-3">1. Who We Are</h2>
-            <p>Theydon & Loughton Executive Cars is a private hire executive car service based in Theydon Bois, Essex. We are committed to protecting your privacy and handling your personal data responsibly.</p>
-          </section>
+      <section>
+        <h2>How we use it</h2>
+        <ul>
+          <li>to reply to your enquiry and send you a quote (steps you ask us to take before a contract);</li>
+          <li>to arrange, carry out and invoice the journeys you book (performing our contract with you);</li>
+          <li>to keep the records the law requires, for example for tax (legal obligation).</li>
+        </ul>
+        <p>We do not sell your details, and we do not use them for marketing.</p>
+      </section>
 
-          <section>
-            <h2 className="text-lg font-semibold text-black mb-3">2. Information We Collect</h2>
-            <p className="mb-3">When you use our services or contact us, we may collect:</p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Your name, email address and telephone number</li>
-              <li>Pick-up and drop-off locations</li>
-              <li>Travel dates and times</li>
-              <li>Number of passengers</li>
-              <li>Payment information (processed securely by our payment provider)</li>
-              <li>Any additional requirements you share with us</li>
-            </ul>
-          </section>
+      <section>
+        <h2>Who handles it for us</h2>
+        <p>
+          Enquiries sent through this website go straight into the booking system we use to manage quotes and bookings, provided by
+          anyOS. The website is hosted by Vercel. Both act only on our instructions. We may also share information where the law
+          requires it.
+        </p>
+      </section>
 
-          <section>
-            <h2 className="text-lg font-semibold text-black mb-3">3. How We Use Your Information</h2>
-            <p className="mb-3">We use your personal data to:</p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Provide and manage our executive car services</li>
-              <li>Respond to your enquiries and quote requests</li>
-              <li>Process payments</li>
-              <li>Communicate with you about your bookings</li>
-              <li>Improve our services</li>
-            </ul>
-          </section>
+      <section>
+        <h2>How long we keep it</h2>
+        <p>
+          We keep enquiry details for as long as we need them to reply and follow up. Booking and invoice records are kept for as long
+          as the law requires for accounting and tax, normally six years.
+        </p>
+      </section>
 
-          <section>
-            <h2 className="text-lg font-semibold text-black mb-3">4. Legal Basis</h2>
-            <p>We process your data on the basis of contractual necessity (to fulfil your booking), legitimate interest (to manage and improve our business), and where applicable, your consent.</p>
-          </section>
+      <section>
+        <h2>Your rights</h2>
+        <p>
+          You can ask for a copy of the personal information we hold about you, and ask us to correct it, delete it or stop using it.
+          Contact us using the details above. If you are unhappy with how we have handled your information, you can complain to the
+          Information Commissioner’s Office at <a href="https://ico.org.uk/make-a-complaint/">ico.org.uk</a>.
+        </p>
+      </section>
 
-          <section>
-            <h2 className="text-lg font-semibold text-black mb-3">5. Data Sharing</h2>
-            <p>We do not sell your personal data. We may share your information with payment processors to complete transactions. We will disclose information if required by law.</p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-semibold text-black mb-3">6. Data Retention</h2>
-            <p>We retain your personal data only for as long as necessary to fulfil the purposes outlined above, or as required by law. Booking records are typically retained for 6 years for accounting purposes.</p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-semibold text-black mb-3">7. Your Rights</h2>
-            <p className="mb-3">Under UK GDPR, you have the right to:</p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Access the personal data we hold about you</li>
-              <li>Request correction of inaccurate data</li>
-              <li>Request deletion of your data</li>
-              <li>Object to or restrict processing</li>
-              <li>Data portability</li>
-            </ul>
-            <p className="mt-3">To exercise any of these rights, please contact us at <a href="mailto:simonemburns@gmail.com" className="text-black underline">simonemburns@gmail.com</a>.</p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-semibold text-black mb-3">8. Contact</h2>
-            <p>If you have questions about this policy or your personal data, please contact:</p>
-            <p className="mt-2">Theydon & Loughton Executive Cars<br />Theydon Bois, Essex<br />Email: <a href="mailto:simonemburns@gmail.com" className="text-black underline">simonemburns@gmail.com</a><br />Phone: <a href="tel:+447904428896" className="text-black underline">07904 428 896</a></p>
-          </section>
-        </div>
-      </div>
-    </main>
+      <section>
+        <h2>Cookies</h2>
+        <p>This website does not use cookies or tracking. See the <a href="/cookies">cookies page</a> for details.</p>
+      </section>
+    </LegalPage>
   )
 }

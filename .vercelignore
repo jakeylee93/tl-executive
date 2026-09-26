@@ -1,0 +1,5 @@
+BRIEF.md
+docs/
+tests/
+*.tsbuildinfo
+.playwright-cli/

@@ -1,78 +1,120 @@
 import { NextRequest, NextResponse } from 'next/server'
+import {
+  buildSiteLeadPayload, buildTransferPayload, normaliseEnquiry, validateEnquiry,
+} from '@/lib/enquiry'
 
-// Enquiries go to the anyOS platform, where they land as a booking to quote.
+// Website enquiries go to the anyOS platform, where they land in the T&L
+// account as a booking to quote (quote → accept → invoice).
 //
-// Previously this forwarded to /api/public/site-lead with everything squashed
-// into one `message` string, so the pick-up, destination, dates and passenger
-// count arrived as prose that had to be re-read by hand. It now posts the
-// STRUCTURED fields (including flight numbers) to the transfer endpoint, which
-// files them properly — falling back to the old site-lead route if that is ever
-// unavailable, so an enquiry is never lost either way.
-const PLATFORM_TRANSFER_URL = 'https://platform.anyos.co.uk/api/public/transfer-enquiry'
-const PLATFORM_FALLBACK_URL = 'https://platform.anyos.co.uk/api/public/site-lead'
-const TL_CLIENT_ID = '2f9b5bf7-bea0-48de-aba9-c933ce112cd8'
-const TL_SITE_KEY = 't-l-executive-cars'
+// Primary: POST the STRUCTURED fields to /api/public/transfer-enquiry, which
+// files pick-up, destination, date/time, passengers and flight numbers as real
+// fields. Fallback: the older /api/public/site-lead route — note that route
+// refuses server-to-server calls unless they carry the site's lead token
+// (x-anyos-site-token), so the fallback only works when ANYOS_SITE_LEAD_TOKEN
+// is configured. If both fail, the visitor is told plainly and offered the
+// phone number and a pre-filled email, so an enquiry is never silently lost.
+//
+// Modes (ENQUIRY_MODE):
+//   live     — forward to the platform (default on the production deployment)
+//   dry-run  — validate and build the exact upstream payload, send nothing
+//              (default everywhere else: local dev and Vercel previews, so a
+//              reviewer's test submission never lands in the real account)
+// ANYOS_PLATFORM_ORIGIN may point at a mock platform for contract tests.
 
-const str = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '')
+export const dynamic = 'force-dynamic'
 
-export async function POST(request: NextRequest) {
-  const body = await request.json().catch(() => null) as Record<string, unknown> | null
+const DEFAULT_PLATFORM = 'https://platform.anyos.co.uk'
 
-  const name = str(body?.name, 160)
-  const email = str(body?.email, 200)
-  const website = str(body?.website, 200) // honeypot, passed straight through
-  if (!name || !email) {
-    return NextResponse.json({ error: 'Name and email are required.' }, { status: 400 })
-  }
+function platformOrigin() {
+  const configured = process.env.ANYOS_PLATFORM_ORIGIN
+  if (configured && /^https?:\/\/[^\s/]+$/i.test(configured.replace(/\/$/, ''))) return configured.replace(/\/$/, '')
+  return DEFAULT_PLATFORM
+}
 
-  const payload = {
-    siteKey: TL_SITE_KEY,
-    name, email, website,
-    phone: str(body?.phone, 60),
-    pickup: str(body?.pickup, 300),
-    destination: str(body?.destination, 300),
-    travelDate: str(body?.travelDate, 40),
-    travelTime: str(body?.travelTime, 20),
-    passengers: str(body?.passengers, 10),
-    flightIn: str(body?.flightIn, 40),
-    flightOut: str(body?.flightOut, 40),
-    // Everything the structured fields don't cover (return date, bags, vehicle
-    // preference, free text) still reaches Simon as notes.
-    notes: [
-      str(body?.tripType, 20) === 'return' ? 'Return journey' : 'One-way journey',
-      str(body?.returnDate, 40) ? `Return date: ${str(body?.returnDate, 40)}` : '',
-      str(body?.bags, 10) ? `Bags: ${str(body?.bags, 10)}` : '',
-      str(body?.vehicle, 80) ? `Preferred vehicle: ${str(body?.vehicle, 80)}` : '',
-      str(body?.notes, 800),
-    ].filter(Boolean).join('\n').slice(0, 1000),
-  }
+function mode(): 'live' | 'dry-run' {
+  const explicit = process.env.ENQUIRY_MODE
+  if (explicit === 'live' || explicit === 'dry-run') return explicit
+  return process.env.VERCEL_ENV === 'production' ? 'live' : 'dry-run'
+}
 
+const reply = (body: unknown, status = 200) =>
+  NextResponse.json(body, { status, headers: { 'Cache-Control': 'no-store', 'X-Enquiry-Mode': mode() } })
+
+/** Health/mode check for release verification. Reveals no secrets. */
+export async function GET() {
+  return reply({ ok: true, mode: mode(), platform: new URL(platformOrigin()).host })
+}
+
+const UNAVAILABLE = 'We couldn’t send your enquiry just now.'
+
+async function postJson(url: string, payload: unknown, headers: Record<string, string> = {}) {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), 10_000)
   try {
-    const response = await fetch(PLATFORM_TRANSFER_URL, {
+    return await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...headers },
       body: JSON.stringify(payload),
       cache: 'no-store',
+      signal: controller.signal,
     })
-    if (response.ok) {
-      return NextResponse.json(await response.json().catch(() => ({ ok: true })))
-    }
-    // A 4xx is a real validation complaint — show it rather than retrying.
-    if (response.status >= 400 && response.status < 500) {
-      const result = await response.json().catch(() => ({ error: 'Could not send your enquiry.' }))
-      return NextResponse.json(result, { status: response.status })
-    }
-  } catch {
-    /* fall through to the older endpoint below */
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+export async function POST(request: NextRequest) {
+  const length = Number(request.headers.get('content-length') || 0)
+  if (length > 20_000) return reply({ error: 'That enquiry is too long to send.' }, 413)
+
+  const body = await request.json().catch(() => null)
+  if (!body || typeof body !== 'object') return reply({ error: 'We couldn’t read that enquiry. Please try again.' }, 400)
+
+  const enquiry = normaliseEnquiry(body)
+
+  // Honeypot: bots fill the hidden field. Succeed quietly and send nothing.
+  if (enquiry.website) return reply({ ok: true })
+
+  const fields = validateEnquiry(enquiry)
+  if (Object.keys(fields).length) {
+    return reply({ error: 'Please check the highlighted details.', fields }, 400)
   }
 
-  // Last resort: the original route, so a customer's enquiry still arrives.
-  const fallback = await fetch(PLATFORM_FALLBACK_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ clientId: TL_CLIENT_ID, name, email, message: str(body?.message, 2000), website }),
-    cache: 'no-store',
-  })
-  const result = await fallback.json().catch(() => ({ error: 'Could not send your enquiry.' }))
-  return NextResponse.json(result, { status: fallback.status })
+  const transfer = buildTransferPayload(enquiry)
+
+  if (mode() === 'dry-run') {
+    return reply({ ok: true, dryRun: true, payload: transfer })
+  }
+
+  const origin = platformOrigin()
+
+  try {
+    const response = await postJson(`${origin}/api/public/transfer-enquiry`, transfer)
+    if (response.ok) return reply({ ok: true })
+    // A 4xx is a real complaint (validation, rate limit) — show it rather than
+    // retrying elsewhere and risking a duplicate.
+    console.warn('[enquiry] transfer-enquiry refused', { status: response.status })
+    if (response.status >= 400 && response.status < 500) {
+      const result = (await response.json().catch(() => null)) as { error?: string } | null
+      return reply({ error: result?.error || UNAVAILABLE, upstream: response.status }, response.status === 429 ? 429 : 400)
+    }
+  } catch (error) {
+    // Network failure or timeout: fall through to the fallback. No personal
+    // data is logged — only what went wrong.
+    console.warn('[enquiry] transfer-enquiry unreachable', { error: error instanceof Error ? error.name : 'unknown' })
+  }
+
+  const token = process.env.ANYOS_SITE_LEAD_TOKEN
+  if (token) {
+    try {
+      const fallback = await postJson(`${origin}/api/public/site-lead`, buildSiteLeadPayload(enquiry), { 'x-anyos-site-token': token })
+      if (fallback.ok) return reply({ ok: true, via: 'fallback' })
+      console.warn('[enquiry] site-lead fallback refused', { status: fallback.status })
+    } catch (error) {
+      console.warn('[enquiry] site-lead fallback unreachable', { error: error instanceof Error ? error.name : 'unknown' })
+    }
+  }
+
+  console.error('[enquiry] enquiry could not be delivered; visitor shown phone/email fallback')
+  return reply({ error: UNAVAILABLE, unavailable: true }, 502)
 }

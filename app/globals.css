@@ -2,101 +2,250 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ------------------------------------------------------------------------
+   T&L design tokens — see DESIGN.md.
+   --tl-forest and --tl-brass are exposed to the anyOS Site settings panel
+   (window.ANYOS_SETTINGS in app/layout.tsx), so every use of them must stay
+   legible if the owner retunes them.
+   ------------------------------------------------------------------------ */
 :root {
-  --tl-ink: #171717;
-  --tl-muted: #667085;
-  --tl-line: #e4e7ec;
-  --tl-paper: #ffffff;
-  --tl-soft: #f6f7f8;
-  --tl-champagne: #b6975d;
-  --tl-champagne-soft: #efe7d7;
+  --tl-paper: #f6f4ee;
+  --tl-surface: #ffffff;
+  --tl-stone: #ece8df;
+  --tl-ink: #18211c;
+  --tl-ink-2: #3f4943;
+  --tl-muted: #58625c;
+  --tl-line: #d8d3c7;
+  --tl-line-strong: #7d857f;
+  --tl-forest: #1f2b25;
+  --tl-forest-2: #28382f;
+  --tl-on-forest: #f3f0e8;
+  --tl-on-forest-muted: #b4beb6;
+  --tl-brass: #7a5b28;
+  --tl-brass-light: #d1b07a;
+  --tl-focus: #1f5fbf;
+  --tl-error: #a8321f;
+  --tl-success: #2d6a45;
+
+  --tl-header-h: 64px;
+  --tl-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  color-scheme: light;
 }
 
-html { scroll-behavior: smooth; }
-
-body {
-  background: var(--tl-paper);
-  color: var(--tl-ink);
+@media (min-width: 1024px) {
+  :root { --tl-header-h: 76px; }
 }
 
-::selection {
-  background: var(--tl-champagne-soft);
-  color: var(--tl-ink);
-}
-
-.tl-hero {
-  background-image:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 255, 255, 0.94) 39%, rgba(255, 255, 255, 0.58) 61%, rgba(255, 255, 255, 0.08) 100%),
-    url('/car-sclass.jpg');
-  background-position: center, 72% center;
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
-.tl-surface-grid {
-  background-color: #f8f9fa;
-  background-image:
-    linear-gradient(rgba(23, 23, 23, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(23, 23, 23, 0.025) 1px, transparent 1px);
-  background-size: 32px 32px;
-}
-
-.tl-form-control {
-  background: rgba(255, 255, 255, 0.92);
-}
-
-@media (max-width: 767px) {
-  .tl-hero {
-    background-image:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.97) 0%, rgba(255, 255, 255, 0.9) 56%, rgba(255, 255, 255, 0.36) 100%),
-      url('/car-sclass.jpg');
-    background-position: center, 62% bottom;
-    background-size: cover;
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-padding-top: calc(var(--tl-header-h) + 16px);
   }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .client-marquee,
-  .fleet-scroll,
-  .testimonial-scroll {
-    animation-play-state: paused !important;
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
   }
+
+  body {
+    background: var(--tl-paper);
+    color: var(--tl-ink);
+    font-family: var(--font-sans), system-ui, sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    font-feature-settings: 'kern', 'liga';
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection { background: #e7dcc6; color: var(--tl-ink); }
+
+  :focus-visible {
+    outline: 3px solid var(--tl-focus);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  .on-forest :focus-visible { outline-color: var(--tl-brass-light); }
+
+  img, svg { display: block; }
+
+  a, button, summary, label, input, select, textarea { touch-action: manipulation; }
+  a, button, summary, label { -webkit-tap-highlight-color: rgba(24, 33, 28, 0.08); }
+  img { max-width: 100%; height: auto; }
+
+  /* Native date/time inputs: keep the typed value aligned on iOS Safari. */
+  input[type='date'], input[type='time'] { -webkit-appearance: none; appearance: none; min-height: 3.25rem; }
+  input::-webkit-date-and-time-value { text-align: left; }
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type='number'] { -moz-appearance: textfield; appearance: textfield; }
 }
 
-@keyframes airportScroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-33.33%); }
+@layer components {
+  .page-x { @apply mx-auto w-full max-w-page px-5 sm:px-8 lg:px-12; }
+
+  /* Type roles */
+  .t-display {
+    font-family: var(--font-display), Georgia, serif;
+    font-weight: 400;
+    font-size: clamp(2.5rem, 1.45rem + 4.3vw, 4.9rem);
+    line-height: 1.02;
+    letter-spacing: -0.022em;
+    font-variation-settings: 'opsz' 72;
+    text-wrap: balance;
+  }
+  .t-h2 {
+    font-family: var(--font-display), Georgia, serif;
+    font-weight: 400;
+    font-size: clamp(2rem, 1.45rem + 2.1vw, 3.2rem);
+    line-height: 1.08;
+    letter-spacing: -0.016em;
+    font-variation-settings: 'opsz' 60;
+    text-wrap: balance;
+  }
+  .t-h3 {
+    font-family: var(--font-display), Georgia, serif;
+    font-weight: 500;
+    font-size: clamp(1.3rem, 1.15rem + 0.45vw, 1.55rem);
+    line-height: 1.2;
+    letter-spacing: -0.008em;
+    font-variation-settings: 'opsz' 36;
+  }
+  .t-lead {
+    font-size: clamp(1.0625rem, 0.98rem + 0.4vw, 1.25rem);
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+  .t-small { font-size: 0.9375rem; line-height: 1.55; }
+  .t-meta { font-size: 0.8125rem; line-height: 1.45; letter-spacing: 0.01em; }
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  /* Section label: a route node, a short rule and a word — the route-line
+     motif in miniature. The text itself stays editable (data-anyos). */
+  .eyebrow {
+    @apply inline-flex items-center gap-3 font-sans text-[0.8125rem] font-semibold uppercase text-brass;
+    letter-spacing: 0.12em;
+  }
+  .eyebrow::before {
+    content: '';
+    flex: none;
+    width: 1.75rem;
+    height: 0.5625rem;
+    background:
+      radial-gradient(circle at 0.28rem 50%, transparent 0.14rem, currentColor 0.15rem, currentColor 0.26rem, transparent 0.27rem),
+      linear-gradient(currentColor, currentColor) 0.62rem 50% / calc(100% - 0.62rem) 1.5px no-repeat;
+  }
+  .on-forest .eyebrow { color: var(--tl-brass-light); }
+
+  /* Buttons — 48px minimum target, 52px on touch-first sizes. */
+  .btn {
+    @apply inline-flex min-h-[3.25rem] items-center justify-center gap-2.5 rounded-md px-6 text-[1rem] font-semibold leading-none no-underline;
+    transition: background-color 0.2s var(--tl-ease), color 0.2s var(--tl-ease), border-color 0.2s var(--tl-ease), transform 0.2s var(--tl-ease);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--tl-ink); color: #fff; }
+  .btn-primary:hover { background: var(--tl-forest-2); }
+  .btn-secondary { border: 1.5px solid var(--tl-ink); color: var(--tl-ink); background: transparent; }
+  .btn-secondary:hover { background: var(--tl-ink); color: #fff; }
+  .btn-light { background: var(--tl-on-forest); color: var(--tl-ink); }
+  .btn-light:hover { background: #fff; }
+  .btn-ghost-light { border: 1.5px solid var(--tl-on-forest-muted); color: var(--tl-on-forest); }
+  .btn-ghost-light:hover { border-color: var(--tl-on-forest); background: rgba(255, 255, 255, 0.06); }
+  .btn[disabled] { cursor: progress; opacity: 0.7; }
+
+  .text-link {
+    @apply font-semibold underline decoration-1 underline-offset-[0.22em];
+    text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+    transition: text-decoration-color 0.2s var(--tl-ease);
+  }
+  .text-link:hover { text-decoration-color: currentColor; }
+
+  /* Form controls */
+  .field-label { @apply mb-2 block text-[0.9375rem] font-semibold text-ink; }
+  .field-hint { @apply mt-1.5 block text-[0.875rem] leading-snug text-muted; }
+  .field-error { @apply mt-1.5 flex items-start gap-1.5 text-[0.875rem] font-semibold leading-snug text-error; }
+  .field-input {
+    @apply block w-full rounded-md border bg-surface px-4 text-[1.0625rem] text-ink;
+    min-height: 3.25rem;
+    border-color: var(--tl-line-strong);
+    transition: border-color 0.15s var(--tl-ease), box-shadow 0.15s var(--tl-ease);
+  }
+  .field-input::placeholder { color: #8a918c; opacity: 1; }
+  .field-input:hover { border-color: var(--tl-ink-2); }
+  .field-input:focus { outline: none; border-color: var(--tl-focus); box-shadow: 0 0 0 3px rgba(31, 95, 191, 0.28); }
+  .field-input[aria-invalid='true'] { border-color: var(--tl-error); box-shadow: 0 0 0 1px var(--tl-error); }
+  textarea.field-input { @apply py-3; min-height: 7rem; resize: vertical; }
+  select.field-input {
+    @apply appearance-none pr-11;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2318211c' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.9rem center;
+    background-size: 1.1rem;
+  }
+
+  /* Hairline card */
+  .card { @apply rounded-lg border border-line bg-surface; }
+
+  .skip-link {
+    @apply fixed left-4 top-3 z-[200] -translate-y-24 rounded-md bg-ink px-4 py-3 font-semibold text-white;
+    transition: transform 0.2s var(--tl-ease);
+  }
+  .skip-link:focus { transform: translateY(0); }
 }
 
-@keyframes testimonialScroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+/* Map labels: SVG text scales with the drawing, so give phones larger type. */
+.map-code { font-size: 25px; }
+.map-name { font-size: 17px; }
+.map-home { font-size: 26px; }
+.map-note { font-size: 16px; }
+.map-area { font-size: 19px; }
+.map-area-home { font-size: 24px; }
+@media (max-width: 639px) {
+  .map-code { font-size: 40px; }
+  .map-name { display: none; }
+  .map-home { font-size: 40px; }
+  .map-note { display: none; }
+  .map-area { font-size: 32px; }
+  .map-area-home { font-size: 38px; }
 }
 
-.testimonial-scroll:hover {
-  animation-play-state: paused;
+@layer utilities {
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+  .pb-safe { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
 }
 
-@keyframes fleetScroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+/* ------------------------------------------------------------------------
+   Motion — reveal on scroll and the route-line draw. Only armed when JS has
+   run (html.js) and the visitor has not asked for reduced motion, so content
+   is never hidden from no-JS visitors, crawlers or reduced-motion users.
+   ------------------------------------------------------------------------ */
+@media (prefers-reduced-motion: no-preference) {
+  html.js [data-reveal] {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.7s var(--tl-ease), transform 0.7s var(--tl-ease);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  html.js [data-reveal].is-in { opacity: 1; transform: none; }
+
+  html.js .route-draw {
+    stroke-dasharray: var(--len, 1200);
+    stroke-dashoffset: var(--len, 1200);
+    transition: stroke-dashoffset 1.6s var(--tl-ease);
+    transition-delay: var(--draw-delay, 0ms);
+  }
+  html.js .is-in .route-draw { stroke-dashoffset: 0; }
+
+  .mobile-bar { transition: transform 0.3s var(--tl-ease), opacity 0.3s var(--tl-ease); }
 }
 
-.fleet-scroll:hover {
-  animation-play-state: paused;
-}
+/* In anyOS edit mode, never hide content behind a reveal. */
+html.anyos-editing [data-reveal] { opacity: 1 !important; transform: none !important; }
 
-@keyframes clientMarquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-25%); }
-}
-
-.client-marquee {
-  animation: clientMarquee 10s linear infinite;
-  will-change: transform;
-}
-
-.client-marquee:hover {
-  animation-play-state: paused;
+@media print {
+  .no-print { display: none !important; }
+  [data-reveal] { opacity: 1 !important; transform: none !important; }
 }
