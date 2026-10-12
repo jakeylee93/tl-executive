@@ -1,0 +1,55 @@
+INFO  preview bypass header obtained (value not shown)
+PASS  enquiry API reports dry-run on this deployment  — {"ok":true,"mode":"dry-run","platform":"platform.anyos.co.uk"}
+PASS  hero @375: day → night scene change plays forward  — night 0.00→0.00→0.16→0.87→1.00 · light -60°→55°
+PASS  hero @375: reverse scroll returns to the same frames
+PASS  hero @375: pinned stage (pin=on)  — pinned distance 609px
+PASS  hero @375: native wheel scroll moves the scene
+PASS  hero @390: day → night scene change plays forward  — night 0.00→0.00→0.16→0.87→1.00 · light -60°→55°
+PASS  hero @390: reverse scroll returns to the same frames
+PASS  hero @390: pinned stage (pin=on)  — pinned distance 633px
+PASS  hero @390: native wheel scroll moves the scene
+PASS  hero @430: day → night scene change plays forward  — night 0.00→0.00→0.16→0.87→1.00 · light -60°→55°
+PASS  hero @430: reverse scroll returns to the same frames
+PASS  hero @430: pinned stage (pin=on)  — pinned distance 699px
+PASS  hero @430: native wheel scroll moves the scene
+PASS  hero @1440: day → night scene change plays forward  — night 0.00→0.00→0.16→0.87→1.00 · light -60°→55°
+PASS  hero @1440: reverse scroll returns to the same frames
+PASS  hero @1440: pinned stage (pin=on)  — pinned distance 675px
+PASS  hero @1440: native wheel scroll moves the scene
+PASS  reduced motion: static scene, no pin  — night=0 position=relative
+PASS  text zoom 200%: hero unpins and nothing is clipped  — {"pin":"off","clipped":false}
+PASS  skip link is the first tab stop
+PASS  skip link moves focus to main
+PASS  phone menu opens with focus inside
+PASS  Escape closes the menu and returns focus
+PASS  Airport journey type shows flight fields
+PASS  Business journey type hides flight fields
+PASS  fleet tab switches the centred vehicle in place
+PASS  "Choose this car" prefills the planner
+PASS  services change in place (panel and photograph)  — {"evenings":true,"travel":false,"plate":"1"}
+PASS  route builder prefills pick-up, airport and flight fields  — {"p":"Loughton","d":"Stansted Airport","f":true}
+PASS  empty submit focuses an error summary of 7 fields  — {"role":"alert","items":7}
+PASS  dry-run submission shows the test-mode result (nothing sent)  — Test mode: this enquiry was not sent
+PASS  saved anyOS override is applied to the new markup
+PASS  anyOS edit bar appears
+PASS  clicking hero text starts an in-place edit
+PASS  about photograph opens the anyOS image picker through its overlays
+PASS  action bar hidden over the hero
+PASS  action bar appears after the hero
+PASS  action bar steps aside for the planner and typing
+PASS  no horizontal overflow @375  — 0px
+PASS  no horizontal overflow @390  — 0px
+PASS  touch targets ≥ 44×44 px on a phone
+PASS  no horizontal overflow @430  — 0px
+PASS  no horizontal overflow @820  — 0px
+PASS  no horizontal overflow @1440  — 0px
+PASS  axe: no violations on / @390
+PASS  axe: no violations on / @1440
+PASS  axe: no violations on /airport-transfers @390
+PASS  axe: no violations on /airport-transfers @1440
+PASS  axe: no violations on /privacy @390
+PASS  axe: no violations on /credits @1440
+PASS  axe: planner error state has no violations
+PASS  no console or page errors
+
+52/52 checks passed

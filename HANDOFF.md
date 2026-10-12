@@ -1,4 +1,92 @@
-# Handoff — T&L Executive Cars rebuild (26 September 2026)
+# Handoff — T&L Executive Cars testing rebuild (12 October 2026)
+
+## For Jake and Simon, in plain English
+
+- **The new testing website is live on a private preview link (below).** The public site `tl-executive.vercel.app` has not been changed.
+- **It opens with a short scroll scene.** Simon's real badge (rebuilt as crisp vector artwork from his logo, not retyped in a font) sits over a photograph of Epping Road in Epping Forest by day. As you scroll, it turns to the M25 at night, and the light catches the badge's silver rim.
+- **Right under that is "Plan your journey".** It is the quote form itself:
+  - journey type, from/to, date, time, passengers and luggage;
+  - flight details appear for airport trips.
+- **Then come four short chapters:**
+  - a centred fleet selector (pick a car and it fills in the form);
+  - services that change in place, with photographs;
+  - an airport and area chooser ("Loughton to Stansted, plan this journey");
+  - Simon's story with his clients' testimonials, then contact details and FAQs.
+- **Only true facts.** Everything follows what Simon's own website says, including his published hours (Mon–Fri 9.00–6.30). The "Open 24 hours" line is gone everywhere.
+- **anyOS editing still works.** All 114 editable texts and all 5 editable photos are kept. Simon's two saved edits still show.
+- **Test enquiries are safe.** The form on this link never sends anything to Simon; it says "Test mode: this enquiry was not sent".
+- **What would make it better still:** real photos of Simon's own cars and jobs (see "What we still need").
+
+## State
+
+| | |
+|---|---|
+| Owner | `claude:tl-executive-opus-20260926`, Mission Control work claim `abbb0758-614f-4b52-a94f-bc93e2702b2e` (retained for review) |
+| Worktree / branch | `/Users/margaritabot/.openclaw/workspace/tl-executive-opus-20260926`, `claude/tl-executive-rebuild-20260926` (pushed). `BRIEF.md` left untracked. |
+| Commits | `ee3f45c` badge reconstruction and photographic plates, `1d65cc3` complete rebuild, then this handoff/evidence commit |
+| **Testing URL** | **https://tl-executive-a3xoelp1p-anyos.vercel.app** (also `/airport-transfers`, `/credits`, `/privacy`, `/cookies`). Vercel SSO: sign in to Vercel to open it. |
+| Deployment | `dpl_CC8s2GL2FNP4nBci2sKojD2ndaCz`, target preview, READY, cloud build with `--force` (no cache) |
+| Commit ↔ deployment | Built from a clean tree at `1d65cc3`. The CLI records no git metadata for this non-Git-connected project, so this was verified by content instead (four committed assets byte-identical, plus markup unique to the commit). |
+| Production | Untouched. `tl-executive.vercel.app` still serves the July site. No DNS, data or settings changes. |
+
+## Checks actually run (12 Oct, against the deployed preview unless stated)
+
+- **Type check:** `npm run typecheck` is clean (local).
+- **CMS contract:** `tests/cms-contract.test.mjs` run on the deployment's HTML (`CMS_HTML_DIR`) passes **8/8**.
+  - All 114 text keys and 5 image keys; text leaves; edit.js tag with `data-site="t-l-executive-cars"`.
+  - Settings limited to two colour variables; no frame-blocking; no 24-hour claim.
+- **Browser suite:** `tests/browser/site.mjs` passes **52/52**. Log: `docs/evidence/browser-qa-dpl_CC8s2GL2FNP4nBci2sKojD2ndaCz.txt`.
+  - **Hero motion at 375, 390, 430 and 1440:** the day→night scene plays forward (night 0→1, light −60°→+55°) and returns to identical frames in reverse. It is pinned for 609–699px, and native wheel scrolling drives it.
+  - **Reduced motion and text zoom:** reduced motion gives a static frame with no pin. At 200% text zoom the hero unpins with no clipping.
+  - **Navigation:** skip link; phone menu with Escape and focus return.
+  - **Planner and selectors:**
+    - journey types show and hide the flight fields;
+    - the fleet tab and "Choose this car" prefill the form;
+    - services change their panel and photograph in place;
+    - the route builder prefills pick-up, airport and flight fields;
+    - an empty submit focuses a 7-item error summary.
+  - **Enquiry, dry-run only:** the submission shows the test-mode result. The API reports `dry-run` on this deployment.
+  - **anyOS:** the live saved override applies to the new markup. The edit-mode smoke test used a dummy token and never saved: edit bar, in-place text edit, and the image picker opening through the story photo's overlays.
+  - **Fixed action bar:** hidden over the hero, shown after it, and steps aside for the planner and while typing.
+  - **Layout:** no horizontal overflow at 375/390/430/820/1440; 44px touch targets.
+  - **Accessibility:** axe WCAG 2.2 AA plus best practice finds **0 violations** on `/` and `/airport-transfers` at 390 and 1440, `/privacy`, `/credits`, and the planner's error state.
+  - **Console:** no console or page errors.
+- **Badge fidelity:** glyph IoU 0.959 and 0.954 against the original (ASSET-LOG.md).
+- **Not run this round:** a local `next build` and the enquiry contract test, which starts a local server (`npm test` includes it). The Mac stayed at **warning** memory pressure throughout, so heavy local jobs were not started. Builds ran on Vercel, and QA ran as one serialised headless browser. `app/api/enquiry/route.ts` and `lib/enquiry.ts` are unchanged since `8bd310e`, where those 17 tests passed. Re-run `npm run build && npm test` when the Mac is at normal pressure.
+- **Evidence:** `docs/evidence/` holds the hero storyboard sheets (375/390/430/1440), the phone chapter sheet and the desktop chapter frames.
+
+## Media and OpenArt
+
+- **Photographs:** CC-licensed photographs of the real places T&L serves: Epping Forest, Theydon Bois, the M25, Heathrow T5 and Tower Bridge. Authors, licences and processing are listed on `/credits` and in ASSET-LOG.md.
+- **No AI images were made and no credits were spent.**
+- **OpenArt needs re-authentication** (`/mcp` → openart). Until then, account, models, project, upload and download cannot be verified.
+- **Proposed job, ceiling 800 credits** (Nano Banana Pro 4K at the recorded 80 per job; to be re-quoted live):
+  - remaster the two hero plates, plus phone versions (320);
+  - one retry each (160);
+  - a four-car studio set made **only from Simon's own vehicle photos** (320).
+- Waiting for Jake's answer on T&L's optional allowance. Kuruma's budget is not used.
+
+## What we still need (from Simon or the browser)
+
+1. **Photos of Simon's actual cars**, plus any wedding, airport or event photos (the originals behind the official site's hero). These are the single biggest upgrade. The four fleet images are model renders, not his cars; each is replaceable in anyOS.
+2. The official site's media list: `https://tlexecutivecars.co.uk/wp-json/wp/v2/media?per_page=100` (source URLs and sizes). It is reachable in a normal browser only.
+3. Confirmation that the published fleet and capacities, the licensing and plate exemption, and the payment methods are still current. They are shown as T&L's own statements.
+4. Permission to keep naming the three testimonial authors and the ten clients.
+5. Whether to show early-morning and weekend availability. Nothing is claimed beyond the published Mon–Fri hours.
+6. A business email in place of the Gmail address, if preferred.
+7. Any "from" fares he wants published.
+8. Renew `tlexecutivecars.co.uk` before **23 Jan 2027**.
+
+## Release checklist (only on Jake's decision)
+
+1. Mission Control **release** claim: `--kind release --project tl-executive`.
+2. `vercel deploy --prod --force` from the approved commit. Then confirm `GET /api/enquiry` reports `"mode":"live"`, and check the font classes match between HTML and CSS.
+3. Re-verify the live enquiry route before claiming the September production form defect is fixed. **It has not been re-tested since 26 Sep.**
+
+---
+
+## History: September 2026 rebuild (superseded)
+
 
 ## For Jake, in plain English
 
