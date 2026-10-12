@@ -1,18 +1,18 @@
-import { AboutSection } from '@/components/AboutSection'
-import { AirportsSection } from '@/components/AirportsSection'
-import { CoverageSection } from '@/components/CoverageSection'
-import { FaqSection } from '@/components/FaqSection'
+import { AirportsChapter } from '@/components/AirportsChapter'
+import { ContactSection } from '@/components/ContactSection'
 import { FleetSection } from '@/components/FleetSection'
 import { Footer } from '@/components/Footer'
 import { Header } from '@/components/Header'
 import { Hero } from '@/components/Hero'
 import { MobileActionBar } from '@/components/MobileActionBar'
-import { ProofSection } from '@/components/ProofSection'
-import { QuoteSection } from '@/components/QuoteSection'
-import { RevealObserver } from '@/components/RevealObserver'
-import { ServicesSection } from '@/components/ServicesSection'
+import { PlanSection } from '@/components/PlanSection'
+import { ServicesChapter } from '@/components/ServicesChapter'
+import { StoryChapter } from '@/components/StoryChapter'
 import { JsonLd, localBusinessSchema } from '@/lib/schema'
 
+// Chapters: opening scene → plan your journey → fleet → services → airports
+// & areas → story & trust → contact. Photographic chapters alternate with
+// white ones (see DESIGN.md).
 export default function Home() {
   return (
     <>
@@ -20,18 +20,15 @@ export default function Home() {
       <Header />
       <main id="main" tabIndex={-1} className="focus:outline-none">
         <Hero />
-        <ServicesSection />
-        <AirportsSection />
+        <PlanSection />
         <FleetSection />
-        <AboutSection />
-        <ProofSection />
-        <CoverageSection />
-        <FaqSection />
-        <QuoteSection />
+        <ServicesChapter />
+        <AirportsChapter />
+        <StoryChapter />
+        <ContactSection />
       </main>
       <Footer />
       <MobileActionBar />
-      <RevealObserver />
     </>
   )
 }

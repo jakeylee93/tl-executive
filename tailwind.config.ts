@@ -1,8 +1,7 @@
 import type { Config } from 'tailwindcss'
 
-// Colours resolve to CSS custom properties (see app/globals.css) so the
-// anyOS "Site settings" panel can retune the two brand colours live without
-// a rebuild. Keep this list in step with DESIGN.md.
+// Colours resolve to CSS custom properties (app/globals.css) so the anyOS
+// "Site settings" panel can retune the brand colours live. See DESIGN.md.
 const token = (name: string) => `var(--tl-${name})`
 
 const config: Config = {
@@ -10,20 +9,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        paper: token('paper'),
-        surface: token('surface'),
-        stone: token('stone'),
+        white: token('white'),
+        mist: token('mist'),
+        cloud: token('cloud'),
+        silver: token('silver'),
+        steel: token('steel'),
         ink: token('ink'),
         'ink-2': token('ink-2'),
-        muted: token('muted'),
         line: token('line'),
-        'line-strong': token('line-strong'),
-        forest: token('forest'),
-        'forest-2': token('forest-2'),
-        'on-forest': token('on-forest'),
-        'on-forest-muted': token('on-forest-muted'),
-        brass: token('brass'),
-        'brass-light': token('brass-light'),
+        field: token('field'),
+        charcoal: token('charcoal'),
+        'charcoal-2': token('charcoal-2'),
+        'on-dark': token('on-dark'),
+        'on-dark-muted': token('on-dark-muted'),
         focus: token('focus'),
         error: token('error'),
         success: token('success'),
@@ -32,12 +30,8 @@ const config: Config = {
         display: ['var(--font-display)', 'Georgia', 'serif'],
         sans: ['var(--font-sans)', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
       },
-      maxWidth: {
-        page: '76rem',
-      },
-      screens: {
-        xs: '420px',
-      },
+      maxWidth: { page: '78rem' },
+      screens: { xs: '420px' },
     },
   },
   plugins: [],

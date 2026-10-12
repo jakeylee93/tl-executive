@@ -29,4 +29,19 @@ npm run test:browser -- http://localhost:3100   # browser QA; see tests/browser/
 
 `GET /api/enquiry` reports the current mode (no secrets).
 
-See AUDIT.md, RESEARCH.md, DESIGN.md and HANDOFF.md.
+## Brand and media
+
+- Badge: `lib/badgePaths.ts` (traced from `public/logo.jpg`), `components/Badge.tsx`, `public/brand/tl-badge.svg` —
+  rebuild the static file with `python3 scripts/build-badge-svg.py`.
+- Photographs: `public/media/*` (licensed; credits on `/credits`, provenance in ASSET-LOG.md).
+
+## Deploying a preview
+
+```bash
+VERCEL_ORG_ID=team_eLHrVgR7hkY4PM3MKhhGgK2B VERCEL_PROJECT_ID=prj_E7ZwodmMjG0HxIWFmbeLyELCit7W vercel deploy --yes --force
+```
+
+`--force` skips the restored build cache (a cached build once shipped stale font class names). Previews run enquiries
+in dry-run mode. Never use `--prod` without Jake's release decision.
+
+See AUDIT.md, RESEARCH.md, DESIGN.md, ASSET-LOG.md and HANDOFF.md.

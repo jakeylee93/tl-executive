@@ -1,4 +1,42 @@
-# T&L Executive Cars — audit (26 September 2026)
+# T&L Executive Cars — audit
+
+## October 2026 rebuild addendum (12 Oct)
+
+**Facts corrected**
+
+Jake inspected the official site in a normal browser at 19:05 UTC on 12 Oct.
+
+- **Published hours:** Mon–Fri 09:00–18:30. There is **no 24-hour claim**, so "Open 24 hours" is removed from the copy and the structured data. The September conflict is resolved in favour of the official site.
+- **Website claims, not independent certification:** these are presented as T&L's own statements.
+  - Fleet: E-Class 4 passengers / 3 bags, S-Class 4/3, V-Class 7/7, "Toureno" (Tourneo) Custom Executive 8/8.
+  - The six London airports and the eight coverage areas.
+  - Visa, Mastercard, Amex and Apple Pay.
+  - The Qureshi, Spry and Joarder testimonials.
+  - Established 2008.
+  - Council licensing and private-hire-plate exemption.
+
+**Source access on 12 Oct**
+
+- Programmatic requests to tlexecutivecars.co.uk return HTTP 500 (curl and WebFetch), while a normal browser loads it.
+- The Internet Archive was "Temporarily Offline", and the Common Crawl index timed out (504).
+- The site's own gallery photos could not be retrieved by script. Jake has been asked to pass on media URLs from the browser.
+
+**Integration**
+
+- **CMS keys:** `tests/fixtures/cms-keys.json` pins all 114 text keys and 5 image keys. Every one is present on the rebuilt home page, verified on the deployed preview HTML.
+- **Service defaults re-worded:** five service keys now carry services the official site describes. Their keys are unchanged, and none had a saved override (live saved content is still only `hero.eyebrow` and `services.title`).
+  - 7 → "Seaport & cruise"
+  - 8 → "Fine dining"
+  - 9 → "VIP & private aviation"
+  - 10 → "Media & production"
+  - 11 → "Speakers & keynotes"
+- **Build-cache defect:** the first October preview was built with Vercel's cache restored from September. Its HTML referenced stale `next/font` class names (`__variable_7e319f/9c618b`) while the CSS defined new ones, so the site fell back to Times. A forced rebuild fixed it. **Deploy with `vercel deploy --force`**, or verify font classes after any cache-restored build.
+- **Enquiry contract:** `app/api/enquiry/route.ts` and `lib/enquiry.ts` are unchanged since commit 8bd310e. Dry-run mode was verified on the deployed preview: `GET /api/enquiry` returns `dry-run`, and the browser suite's submission produced the test-mode result.
+- **Historical form defect:** the production form defect recorded in September is **not re-verified today**. Production remains untouched.
+
+---
+
+## September 2026 audit (original)
 
 Scope: the canonical repository `jakeylee93/tl-executive` (worktree branch
 `claude/tl-executive-rebuild-20260926`, based on `main` at `aab90e8`), the Vercel

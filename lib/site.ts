@@ -1,80 +1,79 @@
-// Business content for the T&L website — the single source for copy defaults,
+// Business content for the T&L website: the single source for copy defaults,
 // contact details and structured data.
 //
-// Every text default here can be overridden live from anyOS (data-anyos keys);
-// the KEYS must never change once published, because saved overrides are
-// looked up by key. See AUDIT.md "Retained contracts" before renaming anything.
+// Every text default here can be overridden live from anyOS (data-anyos keys).
+// The KEYS never change once published: saved overrides are looked up by key,
+// and tests/fixtures/cms-keys.json pins all 114 text + 5 image keys.
 //
-// Verification: facts marked VERIFIED are corroborated by the public Yell
-// listing or T&L's own earlier website (see RESEARCH.md). Anything else is the
-// owner's existing content, kept deliberately modest and listed in AUDIT.md.
+// Facts follow T&L's own website as inspected in a browser on 12 Oct 2026
+// (tlexecutivecars.co.uk) and the September source audit (RESEARCH.md). They
+// are the business's published statements, not independent certification;
+// uncertainty is recorded in AUDIT.md, never in visitor-facing copy.
 
 export const BUSINESS = {
-  name: 'Theydon & Loughton Executive Cars', // VERIFIED (Yell, own site)
+  name: 'Theydon & Loughton Executive Cars',
   shortName: 'T&L Executive Cars',
-  founded: 2008, // VERIFIED (Yell, own site)
-  locality: 'Theydon Bois', // VERIFIED
+  founded: 2008,
+  locality: 'Theydon Bois',
   region: 'Essex',
   country: 'GB',
-  phoneDisplay: '07904 428896', // VERIFIED (Yell)
+  phoneDisplay: '07904 428896',
   phoneHref: 'tel:+447904428896',
   phoneE164: '+447904428896',
-  email: 'simonemburns@gmail.com', // own site since 2018 (owned asset)
-  hours: 'Open 24 hours', // Yell + Yelp; own site says Mon–Fri 9–6.30 — confirm (HANDOFF.md)
-  founder: 'Simon Burns', // own site: author + privacy-policy data controller
-  // Own site since 2013; EFDC policy §5.10–5.12 provides the executive exemption.
+  email: 'simonemburns@gmail.com',
+  // Published footer hours on the official site. No 24-hour claim is made.
+  hours: 'Mon–Fri, 9.00am–6.30pm',
+  hoursSpec: { days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], opens: '09:00', closes: '18:30' },
+  founder: 'Simon Burns',
   licensing: 'Drivers and vehicles licensed by Epping Forest District Council',
-  payments: 'Visa, Mastercard, American Express and Apple Pay', // own site since 2020
+  payments: 'Visa, Mastercard, American Express and Apple Pay',
   siteUrl: 'https://tl-executive.vercel.app',
-  // Approximate centre of Theydon Bois village — used only for the map and
-  // for areaServed geo; not a street address.
-  geo: { lat: 51.6715, lon: 0.0985 },
+  officialSite: 'https://tlexecutivecars.co.uk/',
 } as const
 
 /** Stable CMS key fragment for a vehicle, so edits survive a rename. */
 export const slug = (name: string) => name.toLowerCase().replaceAll(' ', '-')
 
-export type Service = {
-  /** Index = CMS key: services.<idx>.title / services.<idx>.description */
-  idx: number
-  title: string
-  description: string
-  icon: IconName
-}
-
 export type IconName =
   | 'plane' | 'briefcase' | 'sparkle' | 'rings' | 'theatre' | 'flag' | 'stadium'
   | 'ship' | 'dining' | 'road' | 'music' | 'care' | 'bag'
 
-// Order and indices match the published CMS keys (services.0 … services.11).
-// Index 12 is new and additive. Wording sticks to what T&L's own site and
-// directory listings already say (RESEARCH.md §1) — no packages, prices or
-// guarantees that nobody has confirmed.
+export type Service = { idx: number; title: string; description: string; icon: IconName }
+
+// Indices are the published CMS keys (services.0 … services.12). Keys 7, 8, 9,
+// 10 and 11 now carry services T&L's official site describes (seaports, fine
+// dining, VIP aviation terminals, media/production work, speaker transfers);
+// none of those keys had a saved override when re-worded (checked 12 Oct).
 export const SERVICES: Service[] = [
-  { idx: 0, title: 'Airport transfers', icon: 'plane', description: 'Heathrow, Gatwick, London City, Luton, Stansted and Southend, including private and VIP terminals. Flights are monitored, with meet and greet on arrival.' },
-  { idx: 1, title: 'Corporate travel', icon: 'briefcase', description: 'Executives, keynote speakers and production teams: punctual, discreet travel for businesses since 2008.' },
-  { idx: 2, title: 'Special occasions', icon: 'sparkle', description: 'Birthdays, anniversaries and red-carpet evenings. Arrive together and leave the driving to us.' },
+  { idx: 0, title: 'Airport transfers', icon: 'plane', description: 'Heathrow, Gatwick, London City, Luton, Stansted and Southend. Flights are monitored, and arrivals are met in the terminal.' },
+  { idx: 1, title: 'Corporate travel', icon: 'briefcase', description: 'Meetings, roadshows and client collections, with discreet, punctual drivers who know London and the M25.' },
+  { idx: 2, title: 'Special occasions', icon: 'sparkle', description: 'Birthdays, anniversaries and red-carpet evenings: arrive together and leave the driving to us.' },
   { idx: 3, title: 'Weddings', icon: 'rings', description: 'The couple, the family and guest transfers between hotel and venue, planned around your day.' },
-  { idx: 4, title: 'Theatre trips', icon: 'theatre', description: 'Door to door for West End shows, with no parking to find and no last train to catch.' },
-  { idx: 5, title: 'Race days', icon: 'flag', description: 'Cheltenham, Ascot, Newmarket and other meetings. Enjoy the racing and let someone else drive home.' },
-  { idx: 6, title: 'Sporting events', icon: 'stadium', description: 'Rugby, football and the big fixtures: dropped at the venue and collected afterwards.' },
-  { idx: 7, title: 'Cruise terminals', icon: 'ship', description: 'Southampton, Dover, Tilbury, Harwich and other ports, with room for holiday luggage.' },
-  { idx: 8, title: 'Restaurant evenings', icon: 'dining', description: 'Fine dining in London or closer to home, with the journey back taken care of.' },
-  { idx: 9, title: 'Long distance', icon: 'road', description: 'Longer journeys beyond London and the M25. Tell us where and we’ll quote.' },
-  { idx: 10, title: 'Concerts & gigs', icon: 'music', description: 'Gigs and concerts in London without the car-park queue or the night bus home.' },
-  { idx: 11, title: 'Hospital visits', icon: 'care', description: 'Calm, punctual transport to and from appointments and visits.' },
-  { idx: 12, title: 'West End shopping', icon: 'bag', description: 'A day in the West End without the parking: dropped off and collected when you’re ready.' },
+  { idx: 4, title: 'Theatre', icon: 'theatre', description: 'Door to door for West End shows, with no parking to find and no last train to catch.' },
+  { idx: 5, title: 'Race days', icon: 'flag', description: 'Cheltenham, Ascot and Newmarket: enjoy the racing and travel home in comfort.' },
+  { idx: 6, title: 'Sporting events', icon: 'stadium', description: 'Rugby and football fixtures, dropped at the venue and collected afterwards.' },
+  { idx: 7, title: 'Seaport & cruise', icon: 'ship', description: 'Southampton, Dover, Tilbury and Harwich, with help for the luggage at the terminal.' },
+  { idx: 8, title: 'Fine dining', icon: 'dining', description: 'Dinner in London or closer to home, with the journey back taken care of.' },
+  { idx: 9, title: 'VIP & private aviation', icon: 'road', description: 'Drivers familiar with the VIP and private terminals, including the Windsor Suite, Harrods Aviation, TAG Aviation and Signature.' },
+  { idx: 10, title: 'Media & production', icon: 'music', description: 'Talent, crew and guests moved between locations, studios and events on a production schedule.' },
+  { idx: 11, title: 'Speakers & keynotes', icon: 'care', description: 'Speaker-bureau clients collected, briefed and delivered on time to conferences and events.' },
+  { idx: 12, title: 'West End shopping', icon: 'bag', description: 'A day in the West End without the parking: dropped off and collected when you are ready.' },
 ]
 
-export const SERVICE_GROUPS: { title: string; key: string; items: number[] }[] = [
-  { key: 'travel', title: 'Airports & longer journeys', items: [0, 7, 9, 1] },
-  { key: 'evenings', title: 'Evenings & events', items: [4, 8, 10, 6, 5] },
-  { key: 'occasions', title: 'Occasions & everyday', items: [2, 3, 12, 11] },
+export type ServiceGroup = { key: 'travel' | 'evenings' | 'occasions'; title: string; plate: PlateName; items: number[] }
+
+// Group keys are published (services.group.<key>); titles may change.
+export const SERVICE_GROUPS: ServiceGroup[] = [
+  { key: 'travel', title: 'Airports & travel', plate: 'airport', items: [0, 9, 7] },
+  { key: 'evenings', title: 'Business & London', plate: 'london', items: [1, 11, 10, 4, 8, 12] },
+  { key: 'occasions', title: 'Occasions & events', plate: 'village', items: [3, 2, 5, 6] },
 ]
 
 export type Vehicle = {
-  /** Display + CMS key source. NEVER rename: slug(name) is the CMS key. */
+  /** CMS key source. NEVER rename: slug(name) is the CMS key. */
   name: string
+  display: string
+  tab: string
   seats: number
   cases: number
   passengersLabel: string
@@ -84,56 +83,44 @@ export type Vehicle = {
   alt: string
 }
 
-// Names are the published CMS keys (fleet.<slug>.*). Capacities are the
-// owner's existing figures (see AUDIT.md) and editable from anyOS.
+// As published on the official site: E-Class 4/3, S-Class 4/3, V-Class 7/7,
+// Tourneo Custom executive 8/8. Images are the existing model renders until
+// Simon supplies photographs of his own cars (replaceable in anyOS).
 export const VEHICLES: Vehicle[] = [
-  { name: 'Mercedes E Class', seats: 4, cases: 3, passengersLabel: '4 Passengers', bagsLabel: '3 Bags', image: '/car-eclass.jpg', alt: 'Black Mercedes E-Class saloon, front three-quarter view', description: 'Executive saloon, well suited to airport runs and business travel.' },
-  { name: 'Mercedes S Class', seats: 4, cases: 3, passengersLabel: '4 Passengers', bagsLabel: '3 Bags', image: '/car-sclass.jpg', alt: 'Dark grey Mercedes S-Class saloon, front three-quarter view', description: 'Mercedes’ flagship saloon, for occasions and VIP travel.' },
-  { name: 'Mercedes V Class', seats: 7, cases: 7, passengersLabel: '7 Passengers', bagsLabel: '7 Bags', image: '/car-vclass.jpg', alt: 'Black Mercedes V-Class people carrier, front three-quarter view', description: 'Spacious people carrier for families and small groups.' },
-  { name: 'Tourneo Custom Executive Spec', seats: 8, cases: 8, passengersLabel: '8 Passengers', bagsLabel: '8 Bags', image: '/car-tourneo.jpg', alt: 'Black Ford Tourneo Custom minibus, front three-quarter view', description: 'Executive-spec minibus for larger groups and events.' },
+  { name: 'Mercedes E Class', display: 'Mercedes-Benz E-Class', tab: 'E-Class', seats: 4, cases: 3, passengersLabel: '4 Passengers', bagsLabel: '3 Bags', image: '/car-eclass.jpg', alt: 'Mercedes-Benz E-Class saloon', description: 'The executive saloon for airport runs and business travel.' },
+  { name: 'Mercedes S Class', display: 'Mercedes-Benz S-Class', tab: 'S-Class', seats: 4, cases: 3, passengersLabel: '4 Passengers', bagsLabel: '3 Bags', image: '/car-sclass.jpg', alt: 'Mercedes-Benz S-Class saloon', description: 'Mercedes’ flagship saloon for occasions and VIP travel.' },
+  { name: 'Mercedes V Class', display: 'Mercedes-Benz V-Class', tab: 'V-Class', seats: 7, cases: 7, passengersLabel: '7 Passengers', bagsLabel: '7 Bags', image: '/car-vclass.jpg', alt: 'Mercedes-Benz V-Class people carrier', description: 'Room for families and small groups, and their luggage.' },
+  { name: 'Tourneo Custom Executive Spec', display: 'Tourneo Custom Executive', tab: 'Tourneo', seats: 8, cases: 8, passengersLabel: '8 Passengers', bagsLabel: '8 Bags', image: '/car-tourneo.jpg', alt: 'Ford Tourneo Custom executive minibus', description: 'Executive-specification minibus for larger parties and events.' },
 ]
 
 export const MAX_PASSENGERS = Math.max(...VEHICLES.map(v => v.seats))
 
-/** Airport service notes — each paraphrases T&L's own airport page
- *  (tlexecutivecars.co.uk/airport-seaport-transfers, stated since 2014). */
+export type Airport = { code: string; name: string; short: string }
+
+export const AIRPORTS: Airport[] = [
+  { code: 'LHR', name: 'Heathrow', short: 'Heathrow' },
+  { code: 'STN', name: 'Stansted', short: 'Stansted' },
+  { code: 'LGW', name: 'Gatwick', short: 'Gatwick' },
+  { code: 'LCY', name: 'London City', short: 'London City' },
+  { code: 'LTN', name: 'Luton', short: 'Luton' },
+  { code: 'SEN', name: 'Southend', short: 'Southend' },
+]
+
+export const AREAS = ['Theydon Bois', 'Loughton', 'Epping', 'Abridge', 'Ongar', 'Buckhurst Hill', 'Chigwell', 'Woodford Green'] as const
+
+/** Airport service notes, paraphrasing T&L's own airport page. */
 export const AIRPORT_NOTES = [
   { title: 'Your flight, monitored', text: 'Share your flight number and your driver knows your actual arrival time.' },
-  { title: 'Met in arrivals', text: 'Welcomed in the arrivals hall with a full meet-and-greet service.' },
-  { title: 'Ten minutes early', text: 'For departures, we arrive at your door ten minutes before the agreed time.' },
-  { title: 'To the check-in desk', text: 'A chaperone to check-in when you need one. Just mention it when you book.' },
+  { title: 'Met in arrivals', text: 'A full meet-and-greet in the arrivals hall.' },
+  { title: 'Ten minutes early', text: 'For departures, at your door ten minutes before the agreed time.' },
+  { title: 'To the check-in desk', text: 'A chaperone to check-in when you need one; mention it when you book.' },
 ] as const
-
-export const VIP_TERMINALS = 'Drivers are familiar with the VIP and private-aviation terminals, including the Windsor Suite, Harrods Aviation, TAG Aviation and Signature.'
 
 export const TAGLINE = 'Taking you on your journey' // T&L's own strapline
 
-export type Airport = { code: string; name: string; short: string; lat: number; lon: number }
-
-export const AIRPORTS: Airport[] = [
-  { code: 'STN', name: 'London Stansted', short: 'Stansted', lat: 51.886, lon: 0.2389 },
-  { code: 'LCY', name: 'London City', short: 'London City', lat: 51.5048, lon: 0.0495 },
-  { code: 'LHR', name: 'London Heathrow', short: 'Heathrow', lat: 51.47, lon: -0.4543 },
-  { code: 'LGW', name: 'London Gatwick', short: 'Gatwick', lat: 51.1537, lon: -0.1821 },
-  { code: 'LTN', name: 'London Luton', short: 'Luton', lat: 51.8747, lon: -0.3683 },
-  { code: 'SEN', name: 'London Southend', short: 'Southend', lat: 51.5714, lon: 0.6956 },
-]
-
-export const AREAS: { name: string; lat: number; lon: number }[] = [
-  { name: 'Theydon Bois', lat: 51.6715, lon: 0.0985 },
-  { name: 'Loughton', lat: 51.6494, lon: 0.0735 },
-  { name: 'Epping', lat: 51.6995, lon: 0.1107 },
-  { name: 'Abridge', lat: 51.6474, lon: 0.1197 },
-  { name: 'Ongar', lat: 51.704, lon: 0.244 },
-  { name: 'Buckhurst Hill', lat: 51.6243, lon: 0.045 },
-  { name: 'Chigwell', lat: 51.6225, lon: 0.0723 },
-  { name: 'Woodford Green', lat: 51.609, lon: 0.024 },
-]
-
 export type Testimonial = { quote: string; name: string; role: string }
 
-// Published on T&L's own website since at least August 2020 (owned asset,
-// RESEARCH.md §1). Peter Joarder's Chapman Freeborn role is on Companies House.
+// Published on T&L's own website.
 export const TESTIMONIALS: Testimonial[] = [
   {
     quote: 'As a busy international speaker, my reputation is dependent upon reliable logistics. I have used Simon’s services for a number of years, and have been absolutely delighted on every occasion. Simon is extremely professional, 100% reliable, and balances all this with a friendly and personable manner.',
@@ -154,27 +141,31 @@ export const TESTIMONIALS: Testimonial[] = [
 
 export const testimonialKey = (name: string) => name.toLowerCase().replaceAll(' ', '-')
 
-export const CLIENTS: { name: string; src: string }[] = [
-  { name: 'London Speaker Bureau', src: '/clients/londonspeakerbureau.jpg' },
-  { name: 'Speakers Corner', src: '/clients/speakerscorner.jpg' },
-  { name: 'Jamil Qureshi', src: '/clients/jamilqureshi.jpg' },
-  { name: 'The Jockey Club', src: '/clients/jockeyclub.jpg' },
-  { name: 'EndemolShine Group', src: '/clients/endemolshine.jpg' },
-  { name: 'Chapman Freeborn', src: '/clients/chapmanfreeborn.jpg' },
-  { name: 'JLA', src: '/clients/jla.jpg' },
-  { name: 'GB Helicopters', src: '/clients/gbhelicopters.jpg' },
-  { name: 'Fresh Partners', src: '/clients/freshpartners.jpg' },
-  { name: 'Precision', src: '/clients/precision.jpg' },
+export const CLIENTS = [
+  'London Speaker Bureau', 'Speakers Corner', 'Jamil Qureshi', 'The Jockey Club', 'EndemolShine Group',
+  'Chapman Freeborn', 'JLA', 'GB Helicopters', 'Fresh Partners', 'Precision',
 ]
 
-/** Social-proof switches. Both are owned-asset content (own site since 2020);
- *  turn off here if the owner withdraws permission for any of them. */
-export const SHOW_TESTIMONIALS = true
-export const SHOW_CLIENTS = true
-
 export const NAV = [
+  { href: '/#plan', label: 'Plan' },
+  { href: '/#fleet', label: 'Fleet' },
   { href: '/#services', label: 'Services' },
   { href: '/#airports', label: 'Airports' },
-  { href: '/#fleet', label: 'Fleet' },
   { href: '/#about', label: 'About' },
+  { href: '/#contact', label: 'Contact' },
 ] as const
+
+// ---- Photography (see /credits and ASSET-LOG.md) ---------------------------
+export type PlateName = 'day' | 'night' | 'airport' | 'london' | 'village' | 'forest'
+
+export const PLATES: Record<PlateName, { alt: string; widths: number[]; portrait: number[]; credit: { title: string; author: string; license: string; source: string } }> = {
+  day: { alt: 'Epping Road through Epping Forest by day', widths: [960, 1600, 2400], portrait: [720, 1080], credit: { title: 'Epping Road in Epping Forest', author: 'Marathon', license: 'CC BY-SA 2.0', source: 'https://commons.wikimedia.org/wiki/File:Epping_Road_in_Epping_Forest_-_geograph.org.uk_-_5574243.jpg' } },
+  night: { alt: 'Light trails on the M25 at night', widths: [960, 1600, 2400], portrait: [720, 1080], credit: { title: 'M25 at Night – Looking West', author: 'Christine Matthews', license: 'CC BY-SA 2.0', source: 'https://commons.wikimedia.org/wiki/File:M25_at_Night_-_Looking_West_-_geograph.org.uk_-_5612086.jpg' } },
+  airport: { alt: 'London Heathrow Terminal 5', widths: [960, 1600, 2400], portrait: [720, 1080], credit: { title: 'London Heathrow Terminal 5', author: 'James Emmans', license: 'CC BY-SA 2.0', source: 'https://commons.wikimedia.org/wiki/File:London_Heathrow_Terminal_5_-_geograph.org.uk_-_5327180.jpg' } },
+  london: { alt: 'Evening light trails across Tower Bridge', widths: [960, 1600, 2400], portrait: [720, 1080], credit: { title: 'Tower Bridge Light Trails', author: 'Barney Moss', license: 'CC BY 2.0', source: 'https://commons.wikimedia.org/wiki/File:Tower_Bridge_Light_Trails.jpg' } },
+  village: { alt: 'Theydon Bois village green', widths: [960, 1600, 2400], portrait: [720, 1080], credit: { title: 'Theydon Bois village green', author: 'Peter S', license: 'CC BY-SA 2.0', source: 'https://commons.wikimedia.org/wiki/File:Theydon_Bois_village_green_-_geograph.org.uk_-_7214628.jpg' } },
+  forest: { alt: 'Lodge Road in Epping Forest', widths: [960, 1600, 2400], portrait: [720, 1080], credit: { title: 'Lodge Road in Epping Forest', author: 'Chris Heaton', license: 'CC BY-SA 2.0', source: 'https://commons.wikimedia.org/wiki/File:Lodge_Road_in_Epping_Forest_-_geograph.org.uk_-_5531763.jpg' } },
+}
+
+export const plateSrcSet = (name: PlateName) => PLATES[name].widths.map(w => `/media/${name}-${w}.webp ${w}w`).join(', ')
+export const platePortraitSrcSet = (name: PlateName) => PLATES[name].portrait.map(w => `/media/${name}-p${w}.webp ${w}w`).join(', ')

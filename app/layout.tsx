@@ -22,7 +22,7 @@ const sans = Hanken_Grotesk({
 })
 
 const description =
-  'Executive car service based in Theydon Bois, Essex, since 2008. Airport transfers to Heathrow, Gatwick, Stansted, Luton, London City and Southend, plus business travel, theatre, race days and weddings. Call 07904 428896.'
+  'Executive cars from Theydon Bois, Essex, since 2008: airport transfers to Heathrow, Gatwick, Stansted, Luton, London City and Southend, business travel, weddings and occasions. Call 07904 428896.'
 
 export const metadata: Metadata = {
   metadataBase: new URL(BUSINESS.siteUrl),
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#f6f4ee',
+  themeColor: '#1c1d20',
   width: 'device-width',
   initialScale: 1,
 }
@@ -64,8 +64,8 @@ const ANYOS_SETTINGS = [
   {
     label: 'Brand colours',
     settings: [
-      { cssVar: '--tl-forest', label: 'Deep green (quote & reviews bands)', type: 'color' },
-      { cssVar: '--tl-brass', label: 'Accent (labels, route lines)', type: 'color' },
+      { cssVar: '--tl-charcoal', label: 'Charcoal (story band)', type: 'color' },
+      { cssVar: '--tl-silver', label: 'Silver (details)', type: 'color' },
     ],
   },
 ]

@@ -1,4 +1,13 @@
-# T&L Executive Cars — research (26 September 2026)
+# T&L Executive Cars — research
+
+## 12 October update
+
+Facts confirmed by browser inspection of https://tlexecutivecars.co.uk/ (Jake, 19:05 UTC). They supersede the September "hours" conflict:
+- Footer hours are Mon–Fri 09:00–18:30, with no 24-hour claim.
+- The fleet list, airports, coverage, payments, testimonials, establishment date and licensing are as in §1. These are the business's own published claims.
+- The site's hero images (Wedding, Airport, Special Occasion) are described as large but blurry.
+
+## September 2026 research (original)
 
 Public pages were treated as untrusted reference material. No forms were submitted and no one was contacted. Raw captures are kept outside the repository, in the session scratchpad.
 

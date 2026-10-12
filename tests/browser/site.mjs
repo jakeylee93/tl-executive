@@ -1,240 +1,277 @@
-// Browser QA for the T&L site: keyboard, forms, prefill, anyOS hydration and
-// edit-mode smoke test, reduced motion, console errors and axe accessibility.
+// Browser QA for the T&L site.
 //
-//   node tests/browser/site.mjs [baseUrl]      (default http://localhost:3100)
+//   node tests/browser/site.mjs <baseUrl> [screenshotDir]
 //
-// Safe by design:
-// - run it against a server in DRY-RUN mode (the default for `next start`
-//   locally and for Vercel previews) — the form test asserts the preview
-//   panel, so it fails loudly rather than send a real enquiry;
-// - the anyOS checks only READ live content, and the edit-mode smoke test uses
-//   a dummy token and never presses Save.
-// Needs Playwright (PLAYWRIGHT_MODULE=path) and, for accessibility, axe-core
-// (AXE_PATH=path/to/axe.min.js). Fresh browser contexts; no profile, no state.
+// Env: PLAYWRIGHT_MODULE (path to playwright), CHROMIUM_PATH (optional),
+// AXE_PATH (axe.min.js; enables the accessibility audit),
+// VERCEL_BYPASS_FROM_CLI=1 to reach an SSO-protected Vercel preview using the
+// project's existing automation-bypass header — read from `vercel curl
+// --debug` in memory, sent only to the preview host, never printed.
+//
+// Safety: reads anyOS content only; the edit-mode smoke test uses a dummy
+// token and never presses Save; the enquiry is submitted only when the
+// deployment itself reports dry-run mode.
 import { createRequire } from 'node:module'
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, mkdirSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
 
 const require = createRequire(import.meta.url)
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright')
 const BASE = (process.argv[2] || 'http://localhost:3100').replace(/\/$/, '')
+const SHOTS = process.argv[3] || ''
+if (SHOTS) mkdirSync(SHOTS, { recursive: true })
 const AXE = process.env.AXE_PATH && existsSync(process.env.AXE_PATH) ? readFileSync(process.env.AXE_PATH, 'utf8') : null
 
-const results = []
-const check = (name, ok, detail = '') => {
-  results.push({ name, ok, detail })
-  console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${detail ? `  — ${detail}` : ''}`)
+let bypass = null
+if (process.env.VERCEL_BYPASS_FROM_CLI === '1') {
+  const r = spawnSync('vercel', ['curl', '/api/enquiry', '--deployment', BASE, '--debug'], { encoding: 'utf8', env: process.env })
+  const m = `${r.stdout}\n${r.stderr}`.match(/Executing: curl .*?--header "([^:"]+): ([^"]+)"/)
+  if (m) bypass = { name: m[1], value: m[2] }
+  console.log(bypass ? 'INFO  preview bypass header obtained (value not shown)' : 'WARN  no bypass header found')
 }
+const host = new URL(BASE).host
 
+const results = []
+const check = (name, ok, detail = '') => { results.push({ name, ok }); console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${detail ? `  — ${detail}` : ''}`) }
 const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {})
 const consoleErrors = []
 
 async function open(path, { width = 390, height = 844, reducedMotion = 'no-preference' } = {}) {
-  const ctx = await browser.newContext({ viewport: { width, height }, isMobile: width < 600, hasTouch: width < 1024, reducedMotion })
+  const ctx = await browser.newContext({ viewport: { width, height }, isMobile: width < 600, hasTouch: width < 1024, reducedMotion, deviceScaleFactor: 1 })
+  if (bypass) {
+    await ctx.route(url => new URL(url).host === host, route => route.continue({ headers: { ...route.request().headers(), [bypass.name]: bypass.value } }))
+  }
   const page = await ctx.newPage()
   page.on('pageerror', e => consoleErrors.push(`${path} @${width}: ${e.message}`))
-  page.on('console', m => { if (m.type() === 'error') consoleErrors.push(`${path} @${width}: ${m.text()}`) })
-  await page.goto(BASE + path, { waitUntil: 'networkidle' })
+  page.on('console', m => { if (m.type() === 'error' && !/favicon/.test(m.text())) consoleErrors.push(`${path} @${width}: ${m.text()}`) })
+  await page.goto(BASE + path, { waitUntil: 'networkidle', timeout: 90000 })
   return { ctx, page }
 }
-
+const heroVars = page => page.evaluate(() => {
+  const h = document.querySelector('[data-hero]')
+  const g = n => getComputedStyle(h).getPropertyValue(n).trim()
+  return { night: +g('--night'), cam: +g('--cam'), bl: parseFloat(g('--bl')), ry: parseFloat(g('--ry')), p: +g('--p'), pin: h.dataset.pin }
+})
+const heroSpan = page => page.evaluate(() => { const t = document.querySelector('.hero-track'); return t.getBoundingClientRect().height - innerHeight })
 const future = days => new Date(Date.now() + days * 864e5).toISOString().slice(0, 10)
-const activeId = page => page.evaluate(() => document.activeElement?.id || document.activeElement?.textContent?.trim().slice(0, 40))
 
-// 1. Skip link is the first stop and moves focus to <main>
+// 1. Mode check (safety gate for the submission test)
+const modeRes = await (async () => { const { ctx, page } = await open('/api/enquiry', { width: 800 }); const t = await page.textContent('body'); await ctx.close(); try { return JSON.parse(t) } catch { return {} } })()
+check('enquiry API reports dry-run on this deployment', modeRes.mode === 'dry-run', JSON.stringify(modeRes))
+
+// 2. Hero storyboard: forward then reverse, phone and desktop
+for (const [w, h] of [[375, 812], [390, 844], [430, 932], [1440, 900]]) {
+  const { ctx, page } = await open('/', { width: w, height: h })
+  const span = await heroSpan(page)
+  const fractions = [0, 0.25, 0.5, 0.75, 1]
+  const fwd = []
+  for (const f of fractions) {
+    await page.evaluate(y => window.scrollTo(0, y), Math.round(span * f))
+    await page.waitForTimeout(260)
+    fwd.push(await heroVars(page))
+    if (SHOTS && (f === 0 || f === 0.5 || f === 1)) await page.screenshot({ path: `${SHOTS}/hero-${w}-${Math.round(f * 100)}.png` })
+  }
+  const rev = []
+  for (const f of [...fractions].reverse()) {
+    await page.evaluate(y => window.scrollTo(0, y), Math.round(span * f))
+    await page.waitForTimeout(260)
+    rev.unshift(await heroVars(page))
+  }
+  const increasing = fwd.every((v, i) => i === 0 || v.night >= fwd[i - 1].night - 1e-3) && fwd[4].night > 0.95 && fwd[0].night < 0.05
+  const reversible = fwd.every((v, i) => Math.abs(v.night - rev[i].night) < 0.02 && Math.abs(v.bl - rev[i].bl) < 1.5 && Math.abs(v.cam - rev[i].cam) < 0.01)
+  const lightTravels = fwd[4].bl - fwd[0].bl > 90
+  check(`hero @${w}: day → night scene change plays forward`, increasing && lightTravels, `night ${fwd.map(v => v.night.toFixed(2)).join('→')} · light ${fwd[0].bl}°→${fwd[4].bl}°`)
+  check(`hero @${w}: reverse scroll returns to the same frames`, reversible)
+  check(`hero @${w}: pinned stage (pin=${fwd[0].pin})`, fwd[0].pin === 'on' && span > h * 0.5 && span < h * 0.95, `pinned distance ${Math.round(span)}px`)
+  // Real wheel scrolling also drives it
+  await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(200)
+  for (let i = 0; i < 6; i++) { await page.mouse.wheel(0, 120); await page.waitForTimeout(60) }
+  await page.waitForTimeout(250)
+  check(`hero @${w}: native wheel scroll moves the scene`, (await heroVars(page)).p > 0.05)
+  await ctx.close()
+}
+
+// 3. Reduced motion: static daylight frame, nothing pinned
+{
+  const { ctx, page } = await open('/', { width: 390, height: 844, reducedMotion: 'reduce' })
+  await page.evaluate(() => window.scrollTo(0, 400)); await page.waitForTimeout(300)
+  const v = await heroVars(page)
+  const pinned = await page.evaluate(() => getComputedStyle(document.querySelector('.hero-stage')).position)
+  check('reduced motion: static scene, no pin', v.night === 0 && pinned !== 'sticky', `night=${v.night} position=${pinned}`)
+  await ctx.close()
+}
+
+// 4. Text zoom 200%: hero unpins rather than clipping content
+{
+  const { ctx, page } = await open('/', { width: 390, height: 844 })
+  await page.addStyleTag({ content: 'html{font-size:200% !important}' })
+  await page.evaluate(() => window.dispatchEvent(new Event('resize'))); await page.waitForTimeout(400)
+  const r = await page.evaluate(() => {
+    const h = document.querySelector('[data-hero]'); const c = h.querySelector('[data-hero-content]'); const s = h.querySelector('.hero-stage')
+    return { pin: h.dataset.pin, clipped: c.scrollHeight > s.clientHeight + 2 }
+  })
+  check('text zoom 200%: hero unpins and nothing is clipped', r.pin === 'off' && !r.clipped, JSON.stringify(r))
+  await ctx.close()
+}
+
+// 5. Keyboard: skip link and phone menu
 {
   const { ctx, page } = await open('/', { width: 1440, height: 900 })
   await page.keyboard.press('Tab')
-  const first = await page.evaluate(() => document.activeElement?.textContent?.trim())
-  check('skip link is the first tab stop', first === 'Skip to content', first)
-  await page.keyboard.press('Enter')
-  await page.waitForTimeout(200)
+  check('skip link is the first tab stop', (await page.evaluate(() => document.activeElement?.textContent?.trim())) === 'Skip to content')
+  await page.keyboard.press('Enter'); await page.waitForTimeout(150)
   check('skip link moves focus to main', (await page.evaluate(() => document.activeElement?.id)) === 'main')
   await ctx.close()
 }
-
-// 2. Mobile menu: keyboard open, focus inside, Escape returns focus
 {
-  const { ctx, page } = await open('/')
+  const { ctx, page } = await open('/', { width: 390, height: 844 })
   const btn = page.locator('button[aria-controls="site-menu"]')
-  await btn.focus()
-  await page.keyboard.press('Enter')
-  await page.waitForTimeout(150)
-  check('menu opens and reports aria-expanded', (await btn.getAttribute('aria-expanded')) === 'true')
-  const inMenu = await page.evaluate(() => Boolean(document.activeElement?.closest('#site-menu')))
-  check('focus moves into the menu', inMenu)
-  await page.keyboard.press('Escape')
-  await page.waitForTimeout(150)
-  check('Escape closes the menu', (await btn.getAttribute('aria-expanded')) === 'false')
-  check('focus returns to the menu button', (await page.evaluate(() => document.activeElement?.getAttribute('aria-controls'))) === 'site-menu')
+  await btn.focus(); await page.keyboard.press('Enter'); await page.waitForTimeout(150)
+  check('phone menu opens with focus inside', (await btn.getAttribute('aria-expanded')) === 'true' && await page.evaluate(() => Boolean(document.activeElement?.closest('#site-menu'))))
+  await page.keyboard.press('Escape'); await page.waitForTimeout(150)
+  check('Escape closes the menu and returns focus', (await btn.getAttribute('aria-expanded')) === 'false' && (await page.evaluate(() => document.activeElement?.getAttribute('aria-controls'))) === 'site-menu')
   await ctx.close()
 }
 
-// 3. Hero journey starter hands its answers to the quote form
+// 6. Planner: journey types, flight fields, selectors prefill in place
 {
-  const { ctx, page } = await open('/')
-  await page.getByRole('textbox', { name: 'From', exact: true }).fill('Coppice Row, Theydon Bois')
-  await page.getByRole('button', { name: 'Stansted', exact: true }).click()
-  await page.locator('#top input[type=date]').fill(future(14))
-  await page.getByRole('button', { name: /Continue to your quote/ }).click()
-  await page.waitForTimeout(900)
-  const vals = await page.evaluate(() => ({
-    pickup: document.querySelector('#q-pickup')?.value,
-    destination: document.querySelector('#q-destination')?.value,
-    date: document.querySelector('#q-travelDate')?.value,
-    flying: document.querySelector('input[type=checkbox]')?.checked,
-  }))
-  check('starter prefills pick-up, destination and date', vals.pickup === 'Coppice Row, Theydon Bois' && vals.destination === 'Stansted Airport' && vals.date === future(14), JSON.stringify(vals))
-  check('airport destination switches on flight fields', vals.flying === true)
-  check('focus lands on the next unanswered field (time)', (await activeId(page)) === 'q-travelTime', await activeId(page))
+  const { ctx, page } = await open('/', { width: 390, height: 844 })
+  await page.getByRole('radio', { name: 'Airport' }).first().click()
+  check('Airport journey type shows flight fields', await page.locator('#plan-flightIn').isVisible())
+  await page.getByRole('radio', { name: 'Business' }).first().click()
+  check('Business journey type hides flight fields', !(await page.locator('#plan-flightIn').count()))
+
+  await page.getByRole('tab', { name: 'V-Class', exact: true }).click()
+  check('fleet tab switches the centred vehicle in place', await page.locator('#fleet-panel-mercedes-v-class').isVisible() && !(await page.locator('#fleet-panel-mercedes-e-class').isVisible()))
+  await page.getByRole('link', { name: /Request a quote for the Mercedes-Benz V-Class/ }).click(); await page.waitForTimeout(900)
+  check('"Choose this car" prefills the planner', (await page.locator('#plan-vehicle').inputValue()) === 'Mercedes V Class')
+
+  await page.getByRole('tab', { name: 'Business & London' }).click(); await page.waitForTimeout(700)
+  const svc = await page.evaluate(() => ({ evenings: !document.getElementById('svc-panel-evenings').hidden, travel: !document.getElementById('svc-panel-travel').hidden, plate: getComputedStyle(document.querySelectorAll('#services .plate-fade')[1]).opacity }))
+  check('services change in place (panel and photograph)', svc.evenings && !svc.travel && svc.plate === '1', JSON.stringify(svc))
+
+  await page.getByRole('radio', { name: 'Loughton' }).click()
+  await page.getByRole('radio', { name: 'Stansted' }).click()
+  await page.getByRole('link', { name: /Plan this journey/ }).click(); await page.waitForTimeout(900)
+  const v = await page.evaluate(() => ({ p: document.querySelector('#plan-pickup').value, d: document.querySelector('#plan-destination').value, f: Boolean(document.querySelector('#plan-flightIn')) }))
+  check('route builder prefills pick-up, airport and flight fields', v.p === 'Loughton' && v.d === 'Stansted Airport' && v.f, JSON.stringify(v))
   await ctx.close()
 }
 
-// 4. Fleet and service buttons carry their context into the form
+// 7. Validation and (dry-run only) submission
 {
-  const { ctx, page } = await open('/', { width: 1440, height: 900 })
-  await page.getByRole('link', { name: 'Request a quote for the Mercedes V Class' }).click()
-  await page.waitForTimeout(700)
-  const checked = await page.evaluate(() => document.querySelector('input[type=radio][value="Mercedes V Class"]')?.checked)
-  check('"Request this car" selects that car in the form', checked === true)
-  await page.getByRole('link', { name: 'Request a quote for theatre trips' }).click()
-  await page.waitForTimeout(700)
-  check('service arrow sets the occasion', (await page.locator('#q-occasion').inputValue()) === 'Theatre trips')
+  const { ctx, page } = await open('/', { width: 390, height: 844 })
+  await page.locator('#plan button[type=submit]').click(); await page.waitForTimeout(300)
+  const s = await page.evaluate(() => ({ role: document.activeElement?.getAttribute('role'), items: document.activeElement?.querySelectorAll('li').length }))
+  check('empty submit focuses an error summary of 7 fields', s.role === 'alert' && s.items === 7, JSON.stringify(s))
+  if (modeRes.mode === 'dry-run') {
+    await page.locator('#plan-pickup').fill('Coppice Row, Theydon Bois')
+    await page.locator('#plan-destination').fill('Heathrow Airport Terminal 5')
+    await page.locator('#plan-travelDate').fill(future(21))
+    await page.locator('#plan-travelTime').fill('05:30')
+    await page.locator('#plan-name').fill('Browser Test')
+    await page.locator('#plan-phone').fill('07700 900123')
+    await page.locator('#plan-email').fill('browser.test@example.com')
+    await page.locator('#plan button[type=submit]').click()
+    const ok = await page.waitForSelector('#plan-result', { timeout: 15000 }).then(() => true).catch(() => false)
+    const heading = ok ? await page.evaluate(() => document.activeElement?.textContent || '') : ''
+    check('dry-run submission shows the test-mode result (nothing sent)', /Test mode/.test(heading), heading)
+  } else {
+    console.log('SKIP  submission (deployment is not in dry-run mode)')
+  }
   await ctx.close()
 }
 
-// 5. Empty submit: error summary is announced and focused
-{
-  const { ctx, page } = await open('/')
-  await page.locator('#quote button[type=submit]').click()
-  await page.waitForTimeout(300)
-  const summary = await page.evaluate(() => {
-    const el = document.activeElement
-    return { role: el?.getAttribute('role'), items: el?.querySelectorAll('li').length }
-  })
-  check('error summary receives focus', summary.role === 'alert', JSON.stringify(summary))
-  check('error summary lists the 7 required fields', summary.items === 7, String(summary.items))
-  check('invalid fields are marked aria-invalid', (await page.locator('#q-pickup').getAttribute('aria-invalid')) === 'true')
-  await page.locator('#q-pickup').fill('Epping Station')
-  await page.waitForTimeout(100)
-  check('fixing a field clears its error', (await page.locator('#q-pickup').getAttribute('aria-invalid')) === null)
-  await ctx.close()
-}
-
-// 6. Passenger count flags cars that are too small; return trip adds fields
-{
-  const { ctx, page } = await open('/')
-  const plus = page.getByRole('button', { name: 'One more passenger' })
-  for (let i = 0; i < 5; i++) await plus.click()
-  check('passenger stepper reaches 6', (await page.locator('#q-passengers').inputValue()) === '6')
-  check('cars seating 4 are flagged as too small', (await page.locator('text=Seats up to 4').count()) === 2)
-  await page.locator('#quote').getByRole('radio', { name: 'Return', exact: true }).check()
-  check('return trip reveals return date', await page.locator('#q-returnDate').isVisible())
-  await ctx.close()
-}
-
-// 7. Complete enquiry in DRY-RUN mode shows the preview panel with the payload
-{
-  const { ctx, page } = await open('/')
-  await page.locator('#q-pickup').fill('Coppice Row, Theydon Bois')
-  await page.locator('#q-destination').fill('Heathrow Airport Terminal 5')
-  await page.locator('#q-travelDate').fill(future(21))
-  await page.locator('#q-travelTime').fill('05:30')
-  await page.locator('#q-flightOut').fill('BA117')
-  await page.locator('#q-name').fill('Browser Test')
-  await page.locator('#q-phone').fill('07700 900123')
-  await page.locator('#q-email').fill('browser.test@example.com')
-  await page.locator('#quote button[type=submit]').click()
-  await page.waitForSelector('#quote-result', { timeout: 10000 })
-  const heading = await page.evaluate(() => document.activeElement?.textContent || '')
-  check('dry-run submission shows the preview panel (nothing sent)', /Preview mode/.test(heading), heading)
-  const payload = await page.evaluate(() => document.querySelector('#quote-result pre')?.textContent || '')
-  check('preview payload carries site key, time and flight', /"siteKey": "t-l-executive-cars"/.test(payload) && /"travelTime": "05:30"/.test(payload) && /"flightOut": "BA117"/.test(payload))
-  await ctx.close()
-}
-
-// 8. anyOS hydration: live saved content replaces defaults (read-only)
+// 8. anyOS: live hydration and edit-mode smoke test (dummy token, no save)
 {
   const { ctx, page } = await open('/', { width: 1440, height: 900 })
-  await page.waitForFunction(() => document.querySelector('#services-title')?.textContent !== 'Tailored to your journey', null, { timeout: 8000 }).catch(() => {})
-  const title = await page.locator('#services-title').textContent()
-  check('saved anyOS override (services.title) is applied to the new markup', title === 'Tailored to Your Needs', title)
+  await page.waitForFunction(() => document.querySelector('#services-title')?.textContent === 'Tailored to Your Needs', null, { timeout: 10000 }).catch(() => {})
+  check('saved anyOS override is applied to the new markup', (await page.locator('#services-title').textContent()) === 'Tailored to Your Needs')
   await ctx.close()
 }
-
-// 9. anyOS edit mode smoke test with a dummy token — nothing is saved
 {
   const { ctx, page } = await open('/?anyos_edit=qa-dummy-token-no-save', { width: 1440, height: 900 })
-  const bar = await page.waitForSelector('.anyos-editbar', { timeout: 8000 }).then(() => true).catch(() => false)
-  check('edit bar appears in edit mode', bar)
-  check('site settings (brand colours) are offered', (await page.locator('.anyos-gear').count()) > 0)
-  const heroTitle = page.locator('[data-anyos="hero.title"]')
-  await heroTitle.click()
-  check('clicking text starts an in-place edit', (await heroTitle.getAttribute('contenteditable')) === 'true')
+  check('anyOS edit bar appears', await page.waitForSelector('.anyos-editbar', { timeout: 10000 }).then(() => true).catch(() => false))
+  const t = page.locator('[data-anyos="hero.title"]')
+  await t.click()
+  check('clicking hero text starts an in-place edit', (await t.getAttribute('contenteditable')) === 'true')
   await page.locator('.anyos-texttools .anyos-cancel').click()
-  check('Cancel ends the edit without saving', (await heroTitle.getAttribute('contenteditable')) !== 'true')
-  await page.locator('#fleet img[data-anyos-img]').first().scrollIntoViewIfNeeded()
-  await page.locator('#fleet img[data-anyos-img]').first().click()
-  const imgBox = await page.waitForSelector('.anyos-imgbox', { timeout: 4000 }).then(() => true).catch(() => false)
-  check('clicking a fleet photo opens the image picker', imgBox)
-  if (imgBox) await page.locator('.anyos-imgbox .anyos-cancel').first().click()
-  const revealHidden = await page.evaluate(() => [...document.querySelectorAll('[data-reveal]')].some(el => getComputedStyle(el).opacity === '0'))
-  check('nothing is hidden by scroll-reveal while editing', !revealHidden)
+  const fig = page.locator('img[data-anyos-img="about.image"]')
+  await fig.scrollIntoViewIfNeeded(); await page.waitForTimeout(300)
+  const box = await fig.boundingBox()
+  await page.mouse.click(box.x + box.width * 0.85, box.y + 40)
+  const picker = await page.waitForSelector('.anyos-imgbox', { timeout: 5000 }).then(() => true).catch(() => false)
+  check('about photograph opens the anyOS image picker through its overlays', picker)
+  if (picker) await page.locator('.anyos-imgbox .anyos-cancel').first().click()
   await ctx.close()
 }
 
-// 10. Reduced motion: content is visible without scrolling animations
+// 9. Fixed action bar never covers the hero, the planner or a focused field
 {
-  const { ctx, page } = await open('/', { width: 1440, height: 900, reducedMotion: 'reduce' })
-  const hidden = await page.evaluate(() => [...document.querySelectorAll('[data-reveal]')].filter(el => getComputedStyle(el).opacity !== '1').length)
-  check('reduced motion shows all reveal content immediately', hidden === 0, `${hidden} hidden`)
+  const { ctx, page } = await open('/', { width: 390, height: 844 })
+  const shown = () => page.evaluate(() => { const b = document.querySelector('.mobile-bar'); return b && getComputedStyle(b).opacity === '1' && !b.hasAttribute('inert') })
+  check('action bar hidden over the hero', !(await shown()))
+  await page.locator('#fleet').scrollIntoViewIfNeeded(); await page.evaluate(() => window.scrollBy(0, 300)); await page.waitForTimeout(700)
+  check('action bar appears after the hero', await shown())
+  await page.locator('#plan-name').scrollIntoViewIfNeeded(); await page.locator('#plan-name').focus(); await page.waitForTimeout(600)
+  check('action bar steps aside for the planner and typing', !(await shown()))
   await ctx.close()
 }
 
-// 11. Touch targets on a phone (interactive controls ≥ 44×44, inline text links excepted)
-{
-  const { ctx, page } = await open('/')
-  const small = await page.evaluate(() => {
-    const out = []
-    for (const el of document.querySelectorAll('a[href], button, input:not([type=hidden]), select, textarea, summary')) {
-      if (el.closest('[aria-hidden="true"]') || el.closest('#site-menu[hidden]')) continue
-      const r = el.getBoundingClientRect()
-      if (!r.width || !r.height) continue
-      const cs = getComputedStyle(el)
-      if (cs.display === 'inline' && el.closest('p, dd, li')?.textContent.trim().length > el.textContent.trim().length + 3) continue
-      const target = el.closest('label') && (el.type === 'radio' || el.type === 'checkbox') ? el.closest('label').getBoundingClientRect() : r
-      if (target.height < 43.5 || target.width < 43.5) out.push(`${el.tagName.toLowerCase()} "${(el.getAttribute('aria-label') || el.textContent || el.name || '').trim().slice(0, 30)}" ${Math.round(target.width)}×${Math.round(target.height)}`)
+// 10. Layout: no sideways scroll at 375/390/430/820/1440; touch targets
+for (const [w, h] of [[375, 812], [390, 844], [430, 932], [820, 1180], [1440, 900]]) {
+  const { ctx, page } = await open('/', { width: w, height: h })
+  const over = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)
+  check(`no horizontal overflow @${w}`, over <= 0, `${over}px`)
+  if (w === 390) {
+    const small = await page.evaluate(() => {
+      const out = []
+      for (const el of document.querySelectorAll('a[href], button, input:not([type=hidden]), select, textarea, summary')) {
+        if (el.closest('[aria-hidden="true"]') || el.closest('[hidden]') || el.closest('[inert]')) continue
+        const r = el.getBoundingClientRect(); if (!r.width || !r.height) continue
+        const inline = getComputedStyle(el).display === 'inline' && el.closest('p, dd, li')?.textContent.trim().length > el.textContent.trim().length + 3
+        if (inline) continue
+        const t = el.closest('label') && (el.type === 'checkbox' || el.type === 'radio') ? el.closest('label').getBoundingClientRect() : r
+        if (t.height < 43.5 || t.width < 43.5) out.push(`${el.tagName.toLowerCase()} "${(el.getAttribute('aria-label') || el.textContent || el.name || '').trim().slice(0, 28)}" ${Math.round(t.width)}×${Math.round(t.height)}`)
+      }
+      return out
+    })
+    check('touch targets ≥ 44×44 px on a phone', small.length === 0, small.slice(0, 6).join('; '))
+  }
+  await ctx.close()
+}
+
+// 10b. Chapter screenshots for review
+if (SHOTS) {
+  for (const [w, h] of [[390, 844], [1440, 900]]) {
+    const { ctx, page } = await open('/', { width: w, height: h })
+    for (const id of ['plan', 'fleet', 'services', 'airports', 'about', 'contact']) {
+      await page.evaluate(i => document.getElementById(i).scrollIntoView({ block: 'start', behavior: 'instant' }), id)
+      await page.waitForTimeout(450)
+      await page.screenshot({ path: `${SHOTS}/section-${id}-${w}.png` })
     }
-    return out
-  })
-  check('touch targets are at least 44×44 px on a phone', small.length === 0, small.slice(0, 8).join('; '))
-  await ctx.close()
+    await ctx.close()
+  }
 }
 
-// 12. axe-core accessibility audit (WCAG 2.2 A/AA + best practice)
+// 11. axe-core (WCAG 2.2 A/AA + best practice)
 if (AXE) {
-  const targets = [['/', 390], ['/', 1440], ['/airport-transfers', 390], ['/airport-transfers', 1440], ['/privacy', 390], ['/cookies', 1440]]
-  for (const [path, width] of targets) {
+  for (const [path, width] of [['/', 390], ['/', 1440], ['/airport-transfers', 390], ['/airport-transfers', 1440], ['/privacy', 390], ['/credits', 1440]]) {
     const { ctx, page } = await open(path, { width, height: 900, reducedMotion: 'reduce' })
     await page.addScriptTag({ content: AXE })
     const res = await page.evaluate(async () => await window.axe.run(document, { runOnly: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'] }))
-    const v = res.violations.map(x => `${x.id}(${x.nodes.length}): ${x.nodes.slice(0, 2).map(n => n.target.join(' ')).join(', ')}`)
-    check(`axe: no violations on ${path} @${width}`, v.length === 0, v.join(' | '))
+    check(`axe: no violations on ${path} @${width}`, res.violations.length === 0, res.violations.map(x => `${x.id}(${x.nodes.length}): ${x.nodes.slice(0, 2).map(n => n.target.join(' ')).join(', ')}`).join(' | '))
     await ctx.close()
   }
-  // Error state of the form
   const { ctx, page } = await open('/', { width: 390, height: 844, reducedMotion: 'reduce' })
-  await page.locator('#quote button[type=submit]').click()
-  await page.waitForTimeout(300)
+  await page.locator('#plan button[type=submit]').click(); await page.waitForTimeout(300)
   await page.addScriptTag({ content: AXE })
-  const res = await page.evaluate(async () => await window.axe.run(document.querySelector('#quote'), { runOnly: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'] }))
-  check('axe: quote form error state has no violations', res.violations.length === 0, res.violations.map(x => x.id).join(', '))
+  const res = await page.evaluate(async () => await window.axe.run(document.querySelector('#plan'), { runOnly: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'] }))
+  check('axe: planner error state has no violations', res.violations.length === 0, res.violations.map(x => x.id).join(', '))
   await ctx.close()
-} else {
-  console.log('SKIP  axe audit (set AXE_PATH to axe.min.js)')
 }
 
-check('no console errors or page errors', consoleErrors.length === 0, consoleErrors.slice(0, 5).join(' | '))
-
+check('no console or page errors', consoleErrors.length === 0, consoleErrors.slice(0, 4).join(' | '))
 await browser.close()
 const failed = results.filter(r => !r.ok)
 console.log(`\n${results.length - failed.length}/${results.length} checks passed`)

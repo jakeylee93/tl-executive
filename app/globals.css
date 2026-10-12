@@ -3,35 +3,31 @@
 @tailwind utilities;
 
 /* ------------------------------------------------------------------------
-   T&L design tokens — see DESIGN.md.
-   --tl-forest and --tl-brass are exposed to the anyOS Site settings panel
-   (window.ANYOS_SETTINGS in app/layout.tsx), so every use of them must stay
-   legible if the owner retunes them.
+   T&L design tokens — white, charcoal and silver (see DESIGN.md).
+   --tl-charcoal and --tl-silver are exposed to the anyOS Site settings panel.
    ------------------------------------------------------------------------ */
 :root {
-  --tl-paper: #f6f4ee;
-  --tl-surface: #ffffff;
-  --tl-stone: #ece8df;
-  --tl-ink: #18211c;
-  --tl-ink-2: #3f4943;
-  --tl-muted: #58625c;
-  --tl-line: #d8d3c7;
-  --tl-line-strong: #7d857f;
-  --tl-forest: #1f2b25;
-  --tl-forest-2: #28382f;
-  --tl-on-forest: #f3f0e8;
-  --tl-on-forest-muted: #b4beb6;
-  --tl-brass: #7a5b28;
-  --tl-brass-light: #d1b07a;
+  --tl-white: #ffffff;
+  --tl-mist: #f3f3f1;
+  --tl-cloud: #e7e8e9;
+  --tl-silver: #b8babd;
+  --tl-steel: #63676c;
+  --tl-ink: #17181a;
+  --tl-ink-2: #3a3c40;
+  --tl-line: #dcdddf;
+  --tl-field: #8b8f94;
+  --tl-charcoal: #1c1d20;
+  --tl-charcoal-2: #2a2c30;
+  --tl-on-dark: #f4f4f2;
+  --tl-on-dark-muted: #b4b7bb;
   --tl-focus: #1f5fbf;
-  --tl-error: #a8321f;
+  --tl-error: #b3261e;
   --tl-success: #2d6a45;
 
   --tl-header-h: 64px;
   --tl-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   color-scheme: light;
 }
-
 @media (min-width: 1024px) {
   :root { --tl-header-h: 76px; }
 }
@@ -40,40 +36,28 @@
   html {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    scroll-padding-top: calc(var(--tl-header-h) + 16px);
+    scroll-padding-top: calc(var(--tl-header-h) + 12px);
   }
   @media (prefers-reduced-motion: no-preference) {
     html { scroll-behavior: smooth; }
   }
-
   body {
-    background: var(--tl-paper);
+    background: var(--tl-white);
     color: var(--tl-ink);
     font-family: var(--font-sans), system-ui, sans-serif;
     font-size: 1.0625rem;
     line-height: 1.6;
-    font-feature-settings: 'kern', 'liga';
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-
-  ::selection { background: #e7dcc6; color: var(--tl-ink); }
-
-  :focus-visible {
-    outline: 3px solid var(--tl-focus);
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
-  .on-forest :focus-visible { outline-color: var(--tl-brass-light); }
-
+  ::selection { background: #d9dadc; color: var(--tl-ink); }
+  :focus-visible { outline: 3px solid var(--tl-focus); outline-offset: 2px; border-radius: 4px; }
+  .on-dark :focus-visible, .on-photo :focus-visible { outline-color: #ffffff; }
   img, svg { display: block; }
-
-  a, button, summary, label, input, select, textarea { touch-action: manipulation; }
-  a, button, summary, label { -webkit-tap-highlight-color: rgba(24, 33, 28, 0.08); }
   img { max-width: 100%; height: auto; }
-
-  /* Native date/time inputs: keep the typed value aligned on iOS Safari. */
+  a, button, summary, label, input, select, textarea { touch-action: manipulation; }
+  a, button, summary, label { -webkit-tap-highlight-color: rgba(23, 24, 26, 0.08); }
   input[type='date'], input[type='time'] { -webkit-appearance: none; appearance: none; min-height: 3.25rem; }
   input::-webkit-date-and-time-value { text-align: left; }
   input[type='number']::-webkit-inner-spin-button,
@@ -84,11 +68,10 @@
 @layer components {
   .page-x { @apply mx-auto w-full max-w-page px-5 sm:px-8 lg:px-12; }
 
-  /* Type roles */
   .t-display {
     font-family: var(--font-display), Georgia, serif;
     font-weight: 400;
-    font-size: clamp(2.5rem, 1.45rem + 4.3vw, 4.9rem);
+    font-size: clamp(2.45rem, 1.4rem + 4.4vw, 5.1rem);
     line-height: 1.02;
     letter-spacing: -0.022em;
     font-variation-settings: 'opsz' 72;
@@ -97,155 +80,164 @@
   .t-h2 {
     font-family: var(--font-display), Georgia, serif;
     font-weight: 400;
-    font-size: clamp(2rem, 1.45rem + 2.1vw, 3.2rem);
-    line-height: 1.08;
-    letter-spacing: -0.016em;
+    font-size: clamp(2rem, 1.4rem + 2.3vw, 3.35rem);
+    line-height: 1.06;
+    letter-spacing: -0.018em;
     font-variation-settings: 'opsz' 60;
     text-wrap: balance;
   }
   .t-h3 {
     font-family: var(--font-display), Georgia, serif;
-    font-weight: 500;
-    font-size: clamp(1.3rem, 1.15rem + 0.45vw, 1.55rem);
-    line-height: 1.2;
-    letter-spacing: -0.008em;
+    font-weight: 450;
+    font-size: clamp(1.35rem, 1.15rem + 0.6vw, 1.7rem);
+    line-height: 1.18;
+    letter-spacing: -0.01em;
     font-variation-settings: 'opsz' 36;
   }
-  .t-lead {
-    font-size: clamp(1.0625rem, 0.98rem + 0.4vw, 1.25rem);
-    line-height: 1.6;
-    text-wrap: pretty;
-  }
-  .t-small { font-size: 0.9375rem; line-height: 1.55; }
-  .t-meta { font-size: 0.8125rem; line-height: 1.45; letter-spacing: 0.01em; }
+  .t-lead { font-size: clamp(1.0625rem, 0.98rem + 0.4vw, 1.25rem); line-height: 1.6; text-wrap: pretty; }
   .tabular { font-variant-numeric: tabular-nums; }
 
-  /* Section label: a route node, a short rule and a word — the route-line
-     motif in miniature. The text itself stays editable (data-anyos). */
-  .eyebrow {
-    @apply inline-flex items-center gap-3 font-sans text-[0.8125rem] font-semibold uppercase text-brass;
-    letter-spacing: 0.12em;
+  /* Small tracked capitals, echoing the badge lettering. */
+  .label {
+    @apply font-sans text-[0.8rem] font-semibold uppercase text-steel;
+    letter-spacing: 0.16em;
   }
-  .eyebrow::before {
-    content: '';
-    flex: none;
-    width: 1.75rem;
-    height: 0.5625rem;
-    background:
-      radial-gradient(circle at 0.28rem 50%, transparent 0.14rem, currentColor 0.15rem, currentColor 0.26rem, transparent 0.27rem),
-      linear-gradient(currentColor, currentColor) 0.62rem 50% / calc(100% - 0.62rem) 1.5px no-repeat;
-  }
-  .on-forest .eyebrow { color: var(--tl-brass-light); }
+  .on-dark .label, .on-photo .label { color: var(--tl-on-dark-muted); }
 
-  /* Buttons — 48px minimum target, 52px on touch-first sizes. */
   .btn {
-    @apply inline-flex min-h-[3.25rem] items-center justify-center gap-2.5 rounded-md px-6 text-[1rem] font-semibold leading-none no-underline;
+    @apply inline-flex min-h-[3.25rem] items-center justify-center gap-2.5 rounded-full px-7 text-[1rem] font-semibold leading-none no-underline;
     transition: background-color 0.2s var(--tl-ease), color 0.2s var(--tl-ease), border-color 0.2s var(--tl-ease), transform 0.2s var(--tl-ease);
-    -webkit-tap-highlight-color: transparent;
   }
   .btn:active { transform: translateY(1px); }
-  .btn-primary { background: var(--tl-ink); color: #fff; }
-  .btn-primary:hover { background: var(--tl-forest-2); }
-  .btn-secondary { border: 1.5px solid var(--tl-ink); color: var(--tl-ink); background: transparent; }
-  .btn-secondary:hover { background: var(--tl-ink); color: #fff; }
-  .btn-light { background: var(--tl-on-forest); color: var(--tl-ink); }
-  .btn-light:hover { background: #fff; }
-  .btn-ghost-light { border: 1.5px solid var(--tl-on-forest-muted); color: var(--tl-on-forest); }
-  .btn-ghost-light:hover { border-color: var(--tl-on-forest); background: rgba(255, 255, 255, 0.06); }
+  .btn-dark { background: var(--tl-ink); color: #fff; }
+  .btn-dark:hover { background: #000; }
+  .btn-light { background: #fff; color: var(--tl-ink); }
+  .btn-light:hover { background: var(--tl-mist); }
+  .btn-ghost { border: 1.5px solid currentColor; }
+  .btn-ghost:hover { background: rgba(255, 255, 255, 0.12); }
+  .on-light .btn-ghost:hover { background: rgba(23, 24, 26, 0.06); }
   .btn[disabled] { cursor: progress; opacity: 0.7; }
 
   .text-link {
     @apply font-semibold underline decoration-1 underline-offset-[0.22em];
     text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
-    transition: text-decoration-color 0.2s var(--tl-ease);
   }
   .text-link:hover { text-decoration-color: currentColor; }
 
-  /* Form controls */
-  .field-label { @apply mb-2 block text-[0.9375rem] font-semibold text-ink; }
-  .field-hint { @apply mt-1.5 block text-[0.875rem] leading-snug text-muted; }
-  .field-error { @apply mt-1.5 flex items-start gap-1.5 text-[0.875rem] font-semibold leading-snug text-error; }
+  .field-label { @apply mb-1.5 block text-[0.9rem] font-semibold text-ink; }
+  .field-hint { @apply mt-1.5 block text-[0.86rem] leading-snug text-steel; }
+  .field-error { @apply mt-1.5 flex items-start gap-1.5 text-[0.86rem] font-semibold leading-snug text-error; }
   .field-input {
-    @apply block w-full rounded-md border bg-surface px-4 text-[1.0625rem] text-ink;
+    @apply block w-full rounded-xl border bg-white px-4 text-[1.0625rem] text-ink;
     min-height: 3.25rem;
-    border-color: var(--tl-line-strong);
+    border-color: var(--tl-field);
     transition: border-color 0.15s var(--tl-ease), box-shadow 0.15s var(--tl-ease);
   }
-  .field-input::placeholder { color: #8a918c; opacity: 1; }
+  .field-input::placeholder { color: #8a8e93; opacity: 1; }
   .field-input:hover { border-color: var(--tl-ink-2); }
   .field-input:focus { outline: none; border-color: var(--tl-focus); box-shadow: 0 0 0 3px rgba(31, 95, 191, 0.28); }
   .field-input[aria-invalid='true'] { border-color: var(--tl-error); box-shadow: 0 0 0 1px var(--tl-error); }
-  textarea.field-input { @apply py-3; min-height: 7rem; resize: vertical; }
+  textarea.field-input { @apply py-3; min-height: 5.5rem; resize: vertical; }
   select.field-input {
     @apply appearance-none pr-11;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2318211c' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2317181a' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 0.9rem center;
+    background-position: right 0.95rem center;
     background-size: 1.1rem;
   }
 
-  /* Hairline card */
-  .card { @apply rounded-lg border border-line bg-surface; }
-
   .skip-link {
-    @apply fixed left-4 top-3 z-[200] -translate-y-24 rounded-md bg-ink px-4 py-3 font-semibold text-white;
+    @apply fixed left-4 top-3 z-[200] -translate-y-24 rounded-full bg-ink px-5 py-3 font-semibold text-white;
     transition: transform 0.2s var(--tl-ease);
   }
   .skip-link:focus { transform: translateY(0); }
-}
 
-/* Map labels: SVG text scales with the drawing, so give phones larger type. */
-.map-code { font-size: 25px; }
-.map-name { font-size: 17px; }
-.map-home { font-size: 26px; }
-.map-note { font-size: 16px; }
-.map-area { font-size: 19px; }
-.map-area-home { font-size: 24px; }
-@media (max-width: 639px) {
-  .map-code { font-size: 40px; }
-  .map-name { display: none; }
-  .map-home { font-size: 40px; }
-  .map-note { display: none; }
-  .map-area { font-size: 32px; }
-  .map-area-home { font-size: 38px; }
+  /* Segmented control / tabs */
+  .seg { @apply inline-flex flex-wrap gap-1.5 rounded-full bg-mist p-1.5; }
+  .seg-grid { @apply grid grid-cols-2 gap-1.5 rounded-[1.4rem] bg-white p-1.5 sm:inline-flex sm:rounded-full; }
+  .seg-btn {
+    @apply inline-flex min-h-[2.9rem] items-center justify-center gap-2 rounded-full px-4 text-[0.98rem] font-semibold text-ink-2;
+    transition: background-color 0.2s var(--tl-ease), color 0.2s var(--tl-ease), box-shadow 0.2s var(--tl-ease);
+  }
+  .seg-btn:hover { color: var(--tl-ink); }
+  .seg-btn[aria-selected='true'], .seg-btn[aria-pressed='true'], .seg-btn[aria-checked='true'] {
+    background: #fff; color: var(--tl-ink); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 6px 16px -10px rgba(0, 0, 0, 0.35);
+  }
+  .seg-grid .seg-btn[aria-checked='true'] { background: var(--tl-ink); color: #fff; box-shadow: none; }
 }
 
 @layer utilities {
-  .sr-only-focusable:not(:focus):not(:focus-within) {
-    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
-  }
   .pb-safe { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
 }
 
 /* ------------------------------------------------------------------------
-   Motion — reveal on scroll and the route-line draw. Only armed when JS has
-   run (html.js) and the visitor has not asked for reduced motion, so content
-   is never hidden from no-JS visitors, crawlers or reduced-motion users.
+   Hero storyboard. HeroMotion sets --p (0→1) and derived variables on the
+   hero as the visitor scrolls; everything here is transform/opacity only.
+   Start: daylight on Epping Road, light from the upper left.
+   Middle: the camera moves down the road, dusk warms the horizon.
+   End: evening on the M25, light from a streetlamp on the right.
    ------------------------------------------------------------------------ */
-@media (prefers-reduced-motion: no-preference) {
-  html.js [data-reveal] {
-    opacity: 0;
-    transform: translateY(14px);
-    transition: opacity 0.7s var(--tl-ease), transform 0.7s var(--tl-ease);
-    transition-delay: var(--reveal-delay, 0ms);
+.hero { --p: 0; --night: 0; --dusk: 0; --cam: 1; --ry: -10deg; --rx: 3deg; --bs: 1; --by: 0px; --bl: -58deg; --gx: 0px; --gy: 0px; --cap-day: 1; --cap-night: 0; }
+.hero-track { position: relative; height: 175svh; }
+.hero-stage { position: sticky; top: 0; height: 100svh; min-height: 34rem; overflow: hidden; }
+.hero-plate { position: absolute; inset: 0; will-change: transform, opacity; }
+.hero-plate img { width: 100%; height: 100%; object-fit: cover; }
+.hero-day { transform: scale(var(--cam)); transform-origin: 47.5% 50%; }
+.hero-night { opacity: var(--night); transform: scale(calc(1.16 - var(--night) * 0.12)); transform-origin: 45.5% 48%; }
+.hero-dusk {
+  position: absolute; inset: 0; pointer-events: none; opacity: var(--dusk);
+  background: radial-gradient(120% 70% at 47% 52%, rgba(255, 170, 92, 0.55), rgba(120, 72, 52, 0.35) 45%, rgba(20, 22, 30, 0.2) 75%);
+  mix-blend-mode: soft-light;
+}
+.hero-scrim {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(14, 15, 17, 0.55) 0%, rgba(14, 15, 17, 0) 28%),
+    linear-gradient(0deg, rgba(14, 15, 17, 0.86) 0%, rgba(14, 15, 17, 0.62) 42%, rgba(14, 15, 17, 0.22) 64%, rgba(14, 15, 17, 0) 80%);
+}
+@media (min-width: 1024px) {
+  .hero-scrim {
+    background:
+      linear-gradient(180deg, rgba(14, 15, 17, 0.5) 0%, rgba(14, 15, 17, 0) 24%),
+      linear-gradient(90deg, rgba(14, 15, 17, 0.78) 0%, rgba(14, 15, 17, 0.45) 38%, rgba(14, 15, 17, 0) 62%);
   }
-  html.js [data-reveal].is-in { opacity: 1; transform: none; }
+}
+.hero-badge {
+  transform: perspective(1400px) translateY(var(--by)) rotateX(var(--rx)) rotateY(var(--ry)) scale(var(--bs));
+  transform-origin: 50% 50%;
+  filter: drop-shadow(0 28px 34px rgba(0, 0, 0, 0.45)) drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35));
+  --badge-light: var(--bl);
+  --badge-gloss-x: var(--gx);
+  --badge-gloss-y: var(--gy);
+  will-change: transform;
+}
+.hero-cap-day { opacity: var(--cap-day, 1); transform: translateY(calc((1 - var(--cap-day, 1)) * -6px)); }
+.hero-cap-night { opacity: var(--cap-night, 0); transform: translateY(calc((1 - var(--cap-night, 0)) * 6px)); }
+.on-photo .label { color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 2px 18px rgba(0, 0, 0, 0.55); }
+@media (min-width: 1024px) { .hero .t-display { font-size: clamp(3rem, 1.6rem + 3.2vw, 4.6rem); } }
 
-  html.js .route-draw {
-    stroke-dasharray: var(--len, 1200);
-    stroke-dashoffset: var(--len, 1200);
-    transition: stroke-dashoffset 1.6s var(--tl-ease);
-    transition-delay: var(--draw-delay, 0ms);
-  }
-  html.js .is-in .route-draw { stroke-dashoffset: 0; }
+/* Text zoom / short viewports: if the content cannot fit, HeroMotion turns
+   the pin off so nothing is clipped; the story still plays as it scrolls by. */
+.hero[data-pin='off'] .hero-track { height: auto; }
+.hero[data-pin='off'] .hero-stage { position: relative; height: auto; min-height: 100svh; }
 
-  .mobile-bar { transition: transform 0.3s var(--tl-ease), opacity 0.3s var(--tl-ease); }
+@media (prefers-reduced-motion: reduce) {
+  .hero-track { height: auto; }
+  .hero-stage { position: relative; height: auto; min-height: 100svh; }
 }
 
-/* In anyOS edit mode, never hide content behind a reveal. */
+/* Reveal on scroll (armed only with JS and motion allowed). */
+@media (prefers-reduced-motion: no-preference) {
+  html.js [data-reveal] { opacity: 0; transform: translateY(14px); transition: opacity 0.7s var(--tl-ease), transform 0.7s var(--tl-ease); transition-delay: var(--reveal-delay, 0ms); }
+  html.js [data-reveal].is-in { opacity: 1; transform: none; }
+  .mobile-bar { transition: transform 0.3s var(--tl-ease), opacity 0.3s var(--tl-ease); }
+  .plate-fade { transition: opacity 0.6s var(--tl-ease); }
+}
 html.anyos-editing [data-reveal] { opacity: 1 !important; transform: none !important; }
 
 @media print {
   .no-print { display: none !important; }
   [data-reveal] { opacity: 1 !important; transform: none !important; }
+  .hero-track { height: auto !important; }
+  .hero-stage { position: relative !important; height: auto !important; }
 }

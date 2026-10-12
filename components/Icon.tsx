@@ -35,12 +35,14 @@ const PATHS: Record<IconName | UiIcon, JSX.Element> = {
   info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v5.5M12 7.8v.3" /></>,
   minus: <path d="M5 12h14" />,
   plus: <path d="M12 5v14M5 12h14" />,
+  play: <path d="M8 5.5v13l10.5-6.5Z" />,
+  pause: <path d="M8.5 5.5v13M15.5 5.5v13" />,
   shield: <><path d="M12 3 5 6v5.5c0 4.3 2.9 7.8 7 9.5 4.1-1.7 7-5.2 7-9.5V6Z" /><path d="m9 12 2.2 2.2L15.5 10" /></>,
 }
 
 export type UiIcon =
   | 'phone' | 'mail' | 'arrowRight' | 'arrowDown' | 'chevronDown' | 'close' | 'menu' | 'swap'
-  | 'users' | 'suitcase' | 'check' | 'clock' | 'pin' | 'calendar' | 'alert' | 'info' | 'minus' | 'plus' | 'shield'
+  | 'users' | 'suitcase' | 'check' | 'clock' | 'pin' | 'calendar' | 'alert' | 'info' | 'minus' | 'plus' | 'shield' | 'play' | 'pause'
 
 export function Icon({ name, title, className = 'h-5 w-5', strokeWidth = 1.5, ...rest }: { name: IconName | UiIcon; title?: string } & SVGProps<SVGSVGElement>) {
   return (
