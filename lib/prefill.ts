@@ -7,6 +7,8 @@ import type { EnquiryInput } from './enquiry'
 export type Prefill = Partial<Pick<EnquiryInput, 'pickup' | 'destination' | 'travelDate' | 'tripType' | 'vehicle' | 'occasion' | 'flying'>>
 
 export const PREFILL_EVENT = 'tl:prefill'
+/** Fired by the quote form with the stable name of the car it now holds ('' for none). */
+export const VEHICLE_EVENT = 'tl:vehicle'
 
 const PARAMS: (keyof Prefill)[] = ['pickup', 'destination', 'travelDate', 'tripType', 'vehicle', 'occasion', 'flying']
 

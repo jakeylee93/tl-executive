@@ -11,9 +11,9 @@ export function FleetSection() {
             From an executive saloon to an eight-seat minibus. Not sure which suits? We’ll recommend one with your quote.
           </p>
         </div>
-        <div className="mt-10">
-          <FleetSelector />
-        </div>
+      </div>
+      <div className="mt-10">
+        <FleetSelector />
       </div>
     </section>
   )

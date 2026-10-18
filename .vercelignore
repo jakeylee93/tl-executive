@@ -3,3 +3,4 @@ docs/
 tests/
 *.tsbuildinfo
 .playwright-cli/
+public/media/tl-20261018/*.png

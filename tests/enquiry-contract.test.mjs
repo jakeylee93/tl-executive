@@ -166,6 +166,65 @@ test('validation errors return field messages and send nothing upstream', async 
   assert.equal(received.length, 0)
 })
 
+test('the chosen car must take the party and its luggage (published capacities)', async () => {
+  reset()
+  const cases = [
+    [{ vehicle: 'Mercedes E Class', passengers: '5', bags: '2' }, 'vehicle'], // seats 4
+    [{ vehicle: 'Mercedes S Class', passengers: '2', bags: '4' }, 'vehicle'], // 3 cases
+    [{ vehicle: 'Mercedes V Class', passengers: '8' }, 'vehicle'], // seats 7
+    [{ vehicle: 'A stretch limousine' }, 'vehicle'], // not in the fleet
+    [{ vehicle: '', bags: '9' }, 'bags'], // more than any car takes
+  ]
+  for (const [patch, field] of cases) {
+    const r = await post(LIVE_PORT, { ...valid(), ...patch })
+    assert.equal(r.status, 400, `${JSON.stringify(patch)} should be refused`)
+    assert.ok(r.json.fields?.[field], `expected an error on ${field}: ${JSON.stringify(r.json)}`)
+  }
+  assert.equal(received.length, 0)
+  const ok = await post(LIVE_PORT, { ...valid(), vehicle: 'Tourneo Custom Executive Spec', vehicleLabel: 'Tourneo Custom Executive', passengers: '8', bags: '8' })
+  assert.equal(ok.status, 200)
+  assert.ok(received[0].body.notes.includes('Preferred vehicle: Tourneo Custom Executive'), received[0].body.notes)
+})
+
+test('"Something else" needs its own description, which travels in notes', async () => {
+  reset()
+  const other = { ...valid(), occasion: 'Something else', flying: false, flightIn: '', flightOut: '', destination: 'Southampton cruise terminal' }
+  const missing = await post(LIVE_PORT, { ...other, journeyDetails: '' })
+  assert.equal(missing.status, 400)
+  assert.ok(missing.json.fields?.journeyDetails)
+  const r = await post(LIVE_PORT, { ...other, journeyDetails: 'Cruise departure\nfour of us' })
+  assert.equal(r.status, 200)
+  assert.ok(received[0].body.notes.includes('Journey: Cruise departure / four of us'), received[0].body.notes)
+})
+
+test('a description left over from "Other" is neither checked nor sent', async () => {
+  reset()
+  const r = await post(LIVE_PORT, { ...valid(), occasion: 'Corporate travel', journeyDetails: 'see http://example.com' })
+  assert.equal(r.status, 200, JSON.stringify(r.json))
+  assert.ok(!received[0].body.notes.includes('Journey:'), received[0].body.notes)
+})
+
+test('Seaport & cruise is an "Other" journey: description required and kept', async () => {
+  reset()
+  const sea = { ...valid(), occasion: 'Seaport & cruise', flying: false, flightIn: '', flightOut: '', destination: 'Southampton cruise terminal' }
+  const missing = await post(LIVE_PORT, { ...sea, journeyDetails: '' })
+  assert.equal(missing.status, 400)
+  assert.ok(missing.json.fields?.journeyDetails)
+  const r = await post(LIVE_PORT, { ...sea, journeyDetails: 'Ocean terminal, sailing 4pm' })
+  assert.equal(r.status, 200)
+  assert.ok(received[0].body.notes.includes('Journey: Ocean terminal, sailing 4pm'), received[0].body.notes)
+  assert.ok(received[0].body.notes.includes('Occasion: Seaport & cruise'), received[0].body.notes)
+})
+
+test('airport direction keeps only the flight numbers that apply', async () => {
+  reset()
+  const r = await post(LIVE_PORT, { ...valid(), tripType: 'one-way', returnDate: '', returnTime: '', airportDirection: 'to', flightIn: 'BA118', flightOut: 'BA117' })
+  assert.equal(r.status, 200)
+  assert.equal(received[0].body.flightOut, 'BA117')
+  assert.equal(received[0].body.flightIn, '')
+  assert.ok(received[0].body.notes.includes('Airport: going to the airport'), received[0].body.notes)
+})
+
 test('malformed and oversized bodies are refused', async () => {
   reset()
   const bad = await fetch(`http://127.0.0.1:${LIVE_PORT}/api/enquiry`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{nope' })

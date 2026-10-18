@@ -26,6 +26,7 @@ export function Footer() {
             <div>
               <h2 className="label text-[0.72rem]">Explore</h2>
               <ul className="mt-4 space-y-1 text-[0.98rem]">
+                <li><a href="/#plan" className="inline-flex min-h-[2.75rem] items-center hover:text-white">Request a quote</a></li>
                 {NAV.map(n => <li key={n.href}><a href={n.href} className="inline-flex min-h-[2.75rem] min-w-[2.75rem] items-center hover:text-white">{n.label}</a></li>)}
                 <li><a href="/airport-transfers" className="inline-flex min-h-[2.75rem] items-center hover:text-white">Airport transfers</a></li>
               </ul>

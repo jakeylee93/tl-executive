@@ -79,18 +79,29 @@ export type Vehicle = {
   passengersLabel: string
   bagsLabel: string
   description: string
+  /** Body type, as the model is sold: the useful distinction at a glance. */
+  kind: string
   image: string
+  /** Intrinsic size of `image`. */
+  imageSize: [number, number]
+  /** true: generated 4K studio photograph on the shared greige stage;
+   *  false: the older 600×320 model render on white. */
+  studio: boolean
   alt: string
 }
 
 // As published on the official site: E-Class 4/3, S-Class 4/3, V-Class 7/7,
-// Tourneo Custom executive 8/8. Images are the existing model renders until
-// Simon supplies photographs of his own cars (replaceable in anyOS).
+// Tourneo Custom executive 8/8. Pictures show each MODEL, not Simon's own
+// cars (exact year, colour and trim unknown). E-Class, S-Class and Tourneo:
+// generated 4K studio images, each made from that model's official picture
+// (OpenArt Nano Banana 2, 18 Oct 2026). V-Class: still the official render
+// (its studio job was not submitted).
+// Every image is replaceable in anyOS (fleet.<slug>.image).
 export const VEHICLES: Vehicle[] = [
-  { name: 'Mercedes E Class', display: 'Mercedes-Benz E-Class', tab: 'E-Class', seats: 4, cases: 3, passengersLabel: '4 Passengers', bagsLabel: '3 Bags', image: '/car-eclass.jpg', alt: 'Mercedes-Benz E-Class saloon', description: 'The executive saloon for airport runs and business travel.' },
-  { name: 'Mercedes S Class', display: 'Mercedes-Benz S-Class', tab: 'S-Class', seats: 4, cases: 3, passengersLabel: '4 Passengers', bagsLabel: '3 Bags', image: '/car-sclass.jpg', alt: 'Mercedes-Benz S-Class saloon', description: 'Mercedes’ flagship saloon for occasions and VIP travel.' },
-  { name: 'Mercedes V Class', display: 'Mercedes-Benz V-Class', tab: 'V-Class', seats: 7, cases: 7, passengersLabel: '7 Passengers', bagsLabel: '7 Bags', image: '/car-vclass.jpg', alt: 'Mercedes-Benz V-Class people carrier', description: 'Room for families and small groups, and their luggage.' },
-  { name: 'Tourneo Custom Executive Spec', display: 'Tourneo Custom Executive', tab: 'Tourneo', seats: 8, cases: 8, passengersLabel: '8 Passengers', bagsLabel: '8 Bags', image: '/car-tourneo.jpg', alt: 'Ford Tourneo Custom executive minibus', description: 'Executive-specification minibus for larger parties and events.' },
+  { name: 'Mercedes E Class', display: 'Mercedes-Benz E-Class', tab: 'E-Class', kind: 'Executive saloon', seats: 4, cases: 3, passengersLabel: '4 Passengers', bagsLabel: '3 Bags', image: '/media/fleet/eclass-1600.webp', imageSize: [1600, 1073], studio: true, alt: 'Mercedes-Benz E-Class saloon', description: 'The executive saloon for airport runs and business travel.' },
+  { name: 'Mercedes S Class', display: 'Mercedes-Benz S-Class', tab: 'S-Class', kind: 'Flagship saloon', seats: 4, cases: 3, passengersLabel: '4 Passengers', bagsLabel: '3 Bags', image: '/media/fleet/sclass-1600.webp', imageSize: [1600, 1073], studio: true, alt: 'Mercedes-Benz S-Class saloon', description: 'Mercedes’ flagship saloon for occasions and VIP travel.' },
+  { name: 'Mercedes V Class', display: 'Mercedes-Benz V-Class', tab: 'V-Class', kind: 'People carrier', seats: 7, cases: 7, passengersLabel: '7 Passengers', bagsLabel: '7 Bags', image: '/car-vclass.jpg', imageSize: [600, 320], studio: false, alt: 'Mercedes-Benz V-Class people carrier', description: 'Room for families and small groups, and their luggage.' },
+  { name: 'Tourneo Custom Executive Spec', display: 'Tourneo Custom Executive', tab: 'Tourneo', kind: 'Executive minibus', seats: 8, cases: 8, passengersLabel: '8 Passengers', bagsLabel: '8 Bags', image: '/media/fleet/tourneo-1600.webp', imageSize: [1600, 1073], studio: true, alt: 'Ford Tourneo Custom executive minibus', description: 'Executive-specification minibus for larger parties and events.' },
 ]
 
 export const MAX_PASSENGERS = Math.max(...VEHICLES.map(v => v.seats))
@@ -147,7 +158,6 @@ export const CLIENTS = [
 ]
 
 export const NAV = [
-  { href: '/#plan', label: 'Plan' },
   { href: '/#fleet', label: 'Fleet' },
   { href: '/#services', label: 'Services' },
   { href: '/#airports', label: 'Airports' },

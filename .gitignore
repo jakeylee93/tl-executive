@@ -7,3 +7,6 @@ node_modules/
 .DS_Store
 *.tsbuildinfo
 .playwright-cli/
+
+# 4K OpenArt masters: kept locally and in Mission Control, never deployed
+public/media/tl-20261018/*.png

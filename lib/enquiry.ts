@@ -9,11 +9,25 @@
 // The platform flattens whitespace in every field and rejects links/markup in
 // name, pickup, destination and notes, so we catch those first with a
 // friendlier message.
+//
+// Fields the platform has no slot for (return, cases, car, journey type, an
+// "Other" description, airport direction) travel in its bounded notes.
+
+import { SERVICES, VEHICLES, type Vehicle } from './site'
 
 export const SITE_KEY = 't-l-executive-cars'
 export const TL_CLIENT_ID = '2f9b5bf7-bea0-48de-aba9-c933ce112cd8' // public routing id, not a secret
 
 export type TripType = 'one-way' | 'return'
+export type AirportDirection = '' | 'to' | 'from'
+
+/** The journey-type value sent when the visitor chooses "Other". */
+export const OTHER_OCCASION = 'Something else'
+/** Journey types handled as "Other", where the visitor describes the trip:
+ *  "Something else", and Seaport & cruise (services.7) when chosen from the
+ *  services list. The description is required for these and only these. */
+export const OTHER_OCCASIONS: readonly string[] = [OTHER_OCCASION, ...SERVICES.filter(x => x.idx === 7).map(x => x.title)]
+export const isOtherOccasion = (occasion: string) => OTHER_OCCASIONS.includes(occasion)
 
 export type EnquiryInput = {
   name: string
@@ -28,32 +42,46 @@ export type EnquiryInput = {
   returnTime: string
   passengers: string
   bags: string
+  /** Stable vehicle name (lib/site VEHICLES.name), or '' for no preference. */
   vehicle: string
+  /** The car's name as shown on the page (anyOS may rename it). */
+  vehicleLabel: string
   occasion: string
+  /** Required for (and only kept with) an "Other" journey type. */
+  journeyDetails: string
   flying: boolean
+  airportDirection: AirportDirection
   flightIn: string
   flightOut: string
   notes: string
   website: string // honeypot
 }
 
-export type FieldName = Exclude<keyof EnquiryInput, 'website' | 'flying' | 'tripType'>
+export type FieldName = Exclude<keyof EnquiryInput, 'website' | 'flying' | 'tripType' | 'vehicleLabel'>
 export type FieldErrors = Partial<Record<FieldName, string>>
 
 export const LIMITS = {
   name: 120, email: 200, phone: 40, pickup: 300, destination: 300,
   travelDate: 10, travelTime: 5, returnDate: 10, returnTime: 5,
-  passengers: 2, bags: 2, vehicle: 80, occasion: 60,
-  flightIn: 20, flightOut: 20, notes: 800,
+  passengers: 2, bags: 2, vehicle: 80, vehicleLabel: 80, occasion: 60, journeyDetails: 300,
+  airportDirection: 4, flightIn: 20, flightOut: 20, notes: 800,
 } as const
 
-export const MAX_BAGS = 20
+/** Largest published capacities across the fleet (Tourneo: 8 and 8). */
+export const MAX_SEATS = Math.max(...VEHICLES.map(v => v.seats))
+export const MAX_BAGS = Math.max(...VEHICLES.map(v => v.cases))
+
+/** A vehicle by stable name or shown name, case-insensitively. */
+export const findVehicle = (name: string): Vehicle | undefined => {
+  const n = name.trim().toLowerCase()
+  return n ? VEHICLES.find(v => v.name.toLowerCase() === n || v.display.toLowerCase() === n) : undefined
+}
 
 export const emptyEnquiry = (): EnquiryInput => ({
   name: '', email: '', phone: '', pickup: '', destination: '',
   travelDate: '', travelTime: '', tripType: 'one-way', returnDate: '', returnTime: '',
-  passengers: '1', bags: '1', vehicle: '', occasion: '',
-  flying: false, flightIn: '', flightOut: '', notes: '', website: '',
+  passengers: '1', bags: '1', vehicle: '', vehicleLabel: '', occasion: '', journeyDetails: '',
+  flying: false, airportDirection: '', flightIn: '', flightOut: '', notes: '', website: '',
 })
 
 const clean = (v: unknown, max: number) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, max) : '')
@@ -66,6 +94,7 @@ export function normaliseEnquiry(body: unknown): EnquiryInput {
   const tripType: TripType = b.tripType === 'return' ? 'return' : 'one-way'
   const flightIn = clean(b.flightIn, LIMITS.flightIn).toUpperCase()
   const flightOut = clean(b.flightOut, LIMITS.flightOut).toUpperCase()
+  const occasion = clean(b.occasion, LIMITS.occasion)
   return {
     name: clean(b.name, LIMITS.name),
     email: clean(b.email, LIMITS.email),
@@ -80,8 +109,11 @@ export function normaliseEnquiry(body: unknown): EnquiryInput {
     passengers: clean(String(b.passengers ?? ''), LIMITS.passengers),
     bags: clean(String(b.bags ?? ''), LIMITS.bags),
     vehicle: clean(b.vehicle, LIMITS.vehicle),
-    occasion: clean(b.occasion, LIMITS.occasion),
+    vehicleLabel: clean(b.vehicleLabel, LIMITS.vehicleLabel),
+    occasion,
+    journeyDetails: isOtherOccasion(occasion) ? cleanMultiline(b.journeyDetails, LIMITS.journeyDetails) : '',
     flying: b.flying === true || Boolean(flightIn || flightOut),
+    airportDirection: (b.airportDirection === 'to' ? 'to' : b.airportDirection === 'from' ? 'from' : '') as AirportDirection,
     flightIn,
     flightOut,
     notes: cleanMultiline(b.notes, LIMITS.notes),
@@ -134,12 +166,28 @@ export function validateEnquiry(e: EnquiryInput, today: string = ukToday()): Fie
     if (e.returnTime && !TIME_RE.test(e.returnTime)) errors.returnTime = 'Enter a time, for example 18:45.'
   }
 
+  // Only an "Other" journey asks for (and checks) its description; a draft
+  // left behind after switching type is ignored, and never sent.
+  if (isOtherOccasion(e.occasion)) {
+    if (e.journeyDetails.length < 3) errors.journeyDetails = 'Tell us a little about the journey.'
+    else if (HOSTILE_RE.test(e.journeyDetails)) errors.journeyDetails = 'Please remove any links from your description.'
+  }
+
   const pax = Number(e.passengers)
   if (!Number.isInteger(pax) || pax < 1) errors.passengers = 'Enter at least 1 passenger.'
-  else if (pax > 8) errors.passengers = 'For more than 8 passengers, please call us to arrange it.'
+  else if (pax > MAX_SEATS) errors.passengers = `For more than ${MAX_SEATS} passengers, please call us to arrange it.`
 
   const bags = e.bags === '' ? 0 : Number(e.bags)
-  if (!Number.isInteger(bags) || bags < 0 || bags > MAX_BAGS) errors.bags = `Enter a number of cases from 0 to ${MAX_BAGS}.`
+  if (!Number.isInteger(bags) || bags < 0) errors.bags = `Enter a number of cases from 0 to ${MAX_BAGS}.`
+  else if (bags > MAX_BAGS) errors.bags = `For more than ${MAX_BAGS} cases, please call us to arrange it.`
+
+  // The chosen car must take the party and its luggage (published capacities).
+  if (e.vehicle) {
+    const v = findVehicle(e.vehicle)
+    if (!v) errors.vehicle = 'Choose one of our cars, or no preference.'
+    else if (!errors.passengers && pax > v.seats) errors.vehicle = `The ${v.display} seats up to ${v.seats}. Choose a larger car, or no preference.`
+    else if (!errors.bags && bags > v.cases) errors.vehicle = `The ${v.display} takes up to ${v.cases} cases. Choose a larger car, or no preference.`
+  }
 
   if (e.flying) {
     if (e.flightIn && !FLIGHT_RE.test(e.flightIn)) errors.flightIn = 'Enter a flight number like BA117 or EZY 8234.'
@@ -175,12 +223,29 @@ export function summariseEnquiry(e: EnquiryInput): { label: string; value: strin
   ]
   if (e.tripType === 'return') rows.push({ label: 'Return', value: [ukDate(e.returnDate), e.returnTime].filter(Boolean).join(' at ') || 'Date to confirm' })
   rows.push({ label: 'Passengers', value: `${e.passengers} passenger${e.passengers === '1' ? '' : 's'}, ${e.bags || '0'} case${e.bags === '1' ? '' : 's'}` })
-  if (e.vehicle) rows.push({ label: 'Vehicle', value: e.vehicle })
-  if (e.occasion) rows.push({ label: 'Occasion', value: e.occasion })
-  if (e.flightIn) rows.push({ label: 'Arriving flight', value: e.flightIn })
-  if (e.flightOut) rows.push({ label: 'Departing flight', value: e.flightOut })
+  rows.push({ label: 'Vehicle', value: e.vehicleLabel || e.vehicle || 'Please recommend' })
+  if (e.occasion) rows.push({ label: 'Journey type', value: e.occasion })
+  if (isOtherOccasion(e.occasion) && e.journeyDetails) rows.push({ label: 'About the journey', value: e.journeyDetails })
+  if (e.flying && e.airportDirection) rows.push({ label: 'Airport', value: AIRPORT_DIRECTION_TEXT[e.airportDirection] })
+  const f = flightFields(e)
+  if (f.flightIn && e.flightIn) rows.push({ label: 'Arriving flight', value: e.flightIn })
+  if (f.flightOut && e.flightOut) rows.push({ label: 'Departing flight', value: e.flightOut })
   if (e.notes) rows.push({ label: 'Notes', value: e.notes })
   return rows
+}
+
+export const AIRPORT_DIRECTION_TEXT = { to: 'Going to the airport', from: 'Collection from the airport' } as const
+
+/** Which flight numbers apply. Going to the airport: the departing flight
+ *  (and, with a return, the flight home). Collected from it: the arriving
+ *  flight (and, with a return, the flight out). Direction not given (older
+ *  callers): keep whatever was entered. */
+export function flightFields(e: Pick<EnquiryInput, 'flying' | 'airportDirection' | 'tripType'>) {
+  if (!e.flying) return { flightIn: false, flightOut: false }
+  const ret = e.tripType === 'return'
+  if (e.airportDirection === 'to') return { flightIn: ret, flightOut: true }
+  if (e.airportDirection === 'from') return { flightIn: true, flightOut: ret }
+  return { flightIn: true, flightOut: true }
 }
 
 /** Everything the platform's structured fields don't cover, as one line —
@@ -190,8 +255,10 @@ export function buildNotes(e: EnquiryInput): string {
     e.tripType === 'return'
       ? `Return journey${e.returnDate ? `: back ${e.returnDate}${e.returnTime ? ` at ${e.returnTime}` : ''}` : ''}`
       : 'One-way journey',
+    isOtherOccasion(e.occasion) && e.journeyDetails ? `Journey: ${e.journeyDetails.replace(/\s*\n\s*/g, ' / ')}` : '',
+    e.flying && e.airportDirection ? `Airport: ${AIRPORT_DIRECTION_TEXT[e.airportDirection].toLowerCase()}` : '',
     `Cases: ${e.bags || '0'}`,
-    e.vehicle ? `Preferred vehicle: ${e.vehicle}` : 'Vehicle: please recommend',
+    e.vehicle ? `Preferred vehicle: ${e.vehicleLabel || e.vehicle}` : 'Vehicle: please recommend',
     e.occasion ? `Occasion: ${e.occasion}` : '',
     e.notes ? `Customer notes: ${e.notes.replace(/\s*\n\s*/g, ' / ')}` : '',
   ].filter(Boolean).join(' · ').slice(0, 1000)
@@ -209,14 +276,15 @@ export type TransferPayload = {
 }
 
 export function buildTransferPayload(e: EnquiryInput): TransferPayload {
+  const f = flightFields(e)
   return {
     siteKey: SITE_KEY,
     name: e.name, email: e.email, phone: e.phone,
     pickup: e.pickup, destination: e.destination,
     travelDate: e.travelDate, travelTime: e.travelTime,
     passengers: e.passengers,
-    flightIn: e.flying ? e.flightIn : '',
-    flightOut: e.flying ? e.flightOut : '',
+    flightIn: f.flightIn ? e.flightIn : '',
+    flightOut: f.flightOut ? e.flightOut : '',
     notes: buildNotes(e),
     website: '',
   }

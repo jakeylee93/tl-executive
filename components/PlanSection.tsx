@@ -2,10 +2,12 @@ import { BUSINESS } from '@/lib/site'
 import { Icon } from './Icon'
 import { JourneyPlanner } from './JourneyPlanner'
 
+// How it works (CMS keys quote.step.0–2). Icons, not numbers, so they are
+// never confused with the wizard's own four steps.
 const STEPS = [
-  { title: 'Send your journey', text: 'Use the form, or call if you’d rather talk it through.' },
-  { title: 'Receive your quote', text: 'We reply by email or phone with a price for your journey.' },
-  { title: 'Confirm and travel', text: 'Nothing is booked until you accept the quote.' },
+  { title: 'Send your journey', text: 'Use the form, or call if you’d rather talk it through.', icon: 'road' as const },
+  { title: 'Receive your quote', text: 'We reply by email or phone with a price for your journey.', icon: 'mail' as const },
+  { title: 'Confirm and travel', text: 'Nothing is booked until you accept the quote.', icon: 'check' as const },
 ]
 
 export function PlanSection() {
@@ -20,17 +22,17 @@ export function PlanSection() {
               Tell us where and when, and we’ll come back with a price.
             </p>
           </div>
-          <ol className="grid gap-4 text-[0.95rem] sm:grid-cols-3 lg:col-span-6 lg:pb-1">
+          <ul className="grid gap-4 text-[0.95rem] sm:grid-cols-3 lg:col-span-6 lg:pb-1" aria-label="How it works">
             {STEPS.map((s, i) => (
               <li key={s.title} className="flex gap-3">
-                <span className="grid h-7 w-7 flex-none place-items-center rounded-full bg-ink text-[0.8rem] font-semibold text-white tabular" aria-hidden="true">{i + 1}</span>
+                <span className="grid h-8 w-8 flex-none place-items-center rounded-full bg-mist text-ink" aria-hidden="true"><Icon name={s.icon} className="h-4 w-4" /></span>
                 <span>
                   <span suppressHydrationWarning data-anyos={`quote.step.${i}.title`} className="block font-semibold text-ink">{s.title}</span>
                   <span suppressHydrationWarning data-anyos={`quote.step.${i}.text`} className="mt-0.5 block leading-snug text-steel">{s.text}</span>
                 </span>
               </li>
             ))}
-          </ol>
+          </ul>
         </div>
 
         <div className="mt-8 lg:mt-10">
