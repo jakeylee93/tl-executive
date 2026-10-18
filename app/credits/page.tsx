@@ -1,18 +1,11 @@
 import type { Metadata } from 'next'
 import { LegalPage } from '@/components/LegalPage'
-import { JOURNEY } from '@/lib/journey'
 import { PLATES, type PlateName } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'Photo credits',
   description: 'Credits and licences for the photographs used on this website.',
   alternates: { canonical: '/credits' },
-}
-
-const JOURNEY_USE: Record<(typeof JOURNEY)[number]['id'], string> = {
-  arrival: 'the car on a country lane',
-  cabin: 'the cabin at dusk',
-  road: 'the motorway at night',
 }
 
 // Photographs in use outside the opening scene ('day' and 'night' are retired).
@@ -52,8 +45,10 @@ export default function Credits() {
       <section>
         <h2>Opening scene</h2>
         <p>
-          The opening scene ({JOURNEY.map(s => JOURNEY_USE[s.id]).join(', ')}) uses generated images of a representative Mercedes-Benz
-          S-Class, made with OpenArt from the manufacturer’s model picture. They are not photographs of our own car.
+          The opening scene (the car on a country lane, its cabin at dusk and the motorway at night) uses generated images of a
+          representative Mercedes-Benz S-Class, made with OpenArt from the manufacturer’s model picture. They are not photographs of our
+          own car. The car, its wheels and lamps, and the view through its windows are separated into layers so they can move as you
+          scroll.
         </p>
       </section>
       <section>
@@ -61,7 +56,8 @@ export default function Credits() {
         <p>
           The Theydon &amp; Loughton Executive Cars badge is the business’s own logo. The vehicle pictures show each model in the fleet and
           are not photographs of our own cars. The E-Class, S-Class and Tourneo Custom studio pictures were generated from the
-          manufacturers’ model pictures; the V-Class picture is the model render.
+          manufacturers’ model pictures; the V-Class picture is the model render. All four are shown together in one studio, at
+          their true relative size.
         </p>
       </section>
     </LegalPage>

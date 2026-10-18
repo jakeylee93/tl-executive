@@ -158,9 +158,8 @@ export const CLIENTS = [
 ]
 
 export const NAV = [
+  { href: '/#journeys', label: 'Journeys' },
   { href: '/#fleet', label: 'Fleet' },
-  { href: '/#services', label: 'Services' },
-  { href: '/#airports', label: 'Airports' },
   { href: '/#about', label: 'About' },
   { href: '/#contact', label: 'Contact' },
 ] as const

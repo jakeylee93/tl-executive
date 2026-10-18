@@ -1,0 +1,49 @@
+# Build, contract tests and visual evidence for the redesign branch, in the
+# cloud (the local Mac is kept free of heavy builds and browsers). Runs on a
+# local `next start`: the enquiry API is in dry-run mode there and the
+# contract test uses a mock platform, so no enquiry can reach anyone.
+name: visual-qa
+on:
+  push:
+    branches: [claude/tl-executive-redesign-20261018]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: visual-qa-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Contract tests (CMS keys, enquiry payload; mock platform only)
+        run: node --test tests/*.test.mjs
+      - name: Browser
+        run: |
+          mkdir -p /tmp/pw && cd /tmp/pw && npm init -y >/dev/null && npm i playwright@1.48.2 >/dev/null
+          npx --prefix /tmp/pw playwright install --with-deps chromium
+          which ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+      - name: Capture
+        env:
+          PLAYWRIGHT_MODULE: /tmp/pw/node_modules/playwright
+        run: |
+          (pnpm start -p 3100 > /tmp/next.log 2>&1 &)
+          for i in $(seq 1 60); do curl -sf http://localhost:3100/ >/dev/null && break; sleep 1; done
+          node tests/browser/capture.mjs http://localhost:3100 shots
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-qa
+          path: shots
+          retention-days: 14
