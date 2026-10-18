@@ -202,7 +202,7 @@ export function ArrivalMotion() {
       const tilt = smooth(0.58, 0.66, p)
       const sway = Math.sin(p * Math.PI * 9) * 2.2
       const rot = Math.sin(p * Math.PI * 7) * 0.22
-      frames.b.style.transform = `translate3d(0, ${sway + tilt * boxes.b.h * 0.14}px, 0) rotate(${rot}deg) scale(${settle})`
+      frames.b.style.transform = `translate3d(0, ${sway + tilt * boxes.b.h * 0.08}px, 0) rotate(${rot}deg) scale(${settle + tilt * 0.18})`
       bLand.style.transform = `scale(${1 + 0.2 * tB})`
       bSky.style.transform = `scale(${1 + 0.012 * tB})`
       const duskB = smooth(0.4, 0.64, p)
@@ -211,7 +211,7 @@ export function ArrivalMotion() {
 
       // Scene C ------------------------------------------------------------
       const enter = smooth(0.64, 0.78, p)
-      frames.c.style.transform = `translate3d(0, ${(1 - enter) * -c.h * 0.09}px, 0) scale(${lerp(1.06, 1, enter)})`
+      frames.c.style.transform = `translate3d(0, ${(1 - enter) * -c.h * 0.05}px, 0) scale(${lerp(1.12, 1, enter)})`
       const drive = smooth(0.68, 0.95, p)
       const np = nightPath(drive)
       const tx = (np.x - np.x0) / c.cw * c.w
@@ -251,8 +251,8 @@ export function ArrivalMotion() {
     const request = () => { if (!raf) raf = requestAnimationFrame(frame) }
     const relayout = () => {
       decidePin()
-      if (pinned) layout()
-      else {
+      layout()
+      if (!pinned) {
         // Still frame: the arrival photograph and its copy; nothing pinned.
         Object.values(copies).forEach(el => { el.style.opacity = ''; el.style.transform = ''; el.removeAttribute('inert') })
         Object.values(shades).forEach(el => { el.style.opacity = '' })

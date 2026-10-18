@@ -50,10 +50,10 @@ export function FleetGarage() {
     const wide = W / H > 1.25
     // scale: the car in the light fills a fixed share of the studio
     const desk = W >= 1024
-    const k = desk ? Math.min((0.42 * W) / ref.w, (0.5 * H) / ref.h) : wide ? Math.min((0.5 * W) / ref.w, (0.6 * H) / ref.h) : Math.min((0.92 * W) / ref.w, (0.56 * H) / ref.h)
+    const k = desk ? Math.min((0.44 * W) / ref.w, (0.42 * H) / ref.h) : wide ? Math.min((0.5 * W) / ref.w, (0.6 * H) / ref.h) : Math.min((0.92 * W) / ref.w, (0.6 * H) / ref.h)
     const o = offset.current
     const spotX = W * (desk ? 0.6 : 0.5)
-    const spotY = H * (desk ? 0.86 : 0.88)
+    const spotY = H * (desk ? 0.76 : 0.9)
     CARS.forEach((c, i) => {
       const el = carRefs.current[i]
       if (!el) return

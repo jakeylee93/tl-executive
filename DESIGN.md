@@ -11,45 +11,28 @@
 - tooltips, marquees and fake counters;
 - visitor-facing production or "preview" copy.
 
-## Page chapters (18 Oct 2026)
+## Page chapters (18 Oct 2026, evening redesign)
 
-Photographic chapters alternate with white ones.
+Jake rejected the earlier layout as too wordy, and the keyframe zoom as not real motion. There are now five chapters, each built around one picture and one decision, in the pattern of the N2 Acoustics, Kuruma and Rusty Bike sites: short headlines, one line of copy, details revealed in place.
 
-1. **Opening journey** (photographic, scroll). One car, one trip, ending on the quote (below).
-2. **Request a quote** (white). A four-step wizard (below) next to the "How it works" points.
-3. **The fleet** (white, full-width stage). One car at a time:
-   - large complete vehicle, body type, seats and luggage, and a short distinction;
-   - tabs, Previous and Next, and "Choose this car", which fills the quote and then reads "Chosen for your quote".
-4. **Services** (photographic). Three category tabs change the photograph and list in place.
-5. **Airports** (mist). Airport notes, and a route builder that fills the quote's route.
-6. **Story and trust** (charcoal). The badge, Simon's words, the forest photograph (`about.image`), testimonials and clients.
-7. **Contact** (white). Phone, email, published hours, area, FAQ.
+1. **Arrival** (photographic, pinned for about 2.4 screens). One W222 rolls up on a country lane with its lamps coming on. Through the dark glass is the cabin at dusk, with the land moving past. Then the motorway at night, as the car drives away. It ends on "Where are we taking you?" and four journey shortcuts. MOTION.md explains how each part genuinely moves.
+2. **Journeys** (photographic). There are three kinds of trip, one photograph each. Each trip is one line until it is picked. Airports sit inside the travel tab.
+3. **Fleet** (studio). Simon's four published models stand nose to tail in one light studio, at their true relative size. Choosing a car drives the convoy until that car stops in the light, with every wheel turning. The card shows the body type, seats, cases, one sentence and "Choose this car".
+4. **Trust** (charcoal):
+   - the badge, Simon's two-sentence guarantee and three facts;
+   - the areas covered;
+   - one client voice at a time over the editable forest photograph (`about.image`);
+   - the client list.
+5. **Quote** (white, then mist). The four-step wizard (unchanged), then phone, email and hours, and the FAQs closed until opened.
 
-## Opening journey
-
-These are three keyframes of **one conceptual car** (a generated black W222 S-Class; `lib/journey.ts`, `JOURNEY-STORYBOARD.md`). They are stills moved by native scroll. It is not a film, and must not be called one until a delivered clip passes QC.
-
-| p (pinned scroll 0 → 1) | Scene | What moves |
-|---|---|---|
-| 0 | **Arrival**, start | The complete car in its own pool of light, beside the type (desktop) or through the middle of the screen (phones). Badge, headline, Request a quote, Call. |
-| 0.04–0.34 | Arrival → **through the glass** | The camera moves in toward the windscreen (transform-origin = the frame's `focal` point), golden hour turns to evening (a global grade of the same frame), a reflection travels along the body. The headline leaves early. |
-| 0.29–0.58 | **Cabin** | The cabin settles from slightly close to rest: "Settle in." |
-| 0.60–0.72 | Cabin → **road** | The camera draws back and rises: the cabin shrinks away, the aerial arrives large and settles. |
-| 0.70–1 | **Road**, then **quote** | "London, the M25 and all six airports.", then "Where are we taking you?" with four journey-type shortcuts, Request a quote and Call. |
-
-**How it behaves:**
-- The pinned scroll is about two screens (`.hero-track` 300svh), not endless. Every value is a pure function of scroll, so scrolling back returns identical frames, and there is no Pause control because nothing plays by itself.
-- Hidden copy is `inert`.
-- Reduced motion, or text taller than the screen: the arrival still frame with its copy, nothing pinned.
-- anyOS editor: every scene's copy is laid out in order so it can be edited.
-- Swapping media changes data only: `base`, `aspect`, `focal` and `carCenter` in `lib/journey.ts`.
+All 114 published CMS text keys and 5 image keys are still on the homepage (contract test). Copy that isn't on show (other trips, other cars, other quotes, FAQ answers) stays in the DOM behind tabs, toggles and accordions.
 
 ## Navigation
 
 - **Bar:** fixed. Transparent with white type over the journey (the large badge is in the journey), then solid white with the compact badge.
 - **Always visible:** Request a quote ("Quote" on phones) and Call.
 - **Phone drawer:** opens below the bar. Large display-type links, then Request a quote and Call, then strapline and hours. Focus moves in and is trapped with the toggle; Escape or the toggle closes it and returns focus; the page behind does not scroll.
-- **Mobile action bar:** appears only after the journey. It steps aside over the quote, contact and footer, and while typing.
+- **Links:** Journeys, Fleet, About, Contact. The homepage has no mobile action bar: the header already keeps Quote and Call in view, and a bar would cover the studio and the form. The airport page keeps its bar.
 
 ## Quote wizard
 

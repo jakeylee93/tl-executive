@@ -116,6 +116,22 @@ for (const v of VIEWS) {
     await page.waitForTimeout(2600)
     await shot(page, `fleet-${v.tag}-${n}-stopped.jpg`)
   }
+  // a filmed drive: Previous back to the first car, frames every ~70 ms
+  if (v.tag === 'desk1440' || v.tag === 'phone390') {
+    const dir = join(OUT, `fleet-frames-${v.tag}`)
+    mkdirSync(dir, { recursive: true })
+    await page.evaluate(() => document.querySelector('.garage-tab').click())
+    for (let i = 0; i < 60; i++) {
+      await page.screenshot({ path: join(dir, `f${String(i).padStart(4, '0')}.jpg`), type: 'jpeg', quality: 80 })
+    }
+    const mp4 = join(OUT, `fleet-${v.tag}.mp4`)
+    const r = spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', '15', '-i', join(dir, 'f%04d.jpg'), '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '22', mp4])
+    check(`${v.tag}: fleet drive video encoded`, r.status === 0, r.stderr?.toString().slice(0, 200))
+    if (r.status === 0) report.files.push(`fleet-${v.tag}.mp4`)
+    rmSync(dir, { recursive: true, force: true })
+    await page.waitForTimeout(3200)
+    for (let n = 0; n < 3; n++) { await page.evaluate(() => document.querySelector('.garage-steps button:last-of-type').click()); await page.waitForTimeout(3300) }
+  }
   const sel = await page.evaluate(() => document.querySelector('.garage-tab[aria-selected="true"]')?.textContent)
   check(`${v.tag}: Next reaches the fourth car`, sel === 'Tourneo', `selected=${sel}`)
 
