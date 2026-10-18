@@ -1,3 +1,87 @@
+# Handoff — T&L Executive Cars testing rebuild (18 October 2026 checkpoint)
+
+## In plain English
+
+- **A new testing version is on a private preview link (below).** The public site `tl-executive.vercel.app` is unchanged.
+- **It opens with one journey, not a road slideshow.** One representative black S-Class appears complete on an English lane at golden hour. As you scroll, the camera moves in toward its windscreen, then you're in its cabin at dusk, then it draws back above the motorway at night and settles on "Where are we taking you?".
+- **These are three still pictures moved by scrolling. It is not yet a film.** The one video clip tried (VIDEO-008) dissolved instead of moving through the window, so it was rejected and is not used.
+- **The pictures are generated images of the model**, made from the official S-Class picture. They are not Simon's own car, and `/credits` says so.
+- **New header:** a quiet name and badge, with Quote and Call always visible. On phones, a proper menu drawer.
+- **New fleet section:** one car at a time, full width, with Previous, Next, tabs and "Choose this car". The E-Class, S-Class and Tourneo have new matching studio pictures; the V-Class keeps its old render for now.
+- **The quote form is now four short steps:**
+  - journey type ("Other" asks you to describe it);
+  - route and time (for airports, which way, then only the relevant flight numbers, plus a return if wanted);
+  - car and passengers (cars that are too small can't be chosen);
+  - your details, with a review.
+- **Test enquiries never reach Simon:** the preview says "Test mode: this enquiry was not sent". No real enquiry was made.
+
+## State (18 Oct 2026, ~15:45 BST)
+
+| | |
+|---|---|
+| Owner | `claude:tl-executive-opus-20260926`, the same conversation. Work claim `abbb0758-614f-4b52-a94f-bc93e2702b2e` is retained. The preview release claim `41d1c7fd-3534-45ac-a524-a790e230d389` was released after this checkpoint. |
+| Worktree / branch | `/Users/margaritabot/.openclaw/workspace/tl-executive-opus-20260926`, `claude/tl-executive-rebuild-20260926`, pushed. `BRIEF.md` left untracked. |
+| **Code commit** | **`40c77d5`**, on top of `4463b3b` (same-car keyframes and the terminal fix), `34a9444` and `20560c0` (rebuild). This handoff is a docs-only commit after it. |
+| **Testing URL** | **https://tl-executive-rdh98hgh2-anyos.vercel.app**, deployment `dpl_ALZtMXMBkuVAPZXRiFWaFmMvnuzS`, target preview, READY. Cloud build with `--force`, which includes the type check and lint. Vercel SSO applies. |
+| Production | Untouched. `tl-executive.vercel.app` still serves the July build. No DNS, data, env, billing or security changes. |
+
+## Checks actually run
+
+**On the deployed preview:**
+- `GET /api/enquiry` returns `{"ok":true,"mode":"dry-run"}`.
+- The CMS contract (`tests/cms-contract.test.mjs` against the deployed HTML) passes **8/8**. This covers:
+  - all 114 text keys and 5 image keys;
+  - the saved `hero.eyebrow` and `services.title` overrides;
+  - edit.js with `data-site=t-l-executive-cars`;
+  - text-leaf keys;
+  - only the two brand colours exposed;
+  - no frame-blocking and no 24-hour claim.
+- Dry-run `POST`s (nothing sent) behave as specified:
+  - a valid "Other" journey is accepted with its description in the notes;
+  - a missing "Other" or Seaport description is refused;
+  - a leftover link from an abandoned "Other" draft is ignored and not sent;
+  - an E-Class with 5 passengers, or an S-Class with 4 cases, is refused;
+  - **notes boundary:** with a 300-character description, 545 characters of notes compose to exactly 1,000 and arrive whole; 546 is refused with "Too long by 1 character…".
+
+**Root's manual QA on the preview (not my run):**
+- At 390px, the form passed end to end in dry-run:
+  - an "Other" description;
+  - the date and time, set accessibly;
+  - an E-Class with 5 passengers was blocked, and the error link focused the E-Class radio;
+  - switching to the Tourneo;
+  - the details step and the test-mode receipt.
+- The menu, Escape and focus behaviour passed at 390px.
+- Desktop at 1512×805 looks good.
+- Root found three bugs, all fixed in `40c77d5` / `4463b3b`:
+  - the top Quote link left the drawer open;
+  - the notes were silently truncated;
+  - the mobile intro text lost contrast over the bright sky.
+
+**Not run:**
+- The browser suite `tests/browser/site.mjs` was rewritten and extended for the journey, drawer, fleet, every wizard branch and all the regressions.
+- It, the `npm test` enquiry contract (now 17 tests) and the axe audit were **not run** here. The Mac stayed at **memory-pressure WARNING** (swap 8–9.5 GB), and Jake's rule forbids heavy local builds and browsers.
+- Run them when memory is normal or in a cloud worker:
+  - `npm run build && npm test`;
+  - `node tests/browser/site.mjs <url> <shots>`.
+- The phone hero framing at 375×667, 390×844 and 430×932 was fixed by layout arithmetic: the car's centre at 64%, or 62% on short screens where the intro is hidden, plus a shade that fades out with the headline. It **still needs root's on-screen recheck**.
+
+## Media
+
+Full ledger: `JOURNEY-STORYBOARD.md`.
+- **Spent:** 300 credits on six still jobs and 175 on one video (VIDEO-008, rejected).
+- **Held:** 175 video credits (VIDEO-009), plus the V-Class studio photo (FLEET-003, which root holds).
+- **Balance:** 9,639.
+- **Classifier blocks:** the auto-mode classifier blocked three actions: the V-Class submission, one download of the outputs, and one style-reference check. None was retried, and no permission rules were changed.
+
+## Remaining scope
+
+1. **A true continuous film** (not started beyond the rejected VIDEO-008): add an in-between "at the glass" keyframe and shorter clips (quote in `JOURNEY-STORYBOARD.md`, about 575 credits), and review every frame for morphs and generated text. A **fresh decision** is needed.
+2. **V-Class studio image** (FLEET-003, root-held).
+3. **Run the browser, axe and enquiry-contract suites** when the Mac is at normal pressure, and save the screenshots to `docs/evidence/`.
+4. **Simon:** his real cars and photos; confirmation of the fleet, licensing and payments; testimonial permission; fares; renewal of `tlexecutivecars.co.uk` by 23 Jan 2027.
+
+---
+
 # Handoff — T&L Executive Cars testing rebuild (12 October 2026)
 
 ## For Jake and Simon, in plain English
