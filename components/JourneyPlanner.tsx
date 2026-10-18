@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import type { ChangeEvent, FormEvent, ReactNode } from 'react'
 import {
-  AIRPORT_DIRECTION_TEXT, emptyEnquiry, findVehicle, flightFields, isOtherOccasion, looksLikeAirport, MAX_BAGS, MAX_SEATS, OTHER_OCCASION,
+  AIRPORT_DIRECTION_TEXT, emptyEnquiry, findVehicle, flightFields, isOtherOccasion, looksLikeAirport, MAX_BAGS, MAX_SEATS, notesRoom, OTHER_OCCASION,
   summariseEnquiry, ukToday, validateEnquiry,
   type AirportDirection, type EnquiryInput, type FieldErrors, type FieldName,
 } from '@/lib/enquiry'
@@ -369,6 +369,10 @@ export function JourneyPlanner() {
   const dir = data.airportDirection
   const chosen = findVehicle(data.vehicle)
   const kindInfo = KINDS.find(k => k.id === kind)
+  // Notes share the platform's 1,000-character notes field with the journey
+  // details, so show what is left (the server enforces the same limit).
+  const room = notesRoom({ ...data, vehicle: chosen?.name || '', vehicleLabel: chosen?.display || '', journeyDetails: isOtherOccasion(data.occasion) ? data.journeyDetails : '' })
+  const notesLeft = data.notes ? room : room - ' · Customer notes: '.length
   const mailto = (() => {
     const rows = summariseEnquiry(data)
     const body = ["Hello, I'd like a quote please.", '', ...rows.map(r => `${r.label}: ${r.value}`), '', `Name: ${data.name}`, `Phone: ${data.phone}`].join('\n')
@@ -633,7 +637,10 @@ export function JourneyPlanner() {
             </fieldset>
             <div className="max-w-[40rem]">
               <label htmlFor={fid('notes')} className="field-label">Anything we should know? <span className="font-normal text-steel">(optional)</span></label>
-              <textarea id={fid('notes')} name="notes" className="field-input" rows={2} value={data.notes} onChange={onText('notes')} onBlur={onBlur('notes')} maxLength={800} placeholder="Extra stops, child seats, accessibility needs…" aria-invalid={errors.notes ? true : undefined} aria-describedby={described('notes', errors)} />
+              <textarea id={fid('notes')} name="notes" className="field-input" rows={2} value={data.notes} onChange={onText('notes')} onBlur={onBlur('notes')} maxLength={800} placeholder="Extra stops, child seats, accessibility needs…" aria-invalid={errors.notes || notesLeft < 0 ? true : undefined} aria-describedby={described('notes', errors, true)} />
+              <span id={`${fid('notes')}-hint`} className={`field-hint tabular ${notesLeft < 0 ? 'font-semibold text-error' : ''}`} aria-live="polite">
+                {notesLeft < 0 ? `${-notesLeft} characters over the limit` : `${Math.min(notesLeft, 800 - data.notes.length)} characters left`}
+              </span>
               <FieldError field="notes" errors={errors} />
             </div>
           </div>

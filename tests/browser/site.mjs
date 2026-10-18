@@ -143,6 +143,11 @@ for (const [w, h] of [[375, 812], [390, 844], [430, 932], [1440, 900]]) {
   check('focus stays within the drawer and its toggle', await page.evaluate(() => Boolean(document.activeElement?.closest('#site-menu') || document.activeElement?.getAttribute('aria-controls') === 'site-menu')))
   await page.keyboard.press('Escape'); await page.waitForTimeout(150)
   check('Escape closes the drawer and returns focus', (await btn.getAttribute('aria-expanded')) === 'false' && (await page.evaluate(() => document.activeElement?.getAttribute('aria-controls'))) === 'site-menu' && (await page.evaluate(() => document.documentElement.style.overflow)) !== 'hidden')
+  // Audit 18 Oct: the top-bar Quote must close an open drawer and unlock the page.
+  await btn.click(); await page.waitForTimeout(200)
+  await page.locator('header a[href="/#plan"]').first().click(); await page.waitForTimeout(900)
+  const after = await page.evaluate(() => ({ expanded: document.querySelector('button[aria-controls="site-menu"]').getAttribute('aria-expanded'), hidden: document.getElementById('site-menu').hidden, locked: document.documentElement.style.overflow === 'hidden', quote: (() => { const r = document.getElementById('quote').getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0 })() }))
+  check('top-bar Quote closes the drawer, unlocks the page and shows the form', after.expanded === 'false' && after.hidden && !after.locked && after.quote, JSON.stringify(after))
   await ctx.close()
 }
 
@@ -211,6 +216,8 @@ for (const [w, h] of [[375, 812], [390, 844], [430, 932], [1440, 900]]) {
   check('…and Continue is blocked until the car is changed', /Who’s travelling/.test(await heading(page)))
   await page.locator('label.choice', { hasText: 'Mercedes-Benz V-Class' }).click(); await page.waitForTimeout(150)
   check('choosing a car that fits clears it', !(await page.locator('#plan-vehicle-error').count()))
+  await page.locator('#plan-notes').fill('Child seat please'); await page.waitForTimeout(150)
+  check('notes show how many characters are left in the shared notes field', /\d+ characters left/.test(await page.locator('#plan-notes-hint').textContent()))
   await cont(page); await page.waitForTimeout(400)
   await cont(page); await page.waitForTimeout(300)
   check('step 4: empty contact details give three errors', await page.evaluate(() => document.activeElement?.querySelectorAll('li').length) === 3)

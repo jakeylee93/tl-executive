@@ -225,6 +225,25 @@ test('airport direction keeps only the flight numbers that apply', async () => {
   assert.ok(received[0].body.notes.includes('Airport: going to the airport'), received[0].body.notes)
 })
 
+test('notes are never cut: the composed notes must fit the 1000-character field', async () => {
+  // Largest "Other" journey context, then customer notes filling the rest.
+  const big = {
+    ...valid(), occasion: 'Something else', journeyDetails: 'd'.repeat(300), flying: false, flightIn: '', flightOut: '',
+    destination: 'Southampton cruise terminal', vehicle: 'Tourneo Custom Executive Spec', vehicleLabel: 'Tourneo Custom Executive', passengers: '8', bags: '8',
+  }
+  const base = (await post(DRY_PORT, { ...big, notes: '' })).json.payload.notes
+  const room = 1000 - base.length - ' · Customer notes: '.length
+  assert.ok(room > 0 && room < 800, `room ${room}`)
+  const fits = await post(DRY_PORT, { ...big, notes: 'n'.repeat(room) })
+  assert.equal(fits.status, 200, JSON.stringify(fits.json))
+  assert.equal(fits.json.payload.notes.length, 1000)
+  assert.ok(fits.json.payload.notes.endsWith(`Customer notes: ${'n'.repeat(room)}`), 'customer notes kept whole')
+  assert.ok(fits.json.payload.notes.includes(`Journey: ${'d'.repeat(300)}`), 'description kept whole')
+  const over = await post(DRY_PORT, { ...big, notes: 'n'.repeat(room + 1) })
+  assert.equal(over.status, 400)
+  assert.match(over.json.fields?.notes || '', /Too long by 1 character/)
+})
+
 test('malformed and oversized bodies are refused', async () => {
   reset()
   const bad = await fetch(`http://127.0.0.1:${LIVE_PORT}/api/enquiry`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{nope' })

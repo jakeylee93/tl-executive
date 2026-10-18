@@ -79,6 +79,7 @@ export function Hero() {
                 fetchPriority="low"
               /> : null}
               <span className="ext-sweep" />
+              <span className="ext-shade" />
             </div>
           </div>
           {/* Scene 2 · cabin */}

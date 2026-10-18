@@ -204,6 +204,10 @@ export function validateEnquiry(e: EnquiryInput, today: string = ukToday()): Fie
   else if (!EMAIL_RE.test(e.email)) errors.email = 'Enter an email address like name@example.com.'
 
   if (HOSTILE_RE.test(e.notes)) errors.notes = 'Please remove any links from your message.'
+  else {
+    const over = -notesRoom(e)
+    if (over > 0) errors.notes = `Too long by ${over} character${over === 1 ? '' : 's'} once your journey details are added. Please shorten your notes, or call us.`
+  }
 
   return errors
 }
@@ -248,9 +252,13 @@ export function flightFields(e: Pick<EnquiryInput, 'flying' | 'airportDirection'
   return { flightIn: true, flightOut: true }
 }
 
-/** Everything the platform's structured fields don't cover, as one line —
- *  the platform flattens newlines, so separators must read well inline. */
-export function buildNotes(e: EnquiryInput): string {
+/** The platform's notes field takes at most this many characters. */
+export const NOTES_MAX = 1000
+
+/** Everything the platform's structured fields don't cover, as one line,
+ *  untruncated. validateEnquiry refuses a request whose composed notes would
+ *  exceed NOTES_MAX, so nothing the visitor wrote is ever cut off. */
+export function composeNotes(e: EnquiryInput): string {
   return [
     e.tripType === 'return'
       ? `Return journey${e.returnDate ? `: back ${e.returnDate}${e.returnTime ? ` at ${e.returnTime}` : ''}` : ''}`
@@ -261,7 +269,18 @@ export function buildNotes(e: EnquiryInput): string {
     e.vehicle ? `Preferred vehicle: ${e.vehicleLabel || e.vehicle}` : 'Vehicle: please recommend',
     e.occasion ? `Occasion: ${e.occasion}` : '',
     e.notes ? `Customer notes: ${e.notes.replace(/\s*\n\s*/g, ' / ')}` : '',
-  ].filter(Boolean).join(' · ').slice(0, 1000)
+  ].filter(Boolean).join(' · ')
+}
+
+/** Characters left for the notes once everything else is composed (negative
+ *  when over). */
+export const notesRoom = (e: EnquiryInput) => NOTES_MAX - composeNotes(e).length
+
+/** Everything the platform's structured fields don't cover, as one line —
+ *  the platform flattens newlines, so separators must read well inline. */
+export function buildNotes(e: EnquiryInput): string {
+  // Validation keeps this within NOTES_MAX; the slice is only a last guard.
+  return composeNotes(e).slice(0, NOTES_MAX)
 }
 
 export type TransferPayload = {

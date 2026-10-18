@@ -60,7 +60,7 @@ export function Header({ overPhoto = true }: { overPhoto?: boolean }) {
       className={`no-print fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow,color] duration-300 ${light ? 'text-white' : 'bg-white text-ink shadow-[0_1px_0_rgba(0,0,0,0.06),0_10px_30px_-24px_rgba(0,0,0,0.5)]'}`}
     >
       <div className="page-x flex h-[var(--tl-header-h)] items-center gap-2 sm:gap-3">
-        <a href="/" className="-ml-1 mr-auto flex min-h-[2.75rem] min-w-0 items-center gap-2.5 rounded-full p-1 lg:mr-0" aria-label={`${BUSINESS.name}, home`}>
+        <a href="/" onClick={() => setOpen(false)} className="-ml-1 mr-auto flex min-h-[2.75rem] min-w-0 items-center gap-2.5 rounded-full p-1 lg:mr-0" aria-label={`${BUSINESS.name}, home`}>
           <img
             src="/brand/tl-badge.svg"
             alt=""
@@ -89,11 +89,11 @@ export function Header({ overPhoto = true }: { overPhoto?: boolean }) {
           <Icon name="phone" className="h-[1.05rem] w-[1.05rem]" />
           {BUSINESS.phoneDisplay}
         </a>
-        <a href="/#plan" className={`btn min-h-[2.75rem] flex-none px-4 text-[0.92rem] sm:px-5 sm:text-[0.95rem] ${light ? 'btn-light' : 'btn-dark'}`}>
+        <a href="/#plan" onClick={() => setOpen(false)} className={`btn min-h-[2.75rem] flex-none px-4 text-[0.92rem] sm:px-5 sm:text-[0.95rem] ${light ? 'btn-light' : 'btn-dark'}`}>
           <span className="sm:hidden">Quote</span>
           <span className="hidden sm:inline">Request a quote</span>
         </a>
-        <a href={BUSINESS.phoneHref} className={`${iconBtn} xl:hidden`} aria-label={`Call ${BUSINESS.phoneDisplay}`}>
+        <a href={BUSINESS.phoneHref} onClick={() => setOpen(false)} className={`${iconBtn} xl:hidden`} aria-label={`Call ${BUSINESS.phoneDisplay}`}>
           <Icon name="phone" className="h-5 w-5" />
         </a>
         <button
