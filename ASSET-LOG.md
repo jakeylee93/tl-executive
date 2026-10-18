@@ -1,5 +1,15 @@
 # Asset log
 
+## 18 Oct 2026 (evening): motion layers made from existing masters (no new generation)
+
+Everything under `public/media/motion/` is derived by `scripts/motion/*.py` (OpenCV, numpy and Pillow) from:
+- the canonical masters HERO-005/006/007 (`hero-storyboard-4k.zip`, with hashes checked against `hero-master-receipt.json`);
+- PILOT-001, FLEET-002 and FLEET-004 (`*-studio-4k.png`);
+- Simon's published V-Class render (`public/car-vclass.jpg`, 600×320).
+
+The derivations are cut-outs, wheel discs, lamp light, shadows, dusk re-grades, rebuilt backgrounds behind the moving car, and the studio backdrop. Their retouching is documented in MOTION.md. No paid job was run and no OpenArt credits were used. The `public/media/journey/k-*` keyframes are retired, and are kept in git history.
+
+
 ## 18 Oct 2026: generated fleet and journey imagery (OpenArt)
 
 The full ledger (jobs, assets, sizes, credits and the rejected VIDEO-008) is in `JOURNEY-STORYBOARD.md`. Root keeps the canonical 4K masters in `Mission-Control/tl-executive-rethink-20261018/assets/`; this repo never commits them (`.gitignore`, `.vercelignore`).

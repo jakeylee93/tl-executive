@@ -1,4 +1,88 @@
-# Handoff — T&L Executive Cars testing rebuild (18 October 2026 checkpoint, root QA PASS: reviewable)
+# Handoff — T&L Executive Cars redesign (18 October 2026, evening: protected candidate)
+
+Jake rejected the afternoon build: too much text, and keyframe zooms instead of real motion. This is the redesign that replaces it. The afternoon checkpoint (`40c77d5`, preview `tl-executive-rdh98hgh2`) is untouched and documented further down.
+
+## In plain English
+
+- **A protected preview (Vercel login needed) is ready for review.** The public site `tl-executive.vercel.app` is unchanged.
+- **The opening scenes genuinely move.** Three photographs of one S-Class are cut into layers:
+  - **Lane:** the car rolls up and stops, its wheels turning and its lamps coming on.
+  - **Door glass:** the camera moves to the rear door.
+  - **Cabin:** the countryside moves past the windows as the light falls.
+  - **Motorway:** the same car drives away at night.
+
+  It ends on "Where are we taking you?". There's no video and no crossfade between photographs. MOTION.md says exactly what moves and what was retouched.
+- **The fleet:** Simon's four cars stand together in one studio, at their true sizes. Choosing a car drives the whole line forward or back until that car stops in the light, and every wheel turns.
+- **Five short chapters:** Arrival, Journeys, Fleet, Trust, Quote. The quote form and all its rules are unchanged, and test enquiries still go nowhere.
+- **Still to come:** the V-Class picture is soft (its only source is 600×320). Only the S-Class has a matching interior. Both need media that isn't approved yet.
+
+## State (18 Oct 2026, ~19:20 BST)
+
+| | |
+|---|---|
+| Owner | `claude:tl-executive-opus-20260926`, this conversation. The work claim `abbb0758` is retained. Preview release claim `63d0f081-d2ef-4ed7-bae8-9d084908b901` is held for this candidate and will be released after handoff. |
+| Branch | **`claude/tl-executive-redesign-20261018`** (new). It was cut from `bdb6190` and pushed; the old branch was not modified. `BRIEF.md` is left untracked. |
+| Code commit | **`8f1d92a`** (redesign `7cc489c` and its fixes `653a86f`, `2da619d`, `8f1d92a`). |
+| Testing URL | **https://tl-executive-jiwar8shb-anyos.vercel.app**: `dpl_4yqTe4hVSz8t2dUWBGi53XGfFaMr`, target preview, Ready. It is a Vercel cloud build with type check; Vercel SSO applies. |
+| Production | Untouched. `tl-executive.vercel.app` was last changed about 23 days ago (cache age checked). No DNS, data, environment, billing or security changes. |
+
+## Checks actually run
+
+**Cloud CI** (GitHub Actions `visual-qa`; the repo is public, so minutes are free). It ran on `2da619d` and then `8f1d92a`:
+- `pnpm build` passed, including the type check.
+- `node --test tests/*.test.mjs` passed. That is the CMS contract (all 114 text and 5 image keys on the homepage, shared defaults, `edit.js` site key, no frame blocking) and the enquiry contract (mock platform only).
+- **Headless Chromium on a local `next start` (dry-run) passed 31/31 checks on `2da619d`.** Covered:
+  - 390, 375, 430 and 1440 widths;
+  - the hero is pinned;
+  - **reverse scrolling gives byte-identical frames at three positions**;
+  - Next drives to the fourth car;
+  - no horizontal overflow;
+  - all 114 keys are in the DOM;
+  - no console errors (the blocked third-party `edit.js` is excluded);
+  - reduced motion does not pin;
+  - the phone menu opens and Escape closes it.
+- **Evidence:** journey MP4s (1440×900 and 390×844 at 2×, 121 scroll positions, 24 fps), plus frames at 13 scroll stops per viewport, fleet drive frames and section shots. They are in the run artifact `visual-qa` (14-day retention).
+
+**On the deployed preview** (`vercel curl`):
+- `GET /api/enquiry` returns `{"ok":true,"mode":"dry-run"}`.
+- The CMS contract against the deployed homepage and airport-page HTML passes **8/8**.
+
+**Not run:**
+- the old `tests/browser/site.mjs` suite (it targets the afternoon layout and needs rewriting for this one);
+- axe;
+- 200% zoom;
+- a real-device phone test;
+- an anyOS edit session (the edit-mode CSS lays all copy out, but nobody opened the editor).
+
+Nothing heavy ran on the Mac: memory stayed at WARNING, so builds and browsers ran in the cloud.
+
+## Media and budget (facts)
+
+- **OpenArt:** 9,639 credits, unchanged; **no paid job this pass**. TL spend to date: stills 300, video 175 (VIDEO-008, rejected, unused). 175 of the approved 350 for video is still unspent and held.
+- **OpenAI:** the shell's `OPENAI_API_KEY` is invalid (401 on the free model list), and no credential was created. Codex is signed in with ChatGPT, but I didn't use it, so nothing ran on Jake's subscription. OpenAI images are reachable only through OpenArt (GPT Image 2/2.5, 40–42 credits). No OpenAI video was found.
+- **No photo of Simon's own cars exists** in his site's public media library. The four models' generations, identified from his published renders, are in MOTION.md.
+
+## Blockers that need a decision (MOTION.md has quotes)
+
+1. **V-Class studio master (FLEET-003):** held by root and not retried by any route. Until it exists, the V-Class is visibly softer.
+2. **Matching E-Class, V-Class and Tourneo interiors:** not available; no stills budget.
+3. **A longer arrival drive:** needs a clean plate of the lane (one generative fill); no stills budget.
+4. **Simon's real cars, colours and interiors:** to be confirmed by Simon.
+
+## Files
+
+- `components/arrival/*`, `components/fleet/*`, `components/Journeys.tsx`, `components/Trust.tsx`, `components/HomeContact.tsx`
+- `lib/motion/*`
+- `scripts/motion/*`
+- `public/media/motion/*` (about 4.9 MB, served responsively)
+- `.github/workflows/visual-qa.yml`, `tests/browser/capture.mjs`
+- `MOTION.md`, with the `DESIGN.md` chapters updated
+
+**Removed:** the afternoon `Hero`, `HeroMotion`, `FleetSection`, `FleetSelector`, `ServicesChapter` and `StoryChapter` components, the keyframe webps and `lib/journey.ts`. They're all in git history.
+
+---
+
+# Previous checkpoint — testing rebuild (18 October 2026 afternoon, root QA PASS: reviewable; superseded by the redesign above)
 
 ## In plain English
 

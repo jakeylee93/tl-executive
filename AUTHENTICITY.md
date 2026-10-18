@@ -36,3 +36,17 @@ The hero's dusk tint is a CSS light overlay on the real photograph; no pixels ar
 | Retired from the site | W223 exterior (Jason Lawrence), W222 Commons cabin, Epping Road and M25 photos | Replaced by the same-car keyframes; removed or no longer credited. |
 
 The badge is unchanged: the traced original, never generated.
+
+
+## Audit, 18 Oct 2026 (evening redesign)
+
+- **Vehicles:** the four models and their seats and cases are exactly as on tlexecutivecars.co.uk. Generations, identified from Simon's published renders:
+  - S-Class: W222 facelift LWB;
+  - E-Class: W213 pre-facelift;
+  - V-Class: W447 pre-facelift;
+  - Tourneo Custom: Gen 1 facelift.
+
+  No photograph of his own cars was found. The visitor note "Pictures show each model. Your car may differ in year, colour and specification." stays.
+- **The opening scenes:** one generated W222 (the same model as his S-Class), cut into moving layers. They're disclosed on /credits and not presented as his car. Only this model has a matching cabin.
+- **Fleet studio:** the cars are shown together at true relative size (by wheelbase). The V-Class is the published render, and visibly softer.
+- **No new claims:** no fares, no 24-hour claim, and testimonials and clients as published.
