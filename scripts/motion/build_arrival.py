@@ -177,8 +177,10 @@ def main():
     # glow layer (screen-blended over the car), cropped around the lamps
     gy, gx = np.nonzero(glow.max(2) > 0.01)
     gx0, gy0, gx1, gy1 = gx.min(), gy.min(), gx.max(), gy.max()
-    g8 = (glow[gy0:gy1, gx0:gx1] * 255).astype(np.uint8)
-    cv2.imwrite(str(OUT / 'glow.webp'), cv2.cvtColor(cv2.resize(g8, ((gx1 - gx0) // 2, (gy1 - gy0) // 2), interpolation=cv2.INTER_AREA), cv2.COLOR_RGB2BGR), [cv2.IMWRITE_WEBP_QUALITY, 85])
+    g = glow[gy0:gy1, gx0:gx1]
+    ga = np.clip(g.max(2, keepdims=True), 1e-4, 1)
+    rgba = np.dstack([np.clip(g / ga, 0, 1) * 255, ga * 255]).astype(np.uint8)  # light as colour + coverage
+    cv2.imwrite(str(OUT / 'glow.webp'), cv2.cvtColor(cv2.resize(rgba, ((gx1 - gx0) // 2, (gy1 - gy0) // 2), interpolation=cv2.INTER_AREA), cv2.COLOR_RGBA2BGRA), [cv2.IMWRITE_WEBP_QUALITY, 88])
     wheels = []
     for tag, wh in (('f', wf), ('r', wr)):
         name = f'wheel-{tag}.webp'

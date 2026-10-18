@@ -11,7 +11,7 @@ export function Fleet() {
         </p>
       </div>
       <FleetGarage />
-      <p className="page-x pb-8 pt-2 text-[0.86rem] text-[#5b5650]">Pictures show each model. Your car may differ in year, colour and specification.</p>
+      <p className="fleet-note page-x pb-6 pt-1 text-[0.86rem] text-[#5b5650]">Pictures show each model. Your car may differ in year, colour and specification.</p>
     </section>
   )
 }

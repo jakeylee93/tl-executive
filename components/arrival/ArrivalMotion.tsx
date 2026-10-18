@@ -22,6 +22,7 @@ type Box = { x: number; y: number; w: number; h: number; c0: number; cw: number 
 
 const PORTRAIT = '(max-aspect-ratio: 4/5)'
 const TYRE_CIRC = Math.PI * 0.71 // S-Class 20-inch wheel and tyre, metres
+const DOOR = [0.8, 0.47] // rear door glass in the arrival frame
 
 function coverBox(sw: number, sh: number, aspect: number, fx: number, fy: number, tx: number, ty: number): Omit<Box, 'c0' | 'cw'> {
   let w = sw
@@ -45,6 +46,8 @@ export function ArrivalMotion() {
     const scenes = { a: q('[data-scene="a"]')!, b: q('[data-scene="b"]')!, c: q('[data-scene="c"]')! }
     const frames = { a: q('[data-frame="a"]')!, b: q('[data-frame="b"]')!, c: q('[data-frame="c"]')! }
     const aCar = q('[data-a-car]')!
+    const aBg = q('[data-a-bg]')!
+    let carBox = { L: 0, T: 0 }
     const aWheels = qa('[data-a-wheel]')
     const aGlow = q('[data-a-glow]')!
     const aDusk = qa('[data-scene="a"] [data-dusk]')
@@ -110,8 +113,9 @@ export function ArrivalMotion() {
       const [x0, y0, x1, y1] = ARRIVAL.car.box
       const carL = X(a, x0), carT = Y(a, y0)
       Object.assign(aCar.style, { left: `${carL}px`, top: `${carT}px`, width: `${X(a, x1) - carL}px`, height: `${Y(a, y1) - carT}px` })
-      const [ax, ay] = ARRIVAL.roll.anchor
-      aCar.style.transformOrigin = `${X(a, ax) - carL}px ${Y(a, ay) - carT}px`
+      carBox = { L: carL, T: carT }
+      aCar.style.transformOrigin = '0 0'
+      aBg.style.transformOrigin = `${X(a, DOOR[0])}px ${Y(a, DOOR[1])}px`
       aWheels.forEach((el, i) => {
         const wgeo = ARRIVAL.wheels[i]
         const size = wgeo.size
@@ -168,8 +172,19 @@ export function ArrivalMotion() {
       const s = Math.pow(ARRIVAL.roll.grow, roll)
       const dx = ARRIVAL.roll.axis[0] * roll * a.w
       const dy = ARRIVAL.roll.axis[1] * roll * a.w
-      const push = smooth(0.2, 0.36, p)
-      aCar.style.transform = `translate3d(${dx}px, ${dy}px, 0) scale(${s * (1 + push * 0.06)})`
+      const push = Math.pow(smooth(0.2, 0.36, p), 1.5)
+      // Dolly towards the rear door glass: the car (near) grows faster than
+      // the hedge behind it (far), so the move has real parallax.
+      const kCar = 1 + 1.0 * push
+      const kBg = 1 + 0.5 * push
+      const Ax = X(a, ARRIVAL.roll.anchor[0]), Ay = Y(a, ARRIVAL.roll.anchor[1])
+      const Wx = X(a, DOOR[0]), Wy = Y(a, DOOR[1])
+      // frame point p → W + kCar·(A + s·(p − A) + d − W); written for the car element (origin 0 0)
+      const k = kCar * s
+      const Cx = kCar * (Ax * (1 - s) + dx) + Wx * (1 - kCar)
+      const Cy = kCar * (Ay * (1 - s) + dy) + Wy * (1 - kCar)
+      aCar.style.transform = `translate3d(${k * carBox.L + Cx - carBox.L}px, ${k * carBox.T + Cy - carBox.T}px, 0) scale(${k})`
+      aBg.style.transform = `scale(${kBg})`
       const turn = (-roll / TYRE_CIRC) * 360
       aWheels.forEach((el, i) => {
         const M = ARRIVAL.wheels[i].M
@@ -180,9 +195,6 @@ export function ArrivalMotion() {
       aGlow.style.opacity = String(lamps)
       const duskA = smooth(0.06, 0.3, p) * 0.92
       aDusk.forEach(el => { el.style.opacity = String(duskA) })
-      const camA = 1 + 0.95 * Math.pow(push, 1.5)
-      frames.a.style.transformOrigin = `${X(a, 0.80)}px ${Y(a, 0.47)}px`
-      frames.a.style.transform = `scale(${camA})`
 
       // Scene B ------------------------------------------------------------
       const tB = smooth(0.34, 0.68, p)

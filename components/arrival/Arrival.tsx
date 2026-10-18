@@ -56,8 +56,10 @@ export function Arrival() {
           {/* 1 · Arrival: the car on the lane at golden hour */}
           <div className="arr-scene" data-scene="a" aria-hidden="true">
             <div className="arr-frame" data-frame="a">
-              <Fill base={`${M}/arrival/plate`} priority sizes="(max-aspect-ratio: 11/10) 152vw, max(100vw, 179svh)" />
-              <Fill base={`${M}/arrival/plate-dusk`} dusk sizes="(max-aspect-ratio: 11/10) 152vw, max(100vw, 179svh)" />
+              <div className="arr-layer" data-a-bg>
+                <Fill base={`${M}/arrival/plate`} priority sizes="(max-aspect-ratio: 11/10) 152vw, max(100vw, 179svh)" />
+                <Fill base={`${M}/arrival/plate-dusk`} dusk sizes="(max-aspect-ratio: 11/10) 152vw, max(100vw, 179svh)" />
+              </div>
               <div className="arr-car" data-a-car style={{ left: pct(cx0), top: pct(cy0), width: pct(carW), height: pct(cy1 - cy0) }}>
                 <img src={`${M}/arrival/car-1600.webp`} srcSet={`${M}/arrival/car-960.webp ${Math.round(960 * carW)}w, ${M}/arrival/car-1600.webp ${Math.round(1600 * carW)}w, ${M}/arrival/car-2400.webp ${Math.round(2400 * carW)}w`} sizes="(max-aspect-ratio: 11/10) 88vw, 66vw" alt="" decoding="async" fetchPriority="high" className="arr-fill" />
                 <img src={`${M}/arrival/car-dusk-1600.webp`} srcSet={`${M}/arrival/car-dusk-960.webp ${Math.round(960 * carW)}w, ${M}/arrival/car-dusk-1600.webp ${Math.round(1600 * carW)}w, ${M}/arrival/car-dusk-2400.webp ${Math.round(2400 * carW)}w`} sizes="(max-aspect-ratio: 11/10) 88vw, 66vw" alt="" decoding="async" fetchPriority="low" className="arr-fill" data-dusk="" />

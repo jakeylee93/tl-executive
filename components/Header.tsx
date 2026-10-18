@@ -69,7 +69,7 @@ export function Header({ overPhoto = true }: { overPhoto?: boolean }) {
             className={`h-9 w-auto flex-none lg:h-10 ${light && overPhoto ? 'hidden' : ''}`}
           />
           <span className="min-w-0">
-            <span suppressHydrationWarning data-anyos="brand.name" translate="no" className="block max-w-[8.6rem] font-display text-[0.92rem] leading-[1.12] tracking-[-0.005em] [text-wrap:balance] xs:max-w-[12rem] xs:text-[0.98rem] sm:max-w-none sm:text-[1.06rem]">
+            <span suppressHydrationWarning data-anyos="brand.name" translate="no" className="block max-w-[8.4rem] font-display text-[0.86rem] leading-[1.1] tracking-[-0.005em] [text-wrap:balance] xs:max-w-[12rem] xs:text-[0.98rem] sm:max-w-none sm:text-[1.06rem]">
               Theydon &amp; Loughton Executive Cars
             </span>
           </span>

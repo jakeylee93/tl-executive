@@ -128,11 +128,11 @@ def main():
     road_l = cv2.resize(cv2.inpaint((pl_small * 255).astype(np.uint8), hz, 8, cv2.INPAINT_TELEA), (W, H)).astype(np.float32).mean(2) / 255
     road_l = cv2.GaussianBlur(road_l, (0, 0), 8)
     yyg = np.mgrid[0:H, 0:W][0] / H
-    hug = (cv2.dilate(car, np.ones((41, 41), np.uint8)) > 0) & (car == 0) & (yyg > 0.700)
+    hug = (cv2.dilate(car, np.ones((61, 61), np.uint8)) > 0) & (car == 0) & (yyg > 0.700)
     shade = np.clip(1 - plate.mean(2) / np.maximum(road_l, 1e-3), 0, 0.7) * hug
     shade = cv2.GaussianBlur(shade.astype(np.float32), (0, 0), 3)
-    shade[shade < 0.08] = 0
-    hole = hole0 | cv2.dilate((shade > 0.08).astype(np.uint8), np.ones((9, 9), np.uint8))
+    shade[shade < 0.06] = 0
+    hole = hole0 | cv2.dilate((shade > 0.06).astype(np.uint8), np.ones((13, 13), np.uint8))
     boost = np.clip(f - plate, 0, 1).mean(2) * (1 - cv2.GaussianBlur(hole.astype(np.float32), (0, 0), 5))
     # rebuild the road under the car from the same lane further up / nearer, then Poisson-blend it in
     p8 = (np.clip(plate, 0, 1) * 255).astype(np.uint8)

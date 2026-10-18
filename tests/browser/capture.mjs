@@ -38,7 +38,8 @@ async function open(v, reducedMotion = 'no-preference') {
   const ctx = await browser.newContext({ viewport: { width: v.width, height: v.height }, deviceScaleFactor: v.dpr, isMobile: v.mobile, hasTouch: v.mobile, reducedMotion })
   const page = await ctx.newPage()
   const errors = []
-  page.on('console', m => { if (m.type() === 'error') errors.push(m.text()) })
+  // the blocked third-party editor script logs ERR_FAILED; anything else counts
+  page.on('console', m => { if (m.type() === 'error' && !/ERR_FAILED/.test(m.text())) errors.push(m.text()) })
   page.on('pageerror', e => errors.push(String(e)))
   // anyOS edit.js is a third-party script; keep it out of the evidence run.
   await page.route('https://platform.anyos.co.uk/**', r => r.abort())
@@ -54,7 +55,7 @@ async function heroMetrics(page) {
   })
 }
 async function scrollTo(page, y) {
-  await page.evaluate(y => window.scrollTo(0, y), y)
+  await page.evaluate(y => window.scrollTo({ top: y, behavior: 'instant' }), y)
   await page.evaluate(frames)
   await page.waitForTimeout(60)
 }
@@ -103,11 +104,11 @@ for (const v of VIEWS) {
   }
 
   // fleet: the convoy drives in, then between cars
-  await page.evaluate(() => document.getElementById('fleet').scrollIntoView({ block: 'start' }))
+  await page.evaluate(() => { document.documentElement.style.scrollBehavior = 'auto'; document.getElementById('fleet').scrollIntoView({ block: 'start' }) })
   await page.waitForTimeout(3600)
   await shot(page, `fleet-${v.tag}-0-entered.jpg`)
   for (let n = 1; n <= 3; n++) {
-    await page.click('.garage-steps button:last-of-type')
+    await page.evaluate(() => document.querySelector('.garage-steps button:last-of-type').click())
     for (const t of [250, 650, 1100]) {
       await page.waitForTimeout(t === 250 ? 250 : t === 650 ? 400 : 450)
       if (v.tag === 'desk1440' || v.tag === 'phone390') await shot(page, `fleet-${v.tag}-${n}-t${t}.jpg`)

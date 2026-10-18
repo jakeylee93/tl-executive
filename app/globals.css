@@ -225,7 +225,7 @@
 .arr-wheel { position: absolute; visibility: hidden; transform-origin: 50% 50%; will-change: transform; }
 .arrival[data-ready='on'] .arr-wheel { visibility: visible; }
 .arr-wheel img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }
-.arr-glow { position: absolute; max-width: none; mix-blend-mode: screen; opacity: 0; }
+.arr-glow { position: absolute; max-width: none; opacity: 0; }
 .arr-sprite { position: absolute; max-width: none; will-change: transform; }
 .arr-black { position: absolute; inset: 0; background: #050506; opacity: 0; pointer-events: none; z-index: 5; }
 /* Narrow screens: the arrival photograph is a band across the lower half;
@@ -327,40 +327,47 @@ html.anyos-editing :is(.arr-scene[data-scene='b'], .arr-scene[data-scene='c'], .
    Fleet studio: the convoy drives; nothing else moves.
    ------------------------------------------------------------------------ */
 .fleet { overflow: hidden; }
-.fleet-head { position: relative; z-index: 2; padding-top: 4rem; }
+.fleet-head { position: relative; z-index: 2; padding-top: 3.5rem; }
 .garage-stage {
-  position: relative; height: clamp(19rem, 58svh, 34rem); margin-top: -1rem; overflow: hidden;
+  position: relative; height: clamp(17rem, 48svh, 27rem); overflow: hidden;
   background: #cfc6c0 url('/media/motion/fleet/garage-tall.webp') center / cover no-repeat;
 }
-@media (min-width: 640px) { .garage-stage { background-image: url('/media/motion/fleet/garage-wide.webp'); } }
-@media (min-width: 1024px) { .garage-stage { height: clamp(26rem, 64svh, 40rem); margin-top: -7rem; } .fleet-head { padding-top: 5rem; } }
-.garage-light { position: absolute; inset: 0; background: radial-gradient(42% 30% at 50% 84%, rgba(255, 250, 244, 0.5), rgba(255, 250, 244, 0) 70%); pointer-events: none; }
+@media (min-width: 640px) { .garage-stage { background-image: url('/media/motion/fleet/garage-wide.webp'); height: clamp(20rem, 56svh, 32rem); } }
+.garage-light { position: absolute; inset: 0; background: radial-gradient(40% 26% at 50% 86%, rgba(255, 250, 244, 0.55), rgba(255, 250, 244, 0) 70%); pointer-events: none; }
+@media (min-width: 1024px) {
+  /* The studio fills the chapter; title and the chosen car's card sit on its wall. */
+  .fleet { display: flex; flex-direction: column; min-height: max(44rem, 100svh); }
+  .garage { display: contents; }
+  .garage-stage { position: absolute; inset: 0; height: auto; }
+  .garage-light { background: radial-gradient(30% 24% at 60% 86%, rgba(255, 250, 244, 0.55), rgba(255, 250, 244, 0) 70%); }
+  .fleet-head { padding-top: calc(var(--tl-header-h) + 3rem); }
+  .garage-ui { flex: 1; grid-template-columns: minmax(0, 26rem) 1fr auto; grid-template-rows: auto 1fr auto; align-items: end; padding-bottom: 0.5rem; }
+  .garage-card { grid-column: 1; grid-row: 1; align-self: start; }
+  .garage-tabs { grid-column: 1 / 3; grid-row: 3; }
+  .garage-steps { grid-column: 3; grid-row: 3; }
+  .fleet-note { position: relative; z-index: 2; }
+}
 .garage-car { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
 .garage-car > img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }
 .garage-body { transition: filter 0.6s var(--tl-ease); }
-.garage-car[data-lit='off'] .garage-body, .garage-car[data-lit='off'] .garage-wheel { filter: brightness(0.78) saturate(0.9); }
+.garage-car[data-lit='off'] .garage-body, .garage-car[data-lit='off'] .garage-wheel { filter: brightness(0.8) saturate(0.92); }
 .garage-wheel { position: absolute; transform-origin: 50% 50%; transition: filter 0.6s var(--tl-ease); }
 .garage-wheel img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }
 .garage-car[data-photo='on'] :is(.garage-wheel, .garage-shadow) { display: none; }
 .garage-car[data-photo='on'] .garage-body { object-fit: contain; }
-.garage-ui { position: relative; z-index: 2; display: grid; gap: 1.25rem; padding-top: 1.25rem; padding-bottom: 1rem; }
-@media (min-width: 1024px) {
-  .garage-ui { grid-template-columns: 1fr auto; align-items: end; }
-  .garage-card { grid-column: 1; grid-row: 1; }
-  .garage-tabs { grid-column: 1 / -1; grid-row: 2; }
-  .garage-steps { grid-column: 2; grid-row: 1; }
-}
-.garage-tabs { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+.garage-ui { position: relative; z-index: 2; display: grid; gap: 1.1rem; padding-top: 1.1rem; padding-bottom: 0.5rem; }
+.garage-tabs { display: flex; flex-wrap: nowrap; gap: 0.15rem; overflow-x: auto; scrollbar-width: none; margin-inline: -0.25rem; }
+.garage-tabs::-webkit-scrollbar { display: none; }
 .garage-tab {
-  @apply min-h-[2.75rem] rounded-full px-4 text-[0.98rem] font-semibold;
+  @apply min-h-[2.75rem] flex-none rounded-full px-3.5 text-[0.96rem] font-semibold;
   color: #5b5650; transition: color 0.2s var(--tl-ease), background-color 0.2s var(--tl-ease);
 }
 .garage-tab:hover { color: var(--tl-ink); }
-.garage-tab[aria-selected='true'] { color: var(--tl-ink); background: rgba(255, 255, 255, 0.55); }
+.garage-tab[aria-selected='true'] { color: var(--tl-ink); background: rgba(255, 255, 255, 0.6); }
 .garage-steps { display: flex; align-items: center; gap: 0.5rem; }
 .garage-step {
   @apply inline-flex min-h-[2.75rem] min-w-[2.75rem] items-center justify-center gap-2 rounded-full px-4 text-[0.98rem] font-semibold text-ink;
-  background: rgba(255, 255, 255, 0.5); transition: background-color 0.2s var(--tl-ease);
+  background: rgba(255, 255, 255, 0.55); transition: background-color 0.2s var(--tl-ease);
 }
 .garage-step:hover { background: #fff; }
 

@@ -98,7 +98,7 @@ def shadow_layer(rgb, alpha, ground_y):
     under = cv2.dilate(car, np.ones((5, 5), np.uint8)) * zone
     s8 = cv2.inpaint(s8, under * 255, 9, cv2.INPAINT_TELEA)
     s = s8.astype(np.float32) / 255
-    s = cv2.morphologyEx(s, cv2.MORPH_OPEN, np.ones((1, 9), np.uint8))  # drop thin floor lines
+    s = cv2.morphologyEx(s, cv2.MORPH_OPEN, np.ones((11, 1), np.uint8))  # drop thin horizontal floor (tile) lines
     s = cv2.GaussianBlur(s, (0, 0), 5.0)
     s[s < 0.03] = 0
     return np.clip(s * 1.05, 0, 0.92), plate

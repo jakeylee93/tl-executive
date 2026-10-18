@@ -1,6 +1,8 @@
 # Opening journey: storyboard, media and quotes (18 Oct 2026)
 
-**Status: a keyframe scene journey. The continuous film is NOT finished.**
+**Superseded on 18 Oct (evening) by MOTION.md.** The scrolled keyframe journey described here was rejected by Jake. It has been replaced by real-time animation of cut-out layers made from the same three masters. The ledger below is still correct.
+
+**Status at the time: a keyframe scene journey. The continuous film is NOT finished.**
 
 The site shows three still keyframes of one conceptual car, a black W222 S-Class. Native scroll moves a virtual camera through them (transform and opacity only). The one video clip made so far, VIDEO-008, was **rejected** in root QC and is not used.
 
