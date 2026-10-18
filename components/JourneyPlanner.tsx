@@ -228,11 +228,11 @@ export function JourneyPlanner() {
         const affected = new Set<FieldName>([field as FieldName])
         if (field === 'passengers' || field === 'bags' || field === 'vehicle') affected.add('vehicle').add('passengers').add('bags')
         if (field === 'travelDate') affected.add('returnDate')
-        for (const f of affected) {
+        affected.forEach(f => {
           const live = f === 'vehicle' || f in prev
           if (recheck[f] && live) out[f] = recheck[f]
           else delete out[f]
-        }
+        })
         if (field === 'airportDirection') delete out.airportDirection
         return out
       })
