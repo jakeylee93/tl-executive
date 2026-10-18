@@ -1,4 +1,4 @@
-# Handoff — T&L Executive Cars testing rebuild (18 October 2026 checkpoint)
+# Handoff — T&L Executive Cars testing rebuild (18 October 2026 checkpoint, root QA PASS: reviewable)
 
 ## In plain English
 
@@ -21,7 +21,7 @@
 |---|---|
 | Owner | `claude:tl-executive-opus-20260926`, the same conversation. Work claim `abbb0758-614f-4b52-a94f-bc93e2702b2e` is retained. The preview release claim `41d1c7fd-3534-45ac-a524-a790e230d389` was released after this checkpoint. |
 | Worktree / branch | `/Users/margaritabot/.openclaw/workspace/tl-executive-opus-20260926`, `claude/tl-executive-rebuild-20260926`, pushed. `BRIEF.md` left untracked. |
-| **Code commit** | **`40c77d5`**, on top of `4463b3b` (same-car keyframes and the terminal fix), `34a9444` and `20560c0` (rebuild). This handoff is a docs-only commit after it. |
+| **Code commit** | **`40c77d5`**, on top of `4463b3b` (same-car keyframes and the terminal fix), `34a9444` and `20560c0` (rebuild). The handoff commits after it (`bd9890a` and this wrap-up) are docs-only, so the deployed code equals `40c77d5`. The working tree is clean apart from `BRIEF.md`, which is deliberately left untracked. |
 | **Testing URL** | **https://tl-executive-rdh98hgh2-anyos.vercel.app**, deployment `dpl_ALZtMXMBkuVAPZXRiFWaFmMvnuzS`, target preview, READY. Cloud build with `--force`, which includes the type check and lint. Vercel SSO applies. |
 | Production | Untouched. `tl-executive.vercel.app` still serves the July build. No DNS, data, env, billing or security changes. |
 
@@ -63,7 +63,21 @@
 - Run them when memory is normal or in a cloud worker:
   - `npm run build && npm test`;
   - `node tests/browser/site.mjs <url> <shots>`.
-- The phone hero framing at 375×667, 390×844 and 430×932 was fixed by layout arithmetic: the car's centre at 64%, or 62% on short screens where the intro is hidden, plus a shade that fades out with the headline. It **still needs root's on-screen recheck**.
+- The phone hero framing was fixed by layout arithmetic (the car's centre at 64%, or 62% on short screens where the intro is hidden, plus a shade that fades out with the headline). Root then verified it on screen (below).
+
+**Root final manual QA: PASS** on `40c77d5` / `dpl_ALZtMXMBkuVAPZXRiFWaFmMvnuzS`, 18 Oct. Root's run, not mine; root saved the evidence (`ROOT-SERVER-NOTES-RECEIPT.json` and the final hero screenshots) in the Mission Control coordination folder.
+- **Phone hero:** at 375×667, 390×844 and 430×932 the text has enough contrast and does not collide with the car.
+- **Drawer:** open the menu, tap the top-bar Quote, and the drawer closes and page scrolling is restored.
+- **Quote form:**
+  - a native "Other" with a 300-character description and the route "Southampton cruise terminal" is no longer treated as an airport;
+  - the date and time work;
+  - 800 characters of notes are kept exactly, with the visible counter and `aria-invalid` blocking the step;
+  - shortened notes then go through the details step to a fresh, full dry-run receipt.
+- **API:** a fresh `GET` reports dry-run; short notes return 200 with `dryRun: true`; the maximum "Other" (300) plus 800 characters of notes returns 400 with the notes error. No real enquiry was sent.
+- **Desktop 1512×805:**
+  - the scene runs 0 → 0.5 (cabin) → 0.8 (aerial), and reversing to 0.5 → 0 gives exactly the same positions;
+  - the quote scene is visible at 0.95;
+  - there is no horizontal overflow.
 
 ## Media
 
