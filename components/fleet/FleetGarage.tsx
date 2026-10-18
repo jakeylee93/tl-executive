@@ -128,11 +128,16 @@ export function FleetGarage() {
     carRefs.current.forEach((el, i) => {
       const img = el?.querySelector<HTMLImageElement>('img[data-anyos-img]')
       if (!img || !el) return
+      const car: HTMLDivElement = el
+      const pic: HTMLImageElement = img
       const def = `${BASE}/${CARS[i].slug}.webp`
-      const check = () => { el.dataset.photo = img.getAttribute('src') && !img.getAttribute('src')!.endsWith(def) ? 'on' : 'off' }
+      const check = () => {
+        const src = pic.getAttribute('src') || ''
+        car.dataset.photo = src && !src.endsWith(def) ? 'on' : 'off'
+      }
       check()
       const mo = new MutationObserver(check)
-      mo.observe(img, { attributes: true, attributeFilter: ['src', 'srcset'] })
+      mo.observe(pic, { attributes: true, attributeFilter: ['src', 'srcset'] })
       obs.push(mo)
     })
     return () => obs.forEach(o => o.disconnect())

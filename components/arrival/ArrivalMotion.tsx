@@ -34,8 +34,9 @@ function coverBox(sw: number, sh: number, aspect: number, fx: number, fy: number
 
 export function ArrivalMotion() {
   useEffect(() => {
-    const root = document.querySelector<HTMLElement>('[data-arrival]')
-    if (!root) return
+    const found = document.querySelector<HTMLElement>('[data-arrival]')
+    if (!found) return
+    const root: HTMLElement = found
     const track = root.querySelector<HTMLElement>('.arr-track')!
     const stage = root.querySelector<HTMLElement>('[data-stage]')!
     const q = <T extends HTMLElement = HTMLElement>(s: string) => root.querySelector<T>(s)
