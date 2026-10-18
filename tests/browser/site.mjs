@@ -177,6 +177,12 @@ for (const [w, h] of [[375, 812], [390, 844], [430, 932], [1440, 900]]) {
   await cont(page); await page.waitForTimeout(400)
   check('step 2 follows, with focus on its heading', /Where, and when/.test(await heading(page)) && await page.evaluate(() => document.activeElement?.tagName) === 'H3')
   check('non-airport journeys ask no flight questions', !(await page.locator('[name=airportDirection]').count()) && !(await page.locator('#plan-flightIn, #plan-flightOut').count()))
+  // Root QA 18 Oct: a cruise "terminal" must not imply a flight; a named airport still does.
+  await page.locator('#plan-destination').fill('Southampton cruise terminal'); await page.waitForTimeout(150)
+  check('"Southampton cruise terminal" asks no flight questions', !(await page.locator('[name=airportDirection]').count()) && !(await page.locator('#plan-flightIn, #plan-flightOut').count()))
+  await page.locator('#plan-destination').fill('Heathrow Terminal 5'); await page.waitForTimeout(150)
+  check('a named airport ("Heathrow Terminal 5") still asks which way', await page.locator('[name=airportDirection]').count() === 2)
+  await page.locator('#plan-destination').fill('Southampton cruise terminal'); await page.waitForTimeout(150)
   await page.getByRole('button', { name: 'Back' }).click(); await page.waitForTimeout(300)
   check('Back keeps what was typed', (await page.getByLabel('Describe your journey').inputValue()) === 'Southampton for a cruise, four of us')
 

@@ -49,7 +49,11 @@ export function Hero() {
               className="ext-box"
               data-focal-x={arrival.focal?.x ?? 0.5}
               data-focal-y={arrival.focal?.y ?? 0.4}
-              style={{ ['--ext-ar' as string]: String(arrival.aspect ?? 1.6), transformOrigin: `${(arrival.focal?.x ?? 0.5) * 100}% ${(arrival.focal?.y ?? 0.4) * 100}%` }}
+              style={{
+                ['--ext-ar' as string]: String(arrival.aspect ?? 1.6),
+                ['--ext-cx' as string]: String(arrival.carCenter ?? 0.5),
+                transformOrigin: `${(arrival.focal?.x ?? 0.5) * 100}% ${(arrival.focal?.y ?? 0.4) * 100}%`,
+              }}
             >
               <img
                 src={`/media/${arrival.base}-1600.webp`}

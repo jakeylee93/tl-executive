@@ -7,7 +7,7 @@ Applies to every existing and new asset on this site.
 - **Audits:** audit each asset at full size against its ORIGINAL, including day and night states. Reject any drift and replace it with original pixels; a convincing result is not proof of fidelity.
 - **Logo as a feature:** feature the genuine logo with believable materials and lighting, without changing its geometry. Interface fonts are separate from brand lettering.
 - **Imagery:** use real references at their best resolution. Crop, correct perspective, clean and relight carefully, but never invent unseen subjects. Do not invent Simon's vehicles; anything missing stays pending.
-- **AI edits:** OpenArt Nano Banana Pro edits only within an evidenced allowance. Record the model, source, job IDs, outputs, credits, and any failures or retries. T&L currently has **no** allowance: the 800-credit figure was only a quote.
+- **AI edits:** OpenArt edits only within an evidenced allowance. Record the model, source, job IDs, outputs, credits, and any failures or retries. The 800-credit figure (12 Oct) was only a quote. Since 18 Oct, Jake's allowance is existing credits at up to 70 per photo, plus two 1080p clips up to 350 credits (see the 18 Oct audit).
 - **Scope:** no DNS, payment or production changes. Never claim an unconfigured form sends mail.
 
 ## Audit, 13 Oct 2026
@@ -22,3 +22,17 @@ Applies to every existing and new asset on this site.
 | Generated (AI) assets | none | Nothing to audit. |
 
 The hero's dusk tint is a CSS light overlay on the real photograph; no pixels are altered.
+
+## Audit, 18 Oct 2026
+
+**Allowance (Jake):** existing OpenArt credits at up to 70 per photo for this website, plus two 1080p clips up to 350 credits in total. **Spent:** 300 on stills and 175 on video. Full ledger in `JOURNEY-STORYBOARD.md`.
+
+| Asset | Source / reference | Result |
+|---|---|---|
+| `public/media/fleet/{sclass,eclass,tourneo}-1600.webp` | Generated 4K studio images (OpenArt Nano Banana 2), each made from that model's own official picture (`public/car-*.jpg`) | Shape checked against each reference: body, grille, emblem, lamps and wheels match, and plates are blank. Root accepted them. They show the **model**, not Simon's car; `/credits` and the fleet note say so. **Pass, as model imagery.** |
+| `public/car-vclass.jpg` | Official model render | Its studio job was never submitted, so the render stays as the disclosed fallback. **Pending.** |
+| `public/media/journey/k-*` | HERO-005/006/007: generated images of one conceptual W222 S-Class, made from the official S-Class picture | Root inspected the full-size masters. The aerial's generated plate and badge lettering are blurred. Captioned on `/credits` as generated, not our car. **Pass, as concept keyframes.** |
+| VIDEO-008 (K1 → K2 clip) | Kling 3.0 from HERO-005 and HERO-006 | **Rejected:** the cabin dissolves over the body, with no coherent window entry. Not used. |
+| Retired from the site | W223 exterior (Jason Lawrence), W222 Commons cabin, Epping Road and M25 photos | Replaced by the same-car keyframes; removed or no longer credited. |
+
+The badge is unchanged: the traced original, never generated.

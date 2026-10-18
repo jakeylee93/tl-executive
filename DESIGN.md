@@ -11,43 +11,60 @@
 - tooltips, marquees and fake counters;
 - visitor-facing production or "preview" copy.
 
-## Page chapters
+## Page chapters (18 Oct 2026)
 
 Photographic chapters alternate with white ones.
 
-1. **Opening scene** (photographic, scroll storyboard). Full-width hero with the badge, the headline, **Request a quote** and **Call**.
-2. **Plan your journey** (white). The enquiry form itself, directly under the hero.
-   - Journey type: Airport, Business, Occasion, Other.
-   - Pick-up and destination, with swap.
-   - Date, time, passenger and luggage steppers.
-   - Return trip and flight details appear when relevant.
-   - Preferred car, notes, then contact details.
-3. **The fleet** (white). A centred selector with four tabs.
-   - The chosen vehicle, its capacity and description change in place.
-   - "Choose this car" prefills the planner.
-4. **Services** (photographic). Three category tabs change the photograph and the list in place: Airports & travel (Heathrow T5), Business & London (Tower Bridge light trails), Occasions & events (Theydon Bois green).
-5. **Airports** (mist). Airport service notes, plus a route builder: choose a collection area and an airport, then "Plan this journey" prefills the planner.
-6. **Story & trust** (charcoal).
-   - The badge large beside Simon's own words.
-   - A full-width Epping Forest photograph carrying the lead testimonial. It is the editable `about.image` slot, so Simon can swap in his own photo.
-   - The other testimonials and client names follow.
-7. **Contact** (white). Large phone number, email, published hours, area, and the FAQ.
+1. **Opening journey** (photographic, scroll). One car, one trip, ending on the quote (below).
+2. **Request a quote** (white). A four-step wizard (below) next to the "How it works" points.
+3. **The fleet** (white, full-width stage). One car at a time:
+   - large complete vehicle, body type, seats and luggage, and a short distinction;
+   - tabs, Previous and Next, and "Choose this car", which fills the quote and then reads "Chosen for your quote".
+4. **Services** (photographic). Three category tabs change the photograph and list in place.
+5. **Airports** (mist). Airport notes, and a route builder that fills the quote's route.
+6. **Story and trust** (charcoal). The badge, Simon's words, the forest photograph (`about.image`), testimonials and clients.
+7. **Contact** (white). Phone, email, published hours, area, FAQ.
 
-## Hero storyboard
+## Opening journey
 
-Two different scenes of one journey, not the same road relit. Motion is driven purely by native scroll, so there is no Pause control (and no autonomous loop to justify one).
+These are three keyframes of **one conceptual car** (a generated black W222 S-Class; `lib/journey.ts`, `JOURNEY-STORYBOARD.md`). They are stills moved by native scroll. It is not a film, and must not be called one until a delivered clip passes QC.
 
-| | Start (p = 0) | Middle (p ≈ 0.5) | End (p = 1) |
-|---|---|---|---|
-| Scene | Epping Road through Epping Forest, daylight | Camera moves down the road; warm dusk light rises at the horizon | The M25 at night, light trails |
-| Badge | Turned −11°, tilted 4°, light from the upper left (sun, −60°) | Facing forward, light overhead | Turned +11°, slightly smaller and higher, light from the upper right (street lamp, +55°), warmer sheen |
-| Caption | "Epping Forest · Theydon Bois" | Hand-over (never both visible) | "The M25 · towards London & the airports" |
+| p (pinned scroll 0 → 1) | Scene | What moves |
+|---|---|---|
+| 0 | **Arrival**, start | The complete car in its own pool of light, beside the type (desktop) or through the middle of the screen (phones). Badge, headline, Request a quote, Call. |
+| 0.04–0.34 | Arrival → **through the glass** | The camera moves in toward the windscreen (transform-origin = the frame's `focal` point), golden hour turns to evening (a global grade of the same frame), a reflection travels along the body. The headline leaves early. |
+| 0.29–0.58 | **Cabin** | The cabin settles from slightly close to rest: "Settle in." |
+| 0.60–0.72 | Cabin → **road** | The camera draws back and rises: the cabin shrinks away, the aerial arrives large and settles. |
+| 0.70–1 | **Road**, then **quote** | "London, the M25 and all six airports.", then "Where are we taking you?" with four journey-type shortcuts, Request a quote and Call. |
 
-**How it works:**
-- The pin lasts about 75% of the viewport height (609–699px measured at 375–1440 wide). The sticky stage is 100svh inside a 175svh track.
-- Everything is transform or opacity. Each value is a pure function of scroll position, so reverse scrolling returns identical frames (verified).
-- **Reduced motion:** a static daylight frame, no pin.
-- **Text zoom:** if the hero content becomes taller than the viewport, the pin switches off so nothing is clipped (verified at 200%).
+**How it behaves:**
+- The pinned scroll is about two screens (`.hero-track` 300svh), not endless. Every value is a pure function of scroll, so scrolling back returns identical frames, and there is no Pause control because nothing plays by itself.
+- Hidden copy is `inert`.
+- Reduced motion, or text taller than the screen: the arrival still frame with its copy, nothing pinned.
+- anyOS editor: every scene's copy is laid out in order so it can be edited.
+- Swapping media changes data only: `base`, `aspect`, `focal` and `carCenter` in `lib/journey.ts`.
+
+## Navigation
+
+- **Bar:** fixed. Transparent with white type over the journey (the large badge is in the journey), then solid white with the compact badge.
+- **Always visible:** Request a quote ("Quote" on phones) and Call.
+- **Phone drawer:** opens below the bar. Large display-type links, then Request a quote and Call, then strapline and hours. Focus moves in and is trapped with the toggle; Escape or the toggle closes it and returns focus; the page behind does not scroll.
+- **Mobile action bar:** appears only after the journey. It steps aside over the quote, contact and footer, and while typing.
+
+## Quote wizard
+
+Four steps:
+1. **Journey:** native radio cards. "Other" (and Seaport & cruise) opens a required "Describe your journey".
+2. **Route and time:** for airports, "Which way?" comes first. The direction decides which flight numbers are asked. A return asks for its date and time, plus the flight home.
+3. **Car and passengers:** steppers, then car cards. Cars that cannot take the party or luggage are disabled; a chosen car that stops fitting is flagged at once.
+4. **Details:** contact fields, a review with Edit links, then Send.
+
+**Behaviour:**
+- Typed values survive Back, Forward and car changes.
+- Errors: a focused summary with links to the exact field, or to the radio in a group.
+- The server re-checks everything, including capacity and the "Other" description.
+- Copy keeps the request-versus-booking line: "a request for a quote, not a booking".
+- Extra context travels in the platform's bounded notes; the transfer-enquiry payload is unchanged.
 
 ## Colour
 
@@ -85,8 +102,8 @@ The badge lettering is never set in a font. It is the traced original.
 
 - Licensed Creative Commons photographs of the real places the business serves. They are cropped on each road's vanishing point, lightly graded (muted greens) and exported as responsive WebP: 960/1600/2400 landscape and 720/1080 portrait.
 - Credits are on `/credits`; provenance is in ASSET-LOG.md.
-- **Vehicles:** the four existing model renders, shown at native size in the fleet selector on a neutral stage. Never stretched as a hero.
-- **Rule:** no fabricated vehicles, people or premises.
+- **Vehicles:** generated 4K studio images of each model (E-Class, S-Class, Tourneo), each made from that model's official picture. The V-Class keeps its render, shown at its own size on a matching stage. All are captioned as the model, not Simon's car.
+- **Rule:** no fabricated people or premises, and no claim that an image shows Simon's own vehicle or trim. Generated lettering is blurred.
 
 ## Interaction rules
 

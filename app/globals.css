@@ -233,8 +233,8 @@
    the middle of the screen; desktop: to the right of the type. The camera
    move is applied around the windscreen (transform-origin = FOCAL). */
 .ext-box {
-  --ext-ar: 1.6;
-  position: absolute; left: -12vw; top: calc(53% - 62vw / var(--ext-ar)); width: 124vw; aspect-ratio: var(--ext-ar);
+  --ext-ar: 1.6; --ext-cx: 0.5;
+  position: absolute; left: calc(50vw - 124vw * var(--ext-cx)); top: calc(53% - 62vw / var(--ext-ar)); width: 124vw; aspect-ratio: var(--ext-ar);
   overflow: hidden;
   transform: translate3d(var(--ext-tx), var(--ext-ty), 0) scale(var(--ext-s));
   will-change: transform;

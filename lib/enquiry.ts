@@ -301,6 +301,8 @@ export function buildSiteLeadPayload(e: EnquiryInput) {
   }
 }
 
-/** Heuristic: does a place look like an airport? Used to offer flight fields. */
+/** Heuristic: does a place look like an airport? Used to offer flight fields.
+ *  Named airports, IATA codes or the word "airport" only: a bare "terminal"
+ *  is also a cruise, ferry or rail terminal, so it never implies a flight. */
 export const looksLikeAirport = (s: string) =>
-  /\b(airport|heathrow|gatwick|stansted|luton|southend airport|london city airport|lhr|lgw|stn|ltn|lcy|sen|terminal)\b/i.test(s)
+  /\b(airport|heathrow|gatwick|stansted|luton|southend airport|london city airport|lhr|lgw|stn|ltn|lcy|sen)\b/i.test(s)

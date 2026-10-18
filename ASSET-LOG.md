@@ -1,5 +1,17 @@
 # Asset log
 
+## 18 Oct 2026: generated fleet and journey imagery (OpenArt)
+
+The full ledger (jobs, assets, sizes, credits and the rejected VIDEO-008) is in `JOURNEY-STORYBOARD.md`. Root keeps the canonical 4K masters in `Mission-Control/tl-executive-rethink-20261018/assets/`; this repo never commits them (`.gitignore`, `.vercelignore`).
+
+| Web file | Built by | From |
+|---|---|---|
+| `public/media/fleet/{sclass,eclass,tourneo}-1600.webp` | `scripts/build-fleet-media.py` (resize only, one width, because anyOS replaces `src` and a srcset would override that) | PILOT-001, FLEET-002, FLEET-004 masters (SHA in root's receipts) |
+| `public/media/journey/k-*` | `scripts/build-hero-keyframes.py` (reads root's zip and checks hashes) | HERO-005/006/007 masters |
+
+The 12 Oct provisional W223 exterior and Commons cabin (`journey/exterior-*`, `journey/cabin-*`) were removed when the same-car keyframes arrived. The Epping Road `day-*` and M25 `night-*` plates are no longer shown; their files remain for history.
+
+
 ## Brand: badge reconstruction (12 Oct 2026)
 
 | Item | Detail |
