@@ -93,7 +93,8 @@ export function Journeys() {
 
               {g.key === 'travel' ? (
                 <div className="lg:col-span-5">
-                  <h3 suppressHydrationWarning data-anyos="airports.title" className="t-h3 text-white">Every London airport, from your door</h3>
+                  <p suppressHydrationWarning data-anyos="airports.eyebrow" className="label">Airports</p>
+                  <h3 suppressHydrationWarning data-anyos="airports.title" className="t-h3 mt-2 text-white">Every London airport, from your door</h3>
                   <p suppressHydrationWarning data-anyos="airports.intro" className="mt-2 text-[0.98rem] leading-snug text-[#dcdbd8]">Heathrow, Gatwick, London City, Luton, Stansted and Southend, plus the private and VIP terminals.</p>
                   <ul className="mt-5 grid grid-cols-2 gap-x-5 gap-y-4">
                     {AIRPORT_NOTES.map((n, i) => (
