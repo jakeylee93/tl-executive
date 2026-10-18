@@ -350,7 +350,7 @@ html.anyos-editing :is(.arr-scene[data-scene='b'], .arr-scene[data-scene='c'], .
 .garage-car { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
 .garage-car > img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }
 .garage-body { transition: filter 0.6s var(--tl-ease); }
-.garage-car[data-lit='off'] .garage-body, .garage-car[data-lit='off'] .garage-wheel { filter: brightness(0.8) saturate(0.92); }
+.garage-car[data-lit='off'] .garage-body, .garage-car[data-lit='off'] .garage-wheel { filter: brightness(0.74) saturate(0.9); }
 .garage-wheel { position: absolute; transform-origin: 50% 50%; transition: filter 0.6s var(--tl-ease); }
 .garage-wheel img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }
 .garage-car[data-photo='on'] :is(.garage-wheel, .garage-shadow) { display: none; }
@@ -360,10 +360,13 @@ html.anyos-editing :is(.arr-scene[data-scene='b'], .arr-scene[data-scene='c'], .
 .garage-tabs::-webkit-scrollbar { display: none; }
 .garage-tab {
   @apply min-h-[2.75rem] flex-none rounded-full px-3.5 text-[0.96rem] font-semibold;
-  color: #5b5650; transition: color 0.2s var(--tl-ease), background-color 0.2s var(--tl-ease);
+  color: #4a4641; background: rgba(255, 255, 255, 0.42); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  transition: color 0.2s var(--tl-ease), background-color 0.2s var(--tl-ease);
 }
-.garage-tab:hover { color: var(--tl-ink); }
-.garage-tab[aria-selected='true'] { color: var(--tl-ink); background: rgba(255, 255, 255, 0.6); }
+.garage-tab:hover { color: var(--tl-ink); background: rgba(255, 255, 255, 0.7); }
+.garage-tab[aria-selected='true'] { color: var(--tl-ink); background: #fff; }
+.garage-tabs { gap: 0.35rem; }
+.garage-count { @apply inline-flex min-h-[2.75rem] items-center rounded-full px-3 text-[0.92rem] text-ink-2; background: rgba(255, 255, 255, 0.42); }
 .garage-steps { display: flex; align-items: center; gap: 0.5rem; }
 .garage-step {
   @apply inline-flex min-h-[2.75rem] min-w-[2.75rem] items-center justify-center gap-2 rounded-full px-4 text-[0.98rem] font-semibold text-ink;

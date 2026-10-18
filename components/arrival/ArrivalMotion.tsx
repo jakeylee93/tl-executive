@@ -83,7 +83,8 @@ export function ArrivalMotion() {
 
     function layout() {
       const sw = stage.clientWidth
-      const sh = stage.clientHeight
+      // still layout: the opening photograph belongs to the first screen only
+      const sh = pinned ? stage.clientHeight : copies.a.offsetHeight
       const portrait = mqPortrait.matches
       // Arrival: desktop covers the stage with the car right of the type; on
       // narrow screens the whole car sits in a band across the lower half.
@@ -159,10 +160,10 @@ export function ArrivalMotion() {
     // ---- per frame ----------------------------------------------------------
     function frame() {
       raf = 0
-      if (!pinned) return
       const r = track.getBoundingClientRect()
       const span = Math.max(1, track.offsetHeight - stage.clientHeight)
-      const p = clamp(-r.top / span)
+      // still layout: the arrival's first frame only (wheels and car placed, nothing moving)
+      const p = pinned ? clamp(-r.top / span) : 0
       if (Math.abs(p - last) < 1e-4) return
       last = p
       const { a, c } = boxes
@@ -221,6 +222,7 @@ export function ArrivalMotion() {
       cSprites.forEach(el => { el.style.transform = tr })
 
       // Visibility, darkness and copy -------------------------------------
+      if (!pinned) return
       scenes.a.style.opacity = p < 0.37 ? '1' : '0'
       scenes.b.style.opacity = p > 0.33 && p < 0.67 ? '1' : '0'
       scenes.c.style.opacity = p > 0.62 ? '1' : '0'

@@ -247,7 +247,7 @@ export function FleetGarage() {
             <Icon name="arrowRight" className="h-5 w-5 rotate-180" />
             <span className="hidden sm:inline">Previous</span>
           </button>
-          <span className="tabular text-[0.92rem] text-steel" aria-live="polite">{active + 1} / {VEHICLES.length}</span>
+          <span className="garage-count tabular" aria-live="polite">{active + 1} / {VEHICLES.length}</span>
           <button type="button" className="garage-step" onClick={() => go(active + 1)} aria-label={`Next car: ${next.display}`}>
             <span className="hidden sm:inline">Next</span>
             <Icon name="arrowRight" className="h-5 w-5" />
