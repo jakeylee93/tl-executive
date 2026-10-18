@@ -20,18 +20,18 @@ Jake rejected the afternoon build: too much text, and keyframe zooms instead of 
 
 | | |
 |---|---|
-| Owner | `claude:tl-executive-opus-20260926`, this conversation. The work claim `abbb0758` is retained. Preview release claim `63d0f081-d2ef-4ed7-bae8-9d084908b901` is held for this candidate and will be released after handoff. |
+| Owner | `claude:tl-executive-opus-20260926`, this conversation. The work claim `abbb0758` is retained. Preview release claim `63d0f081-d2ef-4ed7-bae8-9d084908b901` was released after this handoff. |
 | Branch | **`claude/tl-executive-redesign-20261018`** (new). It was cut from `bdb6190` and pushed; the old branch was not modified. `BRIEF.md` is left untracked. |
-| Code commit | **`8f1d92a`** (redesign `7cc489c` and its fixes `653a86f`, `2da619d`, `8f1d92a`). |
-| Testing URL | **https://tl-executive-jiwar8shb-anyos.vercel.app**: `dpl_4yqTe4hVSz8t2dUWBGi53XGfFaMr`, target preview, Ready. It is a Vercel cloud build with type check; Vercel SSO applies. |
+| Code commit | **`50ca08a`** (redesign `7cc489c`, then fixes `653a86f`, `2da619d`, `8f1d92a`, `b80b6e7`, `50ca08a`). Later commits, if any, are docs-only. |
+| Testing URL | **https://tl-executive-pn5kq1ksp-anyos.vercel.app**: `dpl_BErvPtLJyCiCdn1vwrAdjEr7Nh2s`, built from `50ca08a`, target preview, Ready. It is a Vercel cloud build with type check; Vercel SSO applies. The earlier candidates `apcu5omco`, `jiwar8shb` and `6jqs6oqtz` are superseded. |
 | Production | Untouched. `tl-executive.vercel.app` was last changed about 23 days ago (cache age checked). No DNS, data, environment, billing or security changes. |
 
 ## Checks actually run
 
-**Cloud CI** (GitHub Actions `visual-qa`; the repo is public, so minutes are free). It ran on `2da619d` and then `8f1d92a`:
+**Cloud CI** (GitHub Actions `visual-qa`; the repo is public, so minutes are free). Runs `39148005630` (`2da619d`), `39148496119` (`8f1d92a`), `39149017799` (`b80b6e7`) and `39149500043` (`50ca08a`):
 - `pnpm build` passed, including the type check.
 - `node --test tests/*.test.mjs` passed. That is the CMS contract (all 114 text and 5 image keys on the homepage, shared defaults, `edit.js` site key, no frame blocking) and the enquiry contract (mock platform only).
-- **Headless Chromium on a local `next start` (dry-run) passed 31/31 checks on `2da619d`.** Covered:
+- **Headless Chromium on a local `next start` (dry-run) passed 31/31 checks** on `2da619d`, `8f1d92a`, `b80b6e7` and the final `50ca08a`. Covered:
   - 390, 375, 430 and 1440 widths;
   - the hero is pinned;
   - **reverse scrolling gives byte-identical frames at three positions**;
@@ -41,11 +41,11 @@ Jake rejected the afternoon build: too much text, and keyframe zooms instead of 
   - no console errors (the blocked third-party `edit.js` is excluded);
   - reduced motion does not pin;
   - the phone menu opens and Escape closes it.
-- **Evidence:** journey MP4s (1440×900 and 390×844 at 2×, 121 scroll positions, 24 fps), plus frames at 13 scroll stops per viewport, fleet drive frames and section shots. They are in the run artifact `visual-qa` (14-day retention).
+- **Evidence:** journey MP4s (1440×900 and 390×844 at 2×, 121 scroll positions, 24 fps) and fleet drive MP4s, plus frames at 13 scroll stops per viewport, fleet drive frames and section shots. They are in each run's artifact `visual-qa` (14-day retention).
 
 **On the deployed preview** (`vercel curl`):
 - `GET /api/enquiry` returns `{"ok":true,"mode":"dry-run"}`.
-- The CMS contract against the deployed homepage and airport-page HTML passes **8/8**.
+- The CMS contract against the deployed homepage and airport-page HTML passes **8/8** (on `jiwar8shb`, `6jqs6oqtz` and `pn5kq1ksp`).
 
 **Not run:**
 - the old `tests/browser/site.mjs` suite (it targets the afternoon layout and needs rewriting for this one);
