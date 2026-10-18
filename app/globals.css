@@ -329,7 +329,7 @@ html.anyos-editing :is(.arr-scene[data-scene='b'], .arr-scene[data-scene='c'], .
 .fleet { overflow: hidden; }
 .fleet-head { position: relative; z-index: 2; padding-top: 3.5rem; }
 .garage-stage {
-  position: relative; height: clamp(15rem, 40svh, 24rem); overflow: hidden;
+  position: relative; z-index: 0; isolation: isolate; height: clamp(15rem, 40svh, 24rem); overflow: hidden;
   background: #cfc6c0 url('/media/motion/fleet/garage-tall.webp') center / cover no-repeat;
 }
 @media (min-width: 640px) { .garage-stage { background-image: url('/media/motion/fleet/garage-wide.webp'); height: clamp(20rem, 56svh, 32rem); } }
@@ -339,13 +339,13 @@ html.anyos-editing :is(.arr-scene[data-scene='b'], .arr-scene[data-scene='c'], .
   .fleet { display: flex; flex-direction: column; min-height: max(44rem, 100svh); }
   .garage { display: contents; }
   .garage-stage { position: absolute; inset: 0; height: auto; }
-  .garage-light { background: radial-gradient(30% 22% at 60% 78%, rgba(255, 250, 244, 0.55), rgba(255, 250, 244, 0) 70%); }
+  .garage-light { background: radial-gradient(30% 22% at 64% 78%, rgba(255, 250, 244, 0.55), rgba(255, 250, 244, 0) 70%); }
   .fleet-head { padding-top: calc(var(--tl-header-h) + 2rem); }
-  .garage-ui { flex: 1; grid-template-columns: minmax(0, 26rem) 1fr auto; grid-template-rows: auto 1fr auto; align-items: end; padding-bottom: 0.5rem; }
-  .garage-card { grid-column: 1; grid-row: 1; align-self: start; }
-  .garage-tabs { grid-column: 1 / 3; grid-row: 3; }
-  .garage-steps { grid-column: 3; grid-row: 3; }
-  .fleet-note { position: relative; z-index: 2; }
+  /* Everything to operate sits in the left column on the wall; the floor stays clear for the cars. */
+  .garage-ui { flex: 1; grid-template-columns: minmax(0, 27rem); align-content: start; gap: 1rem; padding-bottom: 0.5rem; }
+  .garage-tabs { order: 2; }
+  .garage-steps { order: 3; }
+  .fleet-note { position: relative; z-index: 2; margin-top: auto; }
 }
 .garage-car { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
 .garage-car > img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }

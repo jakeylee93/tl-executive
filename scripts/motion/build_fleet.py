@@ -141,6 +141,13 @@ def main():
         xf, xr = hf[0], hr[0]
         line = gf + (xx - xf) * (gr - gf) / (xr - xf)
         alpha = np.where(yy > line + 2, 0, alpha).astype(np.float32)
+        if c['slug'] == 'vclass':
+            # the render's white floor shows under the body between the wheels: not part of the van
+            lum0 = rgb.astype(np.float32).mean(2)
+            sill = line - 0.07 * H
+            under = (yy > sill) & (xx > xf + 0.06 * W) & (xx < xr - 0.05 * W) & (lum0 > 150)
+            alpha = np.where(under, 0, alpha)
+            alpha = cv2.GaussianBlur(alpha, (0, 0), 0.8)
         shadow, _ = shadow_layer(rgb, alpha, max(gf, gr))
         body = rgb.astype(np.float32)
         if c.get('warm') and ref_mean is not None:

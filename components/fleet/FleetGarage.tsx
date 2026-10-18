@@ -17,7 +17,7 @@ import { QuoteLink } from '../QuoteLink'
 // photograph instead of the cut-out.
 
 const BASE = '/media/motion/fleet'
-const GAP_M = 2.6
+const GAP_M = 3.4
 const PERSP = 0.035 // size change per metre of depth, from the S-Class's own wheels
 const CARS = FLEET_GEO.cars
 const ref = CARS.find(c => c.slug === 'sclass')!
@@ -52,7 +52,7 @@ export function FleetGarage() {
     const desk = W >= 1024
     const k = desk ? Math.min((0.44 * W) / ref.w, (0.42 * H) / ref.h) : wide ? Math.min((0.5 * W) / ref.w, (0.6 * H) / ref.h) : Math.min((0.92 * W) / ref.w, (0.6 * H) / ref.h)
     const o = offset.current
-    const spotX = W * (desk ? 0.6 : 0.5)
+    const spotX = W * (desk ? 0.64 : 0.5)
     const spotY = H * (desk ? 0.76 : 0.9)
     CARS.forEach((c, i) => {
       const el = carRefs.current[i]
