@@ -1,14 +1,7 @@
-// Geometry for the three opening scenes and the fleet studio, written by
-// scripts/motion/build_*.py from the canonical masters (see MOTION.md).
-// Every coordinate is a fraction of its scene's full frame unless noted.
-import arrival from './arrival.json'
-import cabin from './cabin.json'
-import night from './night.json'
+// Geometry for the fleet convoy, written by scripts/motion/build_fleet.py
+// (layer sizes, wheel discs, ground contacts, road perspective).
 import fleet from './fleet.json'
 
-export const ARRIVAL = arrival
-export const CABIN = cabin
-export const NIGHT = night
 export const FLEET_GEO = fleet
 
 export const FRAME_WIDTHS = [960, 1600, 2400]
@@ -29,19 +22,3 @@ export const brake = (a: number, b: number, v: number) => {
   return 1 - (1 - t) * (1 - t)
 }
 export const lerp = (a: number, b: number, t: number) => a + (b - a) * t
-
-// --- Scene 3 (night): the car drives away up its lane -----------------------
-// Ground plane: horizon where the carriageway edge lines meet; the car keeps
-// its distance from the offside edge line, scaled by perspective.
-const GROUND_X = 0.556
-export function nightPath(t: number) {
-  const [[ex0, ey0], [ex1, ey1]] = NIGHT.edge
-  const edgeX = (y: number) => ex0 + ((y - ey0) * (ex1 - ex0)) / (ey1 - ey0)
-  const h = NIGHT.horizon
-  const d0 = 1 / (NIGHT.groundY - h)
-  const d1 = 1 / (NIGHT.endY - h)
-  const y = h + 1 / lerp(d0, d1, t) // constant ground speed: depth is linear
-  const s = (y - h) / (NIGHT.groundY - h)
-  const x = edgeX(y) - (edgeX(NIGHT.groundY) - GROUND_X) * s
-  return { x, y, s, x0: GROUND_X, y0: NIGHT.groundY }
-}

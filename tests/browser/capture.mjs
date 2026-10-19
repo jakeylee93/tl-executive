@@ -30,7 +30,6 @@ const VIEWS = [
   { tag: 'phone430', width: 430, height: 932, dpr: 2, mobile: true },
   { tag: 'desk1440', width: 1440, height: 900, dpr: 1, mobile: false },
 ]
-const STOPS = [0, 0.06, 0.14, 0.24, 0.31, 0.38, 0.46, 0.56, 0.63, 0.7, 0.8, 0.9, 1]
 
 const frames = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))
 
@@ -47,17 +46,22 @@ async function open(v, reducedMotion = 'no-preference') {
   return { ctx, page, errors }
 }
 
-async function heroMetrics(page) {
-  return page.evaluate(() => {
-    const t = document.querySelector('.arr-track')
+async function films(page) {
+  return page.evaluate(() => Array.from(document.querySelectorAll('[data-film]')).map(sec => {
+    const t = sec.querySelector('[data-film-track]')
     const r = t.getBoundingClientRect()
-    return { top: r.top + scrollY, span: t.offsetHeight - innerHeight, pin: document.querySelector('[data-arrival]').dataset.pin }
-  })
+    return { id: sec.id, top: r.top + scrollY, span: t.offsetHeight - innerHeight, pin: sec.dataset.pin, ready: sec.dataset.ready }
+  }))
 }
 async function scrollTo(page, y) {
   await page.evaluate(y => window.scrollTo({ top: y, behavior: 'instant' }), y)
   await page.evaluate(frames)
-  await page.waitForTimeout(60)
+  // let any scrubbed video finish seeking to its new time
+  await page.waitForFunction(() => Array.from(document.querySelectorAll('video')).every(v => !v.seeking), null, { timeout: 4000 }).catch(() => {})
+  await page.waitForTimeout(90)
+}
+async function waitReady(page, id) {
+  return page.waitForFunction(id => document.getElementById(id)?.dataset.ready === 'on', id, { timeout: 20000 }).then(() => true).catch(() => false)
 }
 async function shot(page, name, opts = {}) {
   const path = join(OUT, name)
@@ -68,36 +72,41 @@ async function shot(page, name, opts = {}) {
 
 for (const v of VIEWS) {
   const { ctx, page, errors } = await open(v)
-  const m = await heroMetrics(page)
-  check(`${v.tag}: opening journey pinned`, m.pin === 'on', `pin=${m.pin}, span=${m.span}px`)
-  // every hero image decoded before capturing
-  await page.evaluate(() => Promise.all(Array.from(document.querySelectorAll('[data-arrival] img')).map(i => i.decode().catch(() => {}))))
-  for (const s of STOPS) {
-    await scrollTo(page, m.top + s * m.span)
-    await shot(page, `hero-${v.tag}-${String(Math.round(s * 100)).padStart(3, '0')}.jpg`)
+  const fs = await films(page)
+  check(`${v.tag}: three pinned film sections`, fs.length === 3 && fs.every(f => f.pin === 'on'), fs.map(f => `${f.id}:${f.pin}`).join(' '))
+  const ready = []
+  for (const f of fs) {
+    await scrollTo(page, f.top)
+    ready.push(await waitReady(page, f.id))
+    for (const st of [0, 0.25, 0.5, 0.75, 1]) {
+      await scrollTo(page, f.top + st * f.span)
+      await shot(page, `film-${v.tag}-${f.id}-${String(Math.round(st * 100)).padStart(3, '0')}.jpg`)
+    }
   }
-  // reverse: reach the same positions coming back up, compare pixels
-  const same = []
-  for (const s of [0.24, 0.46, 0.8]) {
-    await scrollTo(page, m.top + s * m.span)
-    const a = await page.screenshot({ type: 'png' })
-    await scrollTo(page, m.top + Math.min(1, s + 0.15) * m.span)
-    await scrollTo(page, m.top + s * m.span)
-    const b = await page.screenshot({ type: 'png' })
-    same.push(Buffer.compare(a, b) === 0)
+  check(`${v.tag}: every shot's video loaded and playing by scroll`, ready.every(Boolean), ready.join(','))
+  // reverse: the same scroll position reached from below gives the same frame
+  {
+    const f = fs[0]
+    await scrollTo(page, f.top + 0.5 * f.span)
+    const a1 = await page.screenshot({ type: 'png' })
+    await scrollTo(page, f.top + 0.8 * f.span)
+    await scrollTo(page, f.top + 0.5 * f.span)
+    const b1 = await page.screenshot({ type: 'png' })
+    check(`${v.tag}: scrolling back returns the same frame`, Buffer.compare(a1, b1) === 0)
   }
-  check(`${v.tag}: reverse scrolling returns identical frames`, same.every(Boolean), same.join(','))
-  // journey film from scroll positions (24 fps, ~5 s)
+  // the journey as a film: scroll positions through all three sections
   if (v.tag === 'phone390' || v.tag === 'desk1440') {
     const dir = join(OUT, `frames-${v.tag}`)
     mkdirSync(dir, { recursive: true })
-    const N = 120
-    for (let i = 0; i <= N; i++) {
-      await scrollTo(page, m.top + (i / N) * m.span)
-      await page.screenshot({ path: join(dir, `f${String(i).padStart(4, '0')}.jpg`), type: 'jpeg', quality: 80 })
+    let n = 0
+    for (const f of fs) {
+      for (let i = 0; i <= 48; i++) {
+        await scrollTo(page, f.top + (i / 48) * f.span)
+        await page.screenshot({ path: join(dir, `f${String(n++).padStart(4, '0')}.jpg`), type: 'jpeg', quality: 80 })
+      }
     }
     const mp4 = join(OUT, `journey-${v.tag}.mp4`)
-    const r = spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', '24', '-i', join(dir, 'f%04d.jpg'), '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '22', mp4])
+    const r = spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', '18', '-i', join(dir, 'f%04d.jpg'), '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '22', mp4])
     check(`${v.tag}: journey video encoded`, r.status === 0, r.stderr?.toString().slice(0, 200))
     if (r.status === 0) report.files.push(`journey-${v.tag}.mp4`)
     rmSync(dir, { recursive: true, force: true })
@@ -154,8 +163,8 @@ for (const v of VIEWS) {
 // reduced motion: the still arrival, nothing pinned
 for (const v of [VIEWS[0], VIEWS[3]]) {
   const { ctx, page } = await open(v, 'reduce')
-  const m = await heroMetrics(page)
-  check(`${v.tag}: reduced motion does not pin`, m.pin === 'off', `pin=${m.pin}`)
+  const fs = await films(page)
+  check(`${v.tag}: reduced motion does not pin`, fs.every(f => f.pin === 'off'), fs.map(f => f.pin).join(','))
   await shot(page, `reduced-${v.tag}.jpg`)
   await ctx.close()
 }

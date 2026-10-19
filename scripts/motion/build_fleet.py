@@ -30,6 +30,48 @@ OUT = ROOT / 'public' / 'media' / 'motion' / 'fleet'
 GEO = ROOT / 'lib' / 'motion' / 'fleet.json'
 PX_PER_M = 190.0  # export scale for the desktop set; the phone set is half
 
+LAMPS = {
+    'eclass': [[(0.285, 0.50), (0.31, 0.44), (0.36, 0.41), (0.40, 0.42), (0.39, 0.47), (0.33, 0.53), (0.29, 0.545)],
+               [(0.075, 0.46), (0.09, 0.44), (0.095, 0.50), (0.08, 0.51)]],
+    'sclass': [[(0.265, 0.53), (0.28, 0.47), (0.33, 0.44), (0.385, 0.44), (0.37, 0.49), (0.31, 0.535), (0.27, 0.55)],
+               [(0.025, 0.47), (0.04, 0.44), (0.045, 0.52), (0.03, 0.53)]],
+    'vclass': [[(0.255, 0.57), (0.29, 0.49), (0.36, 0.45), (0.40, 0.44), (0.39, 0.49), (0.32, 0.55), (0.27, 0.59)],
+               [(0.02, 0.51), (0.035, 0.49), (0.04, 0.57), (0.025, 0.58)]],
+    'tourneo': [[(0.31, 0.50), (0.34, 0.45), (0.40, 0.41), (0.445, 0.40), (0.44, 0.46), (0.39, 0.52), (0.33, 0.56), (0.31, 0.54)],
+                [(0.012, 0.46), (0.03, 0.45), (0.032, 0.55), (0.015, 0.56)]],
+}
+ROAD_SRC = 'still016-road.png'  # STILL-016, country road at blue hour with London on the horizon
+ROAD_PORTRAIT_CX = 0.44
+
+
+def dusk_body(rgb, alpha):
+    """Studio light → blue hour: darker, cooler, and studio-white highlights become sky reflections."""
+    f = rgb.astype(np.float32) / 255
+    L = (0.2126 * f[..., 0] + 0.7152 * f[..., 1] + 0.0722 * f[..., 2])[..., None]
+    hm = np.clip((L - 0.5) / 0.45, 0, 1) ** 1.2
+    base = np.power(f, 1.12) * np.array([0.60, 0.68, 0.84], np.float32)
+    sky = np.array([0.36, 0.45, 0.62], np.float32)
+    out = base * (1 - 0.45 * hm) + sky * 0.45 * hm
+    return np.clip(out * 255, 0, 255)
+
+
+def lamp_layer(rgb, alpha, polys):
+    H, W = alpha.shape
+    m = np.zeros((H, W), np.float32)
+    for p in polys:
+        cv2.fillPoly(m, [np.array([[int(x * W), int(y * H)] for x, y in p], np.int32)], 1.0)
+    g = cv2.cvtColor(rgb.astype(np.uint8), cv2.COLOR_RGB2GRAY).astype(np.float32) / 255
+    m = m * cv2.erode((alpha > 0.9).astype(np.float32), np.ones((5, 5), np.uint8))  # only lamps on the body itself
+    core = np.clip((g - 0.25) / 0.5, 0, 1) * m
+    glow = np.zeros((H, W, 3), np.float32)
+    tint = np.array([1.0, 0.98, 0.94], np.float32)
+    for sig, k in ((1.2, 1.4), (4, 0.9), (12, 0.55), (36, 0.32)):
+        glow += cv2.GaussianBlur(core + m * 0.35, (0, 0), sig)[..., None] * k * tint
+    glow = np.clip(glow, 0, 1)
+    a = np.clip(glow.max(2, keepdims=True), 1e-4, 1)
+    return np.dstack([np.clip(glow / a, 0, 1) * 255, a * 255]).astype(np.uint8)
+
+
 CARS = [
     dict(slug='eclass', src='eclass-studio-2528.png', wheelbase=2.939, length=4.923, tyre_d=0.68,
          rect=(0.10, 0.355, 0.905, 0.85),
@@ -181,6 +223,9 @@ def main():
             # keep disc texture at its native rectified scale; the matrix accounts for size
             name = f"{c['slug']}-w{tag}.webp"
             cv2.imwrite(str(OUT / name), cv2.cvtColor(disc, cv2.COLOR_RGBA2BGRA), [cv2.IMWRITE_WEBP_QUALITY, 86])
+            dd = disc.copy()
+            dd[..., :3] = dusk_body(dd[..., :3], None).astype(np.uint8)
+            cv2.imwrite(str(OUT / name.replace('.webp', '-dusk.webp')), cv2.cvtColor(dd, cv2.COLOR_RGBA2BGRA), [cv2.IMWRITE_WEBP_QUALITY, 86])
             M = (np.array(wh['M']) * s).tolist()  # disc px -> layer px
             entry['wheels'].append(dict(src=name, size=wh['size'], c=to_layer(wh['lip_img']), hub=to_layer(wh['hub_img']), M=M))
         bgra = cv2.cvtColor(np.dstack([np.clip(b, 0, 255), a * 255]).astype(np.uint8), cv2.COLOR_RGBA2BGRA)
@@ -190,12 +235,38 @@ def main():
         shb = np.zeros((lh, lw, 4), np.uint8)
         shb[..., 3] = (sh * 255).astype(np.uint8)
         cv2.imwrite(str(OUT / f"{c['slug']}-shadow.webp"), cv2.resize(shb, (lw // 2, lh // 2), interpolation=cv2.INTER_AREA), [cv2.IMWRITE_WEBP_QUALITY, 80])
+        # dusk road variants (STILL-016 scene)
+        db = dusk_body(b, a)
+        cv2.imwrite(str(OUT / f"{c['slug']}-dusk.webp"), cv2.cvtColor(np.dstack([db, a * 255]).astype(np.uint8), cv2.COLOR_RGBA2BGRA), [cv2.IMWRITE_WEBP_QUALITY, 84])
+        lamps = lamp_layer(b, a, LAMPS[c['slug']])
+        cv2.imwrite(str(OUT / f"{c['slug']}-lamps.webp"), cv2.cvtColor(cv2.resize(lamps, (lw // 2, lh // 2), interpolation=cv2.INTER_AREA), cv2.COLOR_RGBA2BGRA), [cv2.IMWRITE_WEBP_QUALITY, 85])
+        # heavier contact shadow on asphalt: the studio shadow plus occlusion right under the body
+        yy2, xx2 = np.mgrid[0:lh, 0:lw].astype(np.float32)
+        (gfx, gfy), (grx, gry) = entry['ground']
+        line2 = gfy + (xx2 - gfx) * (gry - gfy) / (grx - gfx)
+        occ = ((yy2 > line2 - 0.05 * lh) & (yy2 < line2 + 0.012 * lh) & (xx2 > gfx - 0.12 * lw) & (xx2 < grx + 0.06 * lw)).astype(np.float32)
+        occ = cv2.GaussianBlur(occ, (0, 0), 0.02 * lw) * 0.85
+        road_sh = np.clip(np.maximum(sh * 1.5, occ), 0, 0.92)
+        rsb = np.zeros((lh, lw, 4), np.uint8)
+        rsb[..., 3] = (road_sh * 255).astype(np.uint8)
+        cv2.imwrite(str(OUT / f"{c['slug']}-shadow-road.webp"), cv2.resize(rsb, (lw // 2, lh // 2), interpolation=cv2.INTER_AREA), [cv2.IMWRITE_WEBP_QUALITY, 80])
         geo['cars'].append(entry)
         layers.append(dict(entry=entry, body=b, alpha=a, shadow=sh))
         print(c['slug'], f'k={k:.1f}px/m scale={s:.3f} layer={lw}x{lh}', 'ground', [[round(v) for v in g] for g in entry['ground']])
     # the studio itself, for the page background (wide and portrait)
     for name, (pw, ph) in (('garage-wide', (2400, 1100)), ('garage-tall', (1080, 1500))):
         cv2.imwrite(str(OUT / f'{name}.webp'), cv2.cvtColor(studio_plate(pw, ph).astype(np.uint8), cv2.COLOR_RGB2BGR), [cv2.IMWRITE_WEBP_QUALITY, 82])
+    road_path = work / ROAD_SRC
+    if road_path.exists():
+        road = cv2.imread(str(road_path))
+        RH, RW = road.shape[:2]
+        for fw in (2400, 1600, 960):
+            cv2.imwrite(str(OUT / f'road-{fw}.webp'), cv2.resize(road, (fw, int(round(RH * fw / RW))), interpolation=cv2.INTER_AREA), [cv2.IMWRITE_WEBP_QUALITY, 82])
+        cw = int(round(RH * 9 / 16))
+        x0 = int(min(RW - cw, max(0, ROAD_PORTRAIT_CX * RW - cw / 2)))
+        for pw in (720, 1080):
+            cv2.imwrite(str(OUT / f'road-p{pw}.webp'), cv2.resize(road[:, x0:x0 + cw], (pw, int(round(RH * pw / cw))), interpolation=cv2.INTER_AREA), [cv2.IMWRITE_WEBP_QUALITY, 82])
+        geo['road'] = dict(aspect=RW / RH, vp=[0.9235, 0.335], lane0=[0.32, 1.0], z0=7.8, portraitX=x0 / RW, portraitW=cw / RW)
     GEO.write_text(json.dumps(geo, indent=1))
     if preview:
         compose_preview(layers, preview)

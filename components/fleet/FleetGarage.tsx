@@ -8,20 +8,22 @@ import { FLEET_GEO, clamp } from '@/lib/motion/scenes'
 import { Icon } from '../Icon'
 import { QuoteLink } from '../QuoteLink'
 
-// The four published vehicles in one studio, nose to tail, at their true
-// relative size (scaled by wheelbase). Choosing a car drives the whole convoy
-// forward or back until that car stops in the light; every wheel turns by the
-// distance travelled. Explicit controls only (tabs, Previous, Next): the page
+// The four published vehicles on a country road at dusk, London on the
+// horizon (STILL-016), nose to tail at their true relative size (scaled by
+// wheelbase), lamps on. The road's own perspective places them: each car sits
+// on the near lane at its distance, so the line recedes towards the vanishing
+// point. Choosing a car drives the whole convoy forward or back until that car
+// stops at the front; every wheel turns by the distance travelled. Explicit controls only (tabs, Previous, Next): the page
 // scrolls normally over the studio. Car pictures are anyOS images
 // (fleet.<slug>.image): if one is replaced, that car is shown as the uploaded
 // photograph instead of the cut-out.
 
 const BASE = '/media/motion/fleet'
 const GAP_M = 3.4
-const PERSP = 0.035 // size change per metre of depth, from the S-Class's own wheels
 const CARS = FLEET_GEO.cars
+const ROAD = FLEET_GEO.road
 const ref = CARS.find(c => c.slug === 'sclass')!
-const AXIS = [(ref.ground[1][0] - ref.ground[0][0]) / ref.wheelbase, (ref.ground[1][1] - ref.ground[0][1]) / ref.wheelbase]
+const PORTRAIT = '(max-aspect-ratio: 4/5)'
 const POS: number[] = []
 CARS.reduce((at, c) => { POS.push(at); return at + c.length + GAP_M }, 0)
 const BY_SLUG: Record<string, number> = { 'mercedes-e-class': 0, 'mercedes-s-class': 1, 'mercedes-v-class': 2, 'tourneo-custom-executive-spec': 3 }
@@ -34,6 +36,7 @@ export function FleetGarage() {
   const [active, setActive] = useState(0)
   const [chosen, setChosen] = useState('')
   const stageRef = useRef<HTMLDivElement>(null)
+  const plateRef = useRef<HTMLDivElement>(null)
   const carRefs = useRef<(HTMLDivElement | null)[]>([])
   const wheelRefs = useRef<(HTMLDivElement | null)[][]>(CARS.map(() => []))
   const tabs = useRef<(HTMLButtonElement | null)[]>([])
@@ -44,29 +47,46 @@ export function FleetGarage() {
 
   const draw = useCallback(() => {
     const stage = stageRef.current
-    if (!stage) return
+    const plate = plateRef.current
+    if (!stage || !plate) return
     const W = stage.clientWidth
     const H = stage.clientHeight
-    const wide = W / H > 1.25
-    // scale: the car in the light fills a fixed share of the studio
+    const portrait = window.matchMedia(PORTRAIT).matches
     const desk = W >= 1024
-    const k = desk ? Math.min((0.44 * W) / ref.w, (0.42 * H) / ref.h) : wide ? Math.min((0.5 * W) / ref.w, (0.6 * H) / ref.h) : Math.min((0.92 * W) / ref.w, (0.6 * H) / ref.h)
+    // the road photograph covers the stage; on desktop it is held to the left so
+    // the car at the front stands clear of the copy
+    const c0 = portrait ? ROAD.portraitX : 0
+    const cw = portrait ? ROAD.portraitW : 1
+    const aspect = ROAD.aspect * cw
+    let bw = W
+    let bh = bw / aspect
+    if (bh < H) { bh = H; bw = bh * aspect }
+    const bx = desk ? 0 : Math.max(W - bw, Math.min(0, W / 2 - bw / 2))
+    const by = Math.max(H - bh, Math.min(0, H * 0.5 - bh * 0.5))
+    Object.assign(plate.style, { left: `${bx}px`, top: `${by}px`, width: `${bw}px`, height: `${bh}px` })
+    const X = (x: number) => bx + ((x - c0) / cw) * bw
+    const Y = (y: number) => by + y * bh
+    const VP = [X(ROAD.vp[0]), Y(ROAD.vp[1])]
+    const L0 = [X(ROAD.lane0[0]), Y(ROAD.lane0[1])]
+    const spotY = H * (desk ? 0.84 : 0.8)
+    const t = (L0[1] - spotY) / (L0[1] - VP[1])
+    const SPOT = [L0[0] + (VP[0] - L0[0]) * t, spotY]
+    // size of the front car, at the front position
+    const k = desk ? (0.4 * W) / ref.w : Math.min((0.82 * W) / ref.w, (0.3 * H) / ref.h)
     const o = offset.current
-    const spotX = W * (desk ? 0.64 : 0.5)
-    const spotY = H * (desk ? 0.76 : 0.9)
     CARS.forEach((c, i) => {
       const el = carRefs.current[i]
       if (!el) return
-      const d = POS[i] - o // metres behind the light
-      const persp = 1 / (1 + PERSP * Math.max(-12, d))
-      const sc = k * persp
+      const d = POS[i] - o // metres behind the front position
+      const z = ROAD.z0 + d
+      if (z < 1.4) { el.style.visibility = 'hidden'; return } // already driven past the camera
+      el.style.visibility = ''
+      const s = ROAD.z0 / z
+      const gxy = [VP[0] + (SPOT[0] - VP[0]) * s, VP[1] + (SPOT[1] - VP[1]) * s]
+      const sc = k * s
       const [gx, gy] = c.ground[0]
-      // centre the car in the light, not its front wheel
-      const cxOff = (c.w / 2 - gx) * sc
-      const tx = spotX - cxOff + d * AXIS[0] * k * persp - gx * sc
-      const ty = spotY + d * AXIS[1] * k * persp - gy * sc
-      el.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${sc})`
-      el.style.zIndex = String(100 - Math.round(d * 2))
+      el.style.transform = `translate3d(${gxy[0] - gx * sc}px, ${gxy[1] - gy * sc}px, 0) scale(${sc})`
+      el.style.zIndex = String(200 - Math.round(d * 2))
       const turn = (-o / (Math.PI * c.tyreD)) * 360
       c.wheels.forEach((w, j) => {
         const wel = wheelRefs.current[i][j]
@@ -131,7 +151,7 @@ export function FleetGarage() {
       if (!img || !el) return
       const car: HTMLDivElement = el
       const pic: HTMLImageElement = img
-      const def = `${BASE}/${CARS[i].slug}.webp`
+      const def = `${BASE}/${CARS[i].slug}-dusk.webp`
       const check = () => {
         const src = pic.getAttribute('src') || ''
         car.dataset.photo = src && !src.endsWith(def) ? 'on' : 'off'
@@ -163,7 +183,12 @@ export function FleetGarage() {
   return (
     <div className="garage">
       <div ref={stageRef} className="garage-stage" aria-hidden="true">
-        <div className="garage-light" />
+        <div ref={plateRef} className="garage-plate">
+          <picture>
+            <source media={PORTRAIT} srcSet={`${BASE}/road-p720.webp 720w, ${BASE}/road-p1080.webp 1080w`} sizes="100vw" type="image/webp" />
+            <img src={`${BASE}/road-1600.webp`} srcSet={`${BASE}/road-960.webp 960w, ${BASE}/road-1600.webp 1600w, ${BASE}/road-2400.webp 2400w`} sizes="max(100vw, 179svh)" alt="" width={1600} height={893} loading="lazy" decoding="async" />
+          </picture>
+        </div>
         {VEHICLES.map((v, i) => {
           const key = slug(v.name)
           const c = CARS[BY_SLUG[key] ?? i]
@@ -176,10 +201,10 @@ export function FleetGarage() {
               data-photo="off"
               style={{ width: c.w, height: c.h }}
             >
-              <img src={`${BASE}/${c.slug}-shadow.webp`} alt="" width={c.w} height={c.h} className="garage-shadow" loading="lazy" decoding="async" />
+              <img src={`${BASE}/${c.slug}-shadow-road.webp`} alt="" width={c.w} height={c.h} className="garage-shadow" loading="lazy" decoding="async" />
               <img
                 data-anyos-img={`fleet.${key}.image`}
-                src={`${BASE}/${c.slug}.webp`}
+                src={`${BASE}/${c.slug}-dusk.webp`}
                 alt={v.alt}
                 width={c.w}
                 height={c.h}
@@ -194,9 +219,10 @@ export function FleetGarage() {
                   className="garage-wheel"
                   style={{ width: w.size, height: w.size, left: w.c[0] - w.size / 2, top: w.c[1] - w.size / 2 }}
                 >
-                  <img src={`${BASE}/${w.src}`} alt="" width={w.size} height={w.size} loading="lazy" decoding="async" />
+                  <img src={`${BASE}/${w.src.replace('.webp', '-dusk.webp')}`} alt="" width={w.size} height={w.size} loading="lazy" decoding="async" />
                 </div>
               ))}
+              <img src={`${BASE}/${c.slug}-lamps.webp`} alt="" width={c.w} height={c.h} className="garage-lamps" loading="lazy" decoding="async" />
             </div>
           )
         })}

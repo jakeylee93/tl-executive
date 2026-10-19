@@ -208,95 +208,60 @@
 }
 
 /* ------------------------------------------------------------------------
-   Opening journey (MOTION.md). ArrivalMotion sizes each scene's frame and
-   writes transforms/opacities from native scroll. Layers are photographs
-   cut apart: the car, its wheels, its lamps, the world outside the glass.
+   Opening journey (FILM.md): three continuous shots, each in its own
+   full-screen pinned section; scroll position is the video's playhead.
    ------------------------------------------------------------------------ */
-.arr-track { position: relative; height: 340svh; }
-.arr-stage { position: sticky; top: 0; height: 100svh; min-height: 32rem; overflow: hidden; background: #0b0c0e; }
-.arr-scene { position: absolute; inset: 0; pointer-events: none; }
-.arr-scene[data-scene='b'], .arr-scene[data-scene='c'] { opacity: 0; }
-.arr-frame { position: absolute; left: calc(50% - max(50vw, 89.6svh)); top: 0; width: max(100vw, 179.2svh); aspect-ratio: 1.7917; transform-origin: 50% 50%; will-change: transform; }
-.arr-fill { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }
-.arr-frame [data-dusk] { opacity: 0; }
-.arr-layer { position: absolute; inset: 0; will-change: transform; }
-.arr-screen { mix-blend-mode: screen; }
-.arr-car { position: absolute; will-change: transform; }
-.arr-wheel { position: absolute; visibility: hidden; transform-origin: 50% 50%; will-change: transform; }
-.arrival[data-ready='on'] .arr-wheel { visibility: visible; }
-.arr-wheel img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }
-.arr-glow { position: absolute; max-width: none; opacity: 0; }
-.arr-sprite { position: absolute; max-width: none; will-change: transform; }
-.arr-black { position: absolute; inset: 0; background: #050506; opacity: 0; pointer-events: none; z-index: 5; }
-/* Narrow screens: the arrival photograph is a band across the lower half;
-   its top and bottom melt into the night-dark stage. */
-.arr-frame[data-fit='band'] {
-  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 16%, #000 86%, transparent 100%);
-  mask-image: linear-gradient(180deg, transparent 0%, #000 16%, #000 86%, transparent 100%);
-}
-
-.arr-shade { position: absolute; inset: 0; pointer-events: none; z-index: 6; }
-.arr-shade-top { background: linear-gradient(180deg, rgba(6, 7, 8, 0.6) 0%, rgba(6, 7, 8, 0) 18%); }
-.arr-shade-a { background: linear-gradient(180deg, rgba(6, 7, 8, 0.78) 0%, rgba(6, 7, 8, 0.25) 34%, rgba(6, 7, 8, 0) 46%), linear-gradient(0deg, rgba(6, 7, 8, 0.85) 0%, rgba(6, 7, 8, 0) 26%); }
+.film-track { position: relative; }
+.film-stage { position: sticky; top: 0; height: 100svh; min-height: 30rem; overflow: hidden; background: #08090a; }
+.film-poster, .film-video { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; }
+.film-video { opacity: 0; transition: opacity 0.35s var(--tl-ease); }
+.film[data-ready='on'] .film-video { opacity: 1; }
+.film-shade { position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: linear-gradient(180deg, rgba(6, 7, 8, 0.6) 0%, rgba(6, 7, 8, 0) 26%), linear-gradient(0deg, rgba(6, 7, 8, 0.72) 0%, rgba(6, 7, 8, 0) 34%); }
+#top .film-shade { background: linear-gradient(180deg, rgba(6, 7, 8, 0.72) 0%, rgba(6, 7, 8, 0.2) 36%, rgba(6, 7, 8, 0) 50%), linear-gradient(0deg, rgba(6, 7, 8, 0.78) 0%, rgba(6, 7, 8, 0) 34%); }
 @media (min-aspect-ratio: 11/10) {
-  .arr-shade-a { background: linear-gradient(90deg, rgba(6, 7, 8, 0.86) 0%, rgba(6, 7, 8, 0.5) 30%, rgba(6, 7, 8, 0) 52%), linear-gradient(0deg, rgba(6, 7, 8, 0.5) 0%, rgba(6, 7, 8, 0) 24%); }
+  #top .film-shade { background: linear-gradient(90deg, rgba(6, 7, 8, 0.78) 0%, rgba(6, 7, 8, 0.35) 30%, rgba(6, 7, 8, 0) 52%), linear-gradient(0deg, rgba(6, 7, 8, 0.6) 0%, rgba(6, 7, 8, 0) 30%); }
 }
-.arr-shade-b { opacity: 0; background: linear-gradient(0deg, rgba(6, 7, 8, 0.86) 0%, rgba(6, 7, 8, 0.4) 26%, rgba(6, 7, 8, 0) 48%); }
-.arr-shade-c { opacity: 0; background: radial-gradient(70% 60% at 50% 46%, rgba(6, 7, 8, 0.62), rgba(6, 7, 8, 0.2) 70%, rgba(6, 7, 8, 0) 100%); }
-
-.arr-copy { position: absolute; inset-inline: 0; z-index: 10; }
-.arr-copy-a {
-  inset-block: 0; display: flex; flex-direction: column; justify-content: space-between;
-  padding-top: calc(var(--tl-header-h) + 1.25rem); padding-bottom: 1.5rem;
-}
-.arr-copy-a-top, .arr-actions { max-width: 30rem; }
-.arrival .arr-title { font-size: clamp(2.4rem, 1.5rem + 3.6vw, 4.4rem); }
-@media (min-aspect-ratio: 11/10) {
-  .arr-copy-a { justify-content: center; gap: 2.25rem; padding-bottom: 3rem; }
-  .arr-copy-a-top, .arr-actions { max-width: 27rem; }
-}
-@media (max-aspect-ratio: 11/10) and (max-height: 720px) { .arr-intro { display: none; } }
-.arr-copy-b { bottom: 0; padding-bottom: max(2.5rem, env(safe-area-inset-bottom)); opacity: 0; pointer-events: none; }
-.arr-copy-c {
-  inset-block: 0; display: flex; align-items: center; justify-content: center;
-  padding-top: var(--tl-header-h); padding-bottom: 1.5rem; opacity: 0; pointer-events: none;
-}
-.arr-copy-c[data-live='on'] { pointer-events: auto; }
+.film-copy { position: absolute; inset-inline: 0; z-index: 2; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 4px 28px rgba(0, 0, 0, 0.45); }
+.film-copy[data-in]:not([data-in='0']) { opacity: 0; }
+.film-copy-open { inset-block: 0; display: flex; flex-direction: column; justify-content: space-between; padding-top: calc(var(--tl-header-h) + 1.25rem); padding-bottom: max(1.5rem, env(safe-area-inset-bottom)); }
+.film-open-top, .film-actions { max-width: 30rem; }
+@media (min-aspect-ratio: 11/10) { .film-copy-open { justify-content: center; gap: 2.25rem; padding-bottom: 3rem; } .film-open-top, .film-actions { max-width: 27rem; } }
+@media (max-aspect-ratio: 11/10) and (max-height: 720px) { .film-intro { display: none; } }
+.film .arr-title { font-size: clamp(2.4rem, 1.5rem + 3.6vw, 4.4rem); }
+.film-copy-low { bottom: 0; padding-bottom: max(2.75rem, env(safe-area-inset-bottom)); }
+.film-copy-top { top: 0; padding-top: calc(var(--tl-header-h) + 1.5rem); }
+.film-copy-final { inset-block: 0; display: flex; align-items: center; justify-content: center; padding-top: var(--tl-header-h); padding-bottom: 2rem; }
+.film-copy .btn { text-shadow: none; }
 .arr-chip {
   @apply inline-flex min-h-[2.9rem] w-full items-center justify-center gap-2 rounded-full px-4 text-[0.98rem] font-semibold text-white;
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.55);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  transition: background-color 0.2s var(--tl-ease);
+  background: rgba(255, 255, 255, 0.12); box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.6);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); transition: background-color 0.2s var(--tl-ease);
 }
-.arr-chip:hover { background: rgba(255, 255, 255, 0.2); }
+.arr-chip:hover { background: rgba(255, 255, 255, 0.22); }
 @media (min-width: 640px) { .arr-chip { width: auto; } }
 .arr-badge { filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.5)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4)); }
 .on-photo .label { color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 2px 18px rgba(0, 0, 0, 0.55); }
 
-/* Still layout: reduced motion, the anyOS editor, or copy too large for the
-   screen. The arrival photograph with its copy; the closing prompt follows. */
-.arrival[data-pin='off'] .arr-track { height: auto; }
-.arrival[data-pin='off'] .arr-stage { position: relative; height: auto; min-height: 100svh; }
-.arrival[data-pin='off'] :is(.arr-scene[data-scene='b'], .arr-scene[data-scene='c'], .arr-black, .arr-shade-b, .arr-copy-b) { display: none; }
-.arrival[data-pin='off'] .arr-copy-a { position: relative; min-height: 100svh; }
-.arrival[data-pin='off'] .arr-copy-c { position: relative; opacity: 1; pointer-events: auto; padding-block: 3.5rem 4rem; background: #0b0c0e; }
-.arrival[data-pin='off'] .arr-shade-c { display: none; }
-.arrival[data-pin='off'] .arr-frame { position: absolute; }
+/* Still layout: reduced motion or the anyOS editor. Each section is its poster
+   frame with its copy; nothing pinned, every block readable. */
+.film[data-pin='off'] .film-track { height: auto !important; }
+.film[data-pin='off'] .film-stage { position: relative; height: auto; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; }
+.film[data-pin='off'] .film-video { display: none; }
+.film[data-pin='off'] .film-copy { position: relative; opacity: 1 !important; transform: none !important; }
+.film[data-pin='off'] .film-copy-open { min-height: 100svh; }
+.film[data-pin='off'] .film-copy-final, .film[data-pin='off'] .film-copy-top { padding-block: 2.5rem; }
 @media (prefers-reduced-motion: reduce) {
-  .arr-track { height: auto; }
-  .arr-stage { position: relative; height: auto; min-height: 100svh; }
-  :is(.arr-scene[data-scene='b'], .arr-scene[data-scene='c'], .arr-black, .arr-shade-b, .arr-copy-b) { display: none; }
-  .arr-copy-a { position: relative; min-height: 100svh; }
-  .arr-copy-c { position: relative; opacity: 1; pointer-events: auto; padding-block: 3.5rem 4rem; background: #0b0c0e; }
+  .film-track { height: auto !important; }
+  .film-stage { position: relative; height: auto; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; }
+  .film-video { display: none; }
+  .film-copy { position: relative; opacity: 1 !important; transform: none !important; }
+  .film-copy-open { min-height: 100svh; }
 }
-html.anyos-editing .arr-track { height: auto; }
-html.anyos-editing .arr-stage { position: relative; height: auto; }
-html.anyos-editing .arr-copy { position: relative; opacity: 1 !important; transform: none !important; pointer-events: auto; }
-html.anyos-editing .arr-copy-a { min-height: 100svh; }
-html.anyos-editing :is(.arr-copy-b, .arr-copy-c) { padding-block: 3rem; background: #0b0c0e; }
-html.anyos-editing :is(.arr-scene[data-scene='b'], .arr-scene[data-scene='c'], .arr-black, .arr-shade-b, .arr-shade-c) { display: none; }
+html.anyos-editing .film-track { height: auto !important; }
+html.anyos-editing .film-stage { position: relative; height: auto; }
+html.anyos-editing .film-copy { position: relative; opacity: 1 !important; transform: none !important; }
+html.anyos-editing .film-video { display: none; }
 
 /* ------------------------------------------------------------------------
    Journeys: one photograph per kind of trip; trips open one at a time.
@@ -324,55 +289,64 @@ html.anyos-editing :is(.arr-scene[data-scene='b'], .arr-scene[data-scene='c'], .
 .journey-cta:hover { text-decoration-color: #fff; }
 
 /* ------------------------------------------------------------------------
-   Fleet studio: the convoy drives; nothing else moves.
+   Fleet: the convoy on a country road at dusk, London on the horizon. One
+   full screen on every device; copy on the sky, the road kept for the cars.
    ------------------------------------------------------------------------ */
-.fleet { overflow: hidden; }
-.fleet-head { position: relative; z-index: 2; padding-top: 3.5rem; }
-.garage-stage {
-  position: relative; z-index: 0; isolation: isolate; height: clamp(15rem, 40svh, 24rem); overflow: hidden;
-  background: #cfc6c0 url('/media/motion/fleet/garage-tall.webp') center / cover no-repeat;
+.fleet { position: relative; display: flex; flex-direction: column; min-height: 100svh; overflow: hidden; background: #0c1018; isolation: isolate; }
+.garage { display: contents; }
+.garage-stage { position: absolute; inset: 0; z-index: 0; overflow: hidden; isolation: isolate; }
+.garage-stage::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 300;
+  background: linear-gradient(180deg, rgba(7, 9, 14, 0.55) 0%, rgba(7, 9, 14, 0) 34%), linear-gradient(0deg, rgba(7, 9, 14, 0.7) 0%, rgba(7, 9, 14, 0) 22%);
 }
-@media (min-width: 640px) { .garage-stage { background-image: url('/media/motion/fleet/garage-wide.webp'); height: clamp(20rem, 56svh, 32rem); } }
-.garage-light { position: absolute; inset: 0; background: radial-gradient(44% 26% at 50% 90%, rgba(255, 250, 244, 0.55), rgba(255, 250, 244, 0) 70%); pointer-events: none; }
 @media (min-width: 1024px) {
-  /* The studio fills the chapter; title and the chosen car's card sit on its wall. */
-  .fleet { display: flex; flex-direction: column; min-height: max(44rem, 100svh); }
-  .garage { display: contents; }
-  .garage-stage { position: absolute; inset: 0; height: auto; }
-  .garage-light { background: radial-gradient(30% 22% at 64% 78%, rgba(255, 250, 244, 0.55), rgba(255, 250, 244, 0) 70%); }
-  .fleet-head { padding-top: calc(var(--tl-header-h) + 2rem); }
-  /* Everything to operate sits in the left column on the wall; the floor stays clear for the cars. */
-  .garage-ui { flex: 1; grid-template-columns: minmax(0, 27rem); align-content: start; gap: 1rem; padding-bottom: 0.5rem; }
-  .garage-tabs { order: 2; }
-  .garage-steps { order: 3; }
-  .fleet-note { position: relative; z-index: 2; margin-top: auto; }
+  .garage-stage::after { background: linear-gradient(90deg, rgba(7, 9, 14, 0.62) 0%, rgba(7, 9, 14, 0.25) 34%, rgba(7, 9, 14, 0) 50%), linear-gradient(0deg, rgba(7, 9, 14, 0.5) 0%, rgba(7, 9, 14, 0) 20%); }
 }
+.garage-plate { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+.garage-plate img { width: 100%; height: 100%; max-width: none; object-fit: cover; }
+.fleet-head { position: relative; z-index: 2; padding-top: calc(var(--tl-header-h) + 1.25rem); }
+@media (min-width: 1024px) { .fleet-head { padding-top: calc(var(--tl-header-h) + 2.5rem); } }
+@media (max-width: 1023px) and (max-height: 760px) { .fleet-intro { display: none; } }
 .garage-car { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
 .garage-car > img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }
-.garage-body { transition: filter 0.6s var(--tl-ease); }
-.garage-car[data-lit='off'] .garage-body, .garage-car[data-lit='off'] .garage-wheel { filter: brightness(0.74) saturate(0.9); }
-.garage-wheel { position: absolute; transform-origin: 50% 50%; transition: filter 0.6s var(--tl-ease); }
+.garage-body, .garage-wheel, .garage-lamps { transition: filter 0.6s var(--tl-ease), opacity 0.6s var(--tl-ease); }
+.garage-car[data-lit='off'] .garage-body, .garage-car[data-lit='off'] .garage-wheel { filter: brightness(0.8); }
+.garage-wheel { position: absolute; transform-origin: 50% 50%; }
 .garage-wheel img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }
-.garage-car[data-photo='on'] :is(.garage-wheel, .garage-shadow) { display: none; }
+.garage-car[data-photo='on'] :is(.garage-wheel, .garage-shadow, .garage-lamps) { display: none; }
 .garage-car[data-photo='on'] .garage-body { object-fit: contain; }
-.garage-ui { position: relative; z-index: 2; display: grid; gap: 1.1rem; padding-top: 1.1rem; padding-bottom: 0.5rem; }
-.garage-tabs { display: flex; flex-wrap: nowrap; gap: 0.15rem; overflow-x: auto; scrollbar-width: none; margin-inline: -0.25rem; }
+.garage-ui { position: relative; z-index: 2; flex: 1; display: grid; grid-template-rows: auto 1fr auto auto; gap: 0.9rem; padding-top: 1rem; padding-bottom: 0.25rem; }
+.garage-card { grid-row: 1; }
+.garage-tabs { grid-row: 3; }
+.garage-steps { grid-row: 4; }
+@media (min-width: 1024px) {
+  .garage-ui { grid-template-columns: minmax(0, 25rem); grid-template-rows: none; align-content: start; gap: 1rem; padding-top: 1.25rem; }
+  .garage-card, .garage-tabs, .garage-steps { grid-row: auto; }
+}
+.garage-card .label { color: rgba(255, 255, 255, 0.78); }
+.garage-card h3 { color: #fff; }
+.garage-card dl, .garage-card dl :is(dt, dd) { color: #e4e6ea; }
+.garage-card dl svg { color: #c9ccd2; }
+.garage-card p { color: #e4e6ea; }
+.garage-card .btn-ghost { color: #fff; }
+.on-photo .garage-card .btn-dark { background: #fff; color: var(--tl-ink); }
+.garage-tabs { display: flex; flex-wrap: nowrap; gap: 0.35rem; overflow-x: auto; scrollbar-width: none; margin-inline: -0.25rem; padding-inline: 0.25rem; }
 .garage-tabs::-webkit-scrollbar { display: none; }
 .garage-tab {
   @apply min-h-[2.75rem] flex-none rounded-full px-3.5 text-[0.96rem] font-semibold;
-  color: #4a4641; background: rgba(255, 255, 255, 0.42); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  color: #fff; background: rgba(255, 255, 255, 0.12); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
   transition: color 0.2s var(--tl-ease), background-color 0.2s var(--tl-ease);
 }
-.garage-tab:hover { color: var(--tl-ink); background: rgba(255, 255, 255, 0.7); }
+.garage-tab:hover { background: rgba(255, 255, 255, 0.24); }
 .garage-tab[aria-selected='true'] { color: var(--tl-ink); background: #fff; }
-.garage-tabs { gap: 0.35rem; }
-.garage-count { @apply inline-flex min-h-[2.75rem] items-center rounded-full px-3 text-[0.92rem] text-ink-2; background: rgba(255, 255, 255, 0.42); }
+.garage-count { @apply inline-flex min-h-[2.75rem] items-center rounded-full px-3 text-[0.92rem]; color: #e4e6ea; background: rgba(255, 255, 255, 0.12); }
 .garage-steps { display: flex; align-items: center; gap: 0.5rem; }
 .garage-step {
-  @apply inline-flex min-h-[2.75rem] min-w-[2.75rem] items-center justify-center gap-2 rounded-full px-4 text-[0.98rem] font-semibold text-ink;
-  background: rgba(255, 255, 255, 0.55); transition: background-color 0.2s var(--tl-ease);
+  @apply inline-flex min-h-[2.75rem] min-w-[2.75rem] items-center justify-center gap-2 rounded-full px-4 text-[0.98rem] font-semibold;
+  color: #fff; background: rgba(255, 255, 255, 0.14); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); transition: background-color 0.2s var(--tl-ease);
 }
-.garage-step:hover { background: #fff; }
+.garage-step:hover { background: rgba(255, 255, 255, 0.28); }
+.fleet-note { position: relative; z-index: 2; }
 
 /* Trust */
 .trust-badge { filter: drop-shadow(0 30px 40px rgba(0, 0, 0, 0.55)); }
@@ -392,6 +366,6 @@ html.anyos-editing [data-reveal] { opacity: 1 !important; transform: none !impor
 @media print {
   .no-print { display: none !important; }
   [data-reveal] { opacity: 1 !important; transform: none !important; }
-  .arr-track { height: auto !important; }
-  .arr-stage { position: relative !important; height: auto !important; }
+  .film-track { height: auto !important; }
+  .film-stage { position: relative !important; height: auto !important; }
 }
