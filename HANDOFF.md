@@ -137,6 +137,32 @@ Jake rejected the afternoon build: too much text, and keyframe zooms instead of 
 - **Production.** Untouched.
 - **Release claim.** `68e3869a` is held during this preview iteration; release it after Jake's review.
 
+### Section 2, the cabin (19 Oct, night)
+
+- **Jake approved the hero** ("amazing! yes it works perfectly") and asked for the next section.
+- **Built.** `#inside` overlaps the hero, cross-fades in over its held London frame, then drives towards the city: night, rear seat, a faceless right-hand-drive chauffeur. Details are in FILM.md.
+- **Spend: 680 credits.**
+  - I4-night still, `j5SaT8DLlpVI0tOsLhCB`: 80.
+  - Kling clip, `hxdTlwyAHC6rWcQcw3YK`: 600.
+- **Balance: 4,251.** That is 190 below what my jobs explain. The account keeps showing unexplained usage (150, 100, 150, 50, 50, 190), so Jake should check OpenArt's usage history.
+- **Commit and preview.** Commit `23dd884`. Preview **`tl-executive-9fu6knn2a`** (`dpl_BSv9nX76WvSiLPXoX3CtY2A7bspg`, target preview), verified: enquiry dry-run; home, airport and film media 200; CMS 8/8.
+- **Next section (per Jake's storyboard):** the Tourneo, front-angled, with black cases. The boot shuts, it drives off, then fades.
+
+### Four-shot opening (19 Oct, late)
+
+- **Jake's feedback on the interior:** "too rocky and looks like the car is driving into a bush". He also said "'Where are we taking you?' should be the last hero section" and asked me to "remake the video so it looks like the first scene but continues to drive… then make the other sections".
+- **Built (FILM.md has the details):** `#top` → `#drive` → `#space` → `#where`, each dissolving into the next.
+  - `#drive`: the S-Class drives away towards London, camera locked off.
+  - `#space`: the Tourneo with cases beside it, then (after a dissolve) loaded, the boot shuts and it leaves. The clip is cut so the generated chauffeur's face never shows.
+  - `#where`: a still from the hero's end frame, with "Where are we taking you?" and the quote chips.
+  - The interior was removed.
+- **Spend: 1,960.**
+  - Stills: `wrSIEBHee0JU4OpBmP69` and `PtJ3b9EQ8RelJu8X3ztw`, 80 each.
+  - Kling `lcFZIPcnQOHBabDCblYw`: 600.
+  - Kling `jYkw7E6egIr7ld5Xm2Nt`: 1,200.
+- **Balance:** 3,991 → 2,191, exactly as expected this time. Earlier there was a further unexplained 100 (4,091 → 3,991).
+- **Commit and preview:** commit `f10e94d`. Preview **`tl-executive-8l14brwra`** (`dpl_H5dv36yWgNemqaGXYESqtVKXFLqS`, target preview), verified: enquiry dry-run; home, airport and all film media 200; CMS 8/8; all four section ids present. Cloud QA run 39298867595 passed 39/39 (all four sections pinned and loaded on 375/390/430/1440; hero and closing quote buttons tappable). The recorded journey shows hero → drive → Tourneo → 'Where are we taking you?' with dissolves between them.
+
 ## In plain English
 
 - **A protected preview (Vercel login needed) is ready for review.** The public site `tl-executive.vercel.app` is unchanged.
