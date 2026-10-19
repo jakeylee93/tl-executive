@@ -56,9 +56,12 @@ async function films(page) {
 async function scrollTo(page, y) {
   await page.evaluate(y => window.scrollTo({ top: y, behavior: 'instant' }), y)
   await page.evaluate(frames)
-  // let any scrubbed video finish seeking to its new time
-  await page.waitForFunction(() => Array.from(document.querySelectorAll('video')).every(v => !v.seeking), null, { timeout: 4000 }).catch(() => {})
-  await page.waitForTimeout(90)
+  // let any scrubbed video finish seeking to its new time; a seek that was
+  // already running when we scrolled is followed by a second one, so settle twice
+  for (let i = 0; i < 2; i++) {
+    await page.waitForFunction(() => Array.from(document.querySelectorAll('video')).every(v => !v.seeking), null, { timeout: 4000 }).catch(() => {})
+    await page.waitForTimeout(140)
+  }
 }
 async function waitReady(page, id) {
   return page.waitForFunction(id => document.getElementById(id)?.dataset.ready === 'on', id, { timeout: 20000 }).then(() => true).catch(() => false)

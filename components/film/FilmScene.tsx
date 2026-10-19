@@ -6,7 +6,9 @@ import type { ReactNode } from 'react'
 // One continuous shot, played by native scroll. The section pins a
 // full-screen stage; scroll position 0 → 1 across its track is the video's
 // time 0 → end, so scrolling back rewinds it exactly. Phones (portrait) get
-// the native 9:16 file, everything else the 16:9 file. Copy blocks carry
+// the native 9:16 file, everything else the 16:9 file. With `end` < 1 the
+// video reaches its last frame at that point of the track and holds it for
+// the rest (room for closing copy). Copy blocks carry
 // data-in / data-out (progress) and fade in place. With reduced motion, in
 // the anyOS editor, or if the video cannot play, the poster frame and the
 // copy stand still and nothing is pinned.
@@ -21,8 +23,8 @@ const smooth = (a: number, b: number, v: number) => {
 }
 
 export function FilmScene({
-  id, film, track = '230svh', label, children, priority = false, className = '',
-}: { id: string; film: FilmSource; track?: string; label?: string; children: ReactNode; priority?: boolean; className?: string }) {
+  id, film, track = '230svh', end = 1, label, children, priority = false, className = '',
+}: { id: string; film: FilmSource; track?: string; end?: number; label?: string; children: ReactNode; priority?: boolean; className?: string }) {
   const root = useRef<HTMLElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
 
@@ -84,7 +86,7 @@ export function FilmScene({
       const p = progress()
       paintCopy(p)
       if (ready && vid.duration) {
-        target = p * Math.max(0, vid.duration - 0.04)
+        target = Math.min(1, p / end) * Math.max(0, vid.duration - 0.04)
         if (!seeking && Math.abs(vid.currentTime - target) > 1 / 60) {
           seeking = true
           vid.currentTime = target
@@ -143,7 +145,7 @@ export function FilmScene({
       mqReduce.removeEventListener?.('change', decide)
       if (raf) cancelAnimationFrame(raf)
     }
-  }, [film, priority])
+  }, [film, priority, end])
 
   return (
     <section ref={root} id={id} data-film data-pin="on" data-ready="off" className={`film on-photo relative bg-[#08090a] text-white ${className}`} aria-label={label}>

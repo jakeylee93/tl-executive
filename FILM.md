@@ -10,7 +10,7 @@ The camera is locked off. A black Mercedes-Benz S-Class stands on a hilltop road
 2. **Night falls.** The city windows and the car's headlights come on. One line of copy: "Day or night, door to door."
 3. **The car pulls away** and drives out of shot. Focus settles on the lit city, and "Where are we taking you?" appears with four buttons. Each button opens the quote form prefilled.
 
-Scrolling back plays the shot in reverse. On phones (portrait, `max-aspect-ratio: 4/5`), a 9:16 crop of the same 4K master is used. It is framed on the car's front (the TLE plate, the headlights, Canary Wharf) and eases left onto the Shard as the car leaves. With reduced motion, or in the anyOS editor, the dusk poster and all the copy stand still.
+The video reaches its last frame at 84% of the scroll and holds it for the rest, so the closing words only arrive once the car has gone (on desktop it leaves the wide frame late). Scrolling back plays the shot in reverse. On phones (portrait, `max-aspect-ratio: 4/5`), a 9:16 crop of the same 4K master is used. It is framed on the car's front (the TLE plate, the headlights, Canary Wharf) and eases left onto the Shard as the car leaves. With reduced motion, or in the anyOS editor, the dusk poster and all the copy stand still.
 
 ## Provenance (generated, not filmed)
 

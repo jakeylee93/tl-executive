@@ -7,7 +7,8 @@ import { FilmScene, type FilmSource } from './FilmScene'
 // The opening film (FILM.md): one continuous shot of the TLE S-Class on a
 // hilltop road with London behind, played by scroll. Dusk turns to night,
 // the city and the car's headlights come on, then it pulls away and leaves
-// the lit skyline for "Where are we taking you?". Phones get a 9:16 crop of
+// the lit skyline; the last frame holds (end=0.84) while "Where are we
+// taking you?" comes in. Phones get a 9:16 crop of
 // the same 4K master that eases from the car onto the Shard as it leaves.
 
 const F = '/media/film'
@@ -30,7 +31,7 @@ const START = [
 export function Journey() {
   return (
     <div data-hero>
-      <FilmScene id="top" film={HERO} track="300svh" priority label="Your car, from dusk into the night">
+      <FilmScene id="top" film={HERO} track="340svh" end={0.84} priority label="Your car, from dusk into the night">
         <div className="film-copy film-copy-open page-x" data-in="0" data-out="0.24">
           <div className="film-open-top">
             <div className="flex items-center gap-4">
@@ -53,14 +54,14 @@ export function Journey() {
           </div>
         </div>
 
-        <div className="film-copy film-copy-top page-x" data-in="0.34" data-out="0.62">
+        <div className="film-copy film-copy-top page-x" data-in="0.3" data-out="0.5">
           <p suppressHydrationWarning data-anyos="hero.night.title" className="t-h2 text-white">Day or night, door to door.</p>
           <p suppressHydrationWarning data-anyos="hero.night.text" className="t-lead mt-3 max-w-[27rem] text-[#efedea]">
             Flights monitored, arrivals met, and home again however late you land.
           </p>
         </div>
 
-        <div className="film-copy film-copy-final page-x" data-in="0.8" data-out="1" data-final>
+        <div className="film-copy film-copy-final page-x" data-in="0.83" data-out="1" data-final>
           <div className="mx-auto max-w-[44rem] text-center">
             <p suppressHydrationWarning data-anyos="hero.final.title" className="t-h2 text-white">Where are we taking you?</p>
             <p suppressHydrationWarning data-anyos="hero.final.text" className="t-lead mx-auto mt-3 max-w-[30rem] text-[#efedea]">
