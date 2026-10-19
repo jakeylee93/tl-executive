@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build one film section's web media from its 4K master clip(s).
 
-    python3 scripts/film/build_film.py NAME [--crop CX] [--pan F0 F1 C0 C1] clip.mp4 [clip2.mp4 ...]
+    python3 scripts/film/build_film.py NAME [--crop CX] [--pan F0 F1 C0 C1] [--keys N:CX,N:CX,...] clip.mp4 [...]
 
 Clips are joined in order; a clip's first frame is dropped when it repeats
 the previous clip's last frame (start = previous end). Writes to
@@ -10,7 +10,9 @@ public/media/film/:
   NAME-wide.mp4 / .webm   2560 wide, the full frame
   NAME-tall.mp4 / .webm   1080x1920, a 9:16 crop of the same master centred
                           at CX (fraction of the width), optionally easing
-                          from C0 to C1 between frames F0 and F1
+                          from C0 to C1 between frames F0 and F1, or following
+                          --keys (frame:centre pairs, eased between them) to
+                          keep a moving car in frame
   NAME-poster-*.webp      first frame, for first paint and reduced motion
 
 Seek-friendly: a keyframe every 12 frames, no B-frames, faststart.
@@ -44,7 +46,15 @@ def frames(paths):
         cap.release()
 
 
-def crop_centre(n, cx, pan):
+def crop_centre(n, cx, pan, keys=None):
+    if keys:
+        if n <= keys[0][0]:
+            return keys[0][1]
+        for (n0, c0), (n1, c1) in zip(keys, keys[1:]):
+            if n <= n1:
+                t = (n - n0) / (n1 - n0)
+                return c0 + (c1 - c0) * t * t * (3 - 2 * t)
+        return keys[-1][1]
     if not pan:
         return cx
     f0, f1, c0, c1 = pan
@@ -81,7 +91,9 @@ def main():
     ap.add_argument('clips', nargs='+')
     ap.add_argument('--crop', type=float, default=0.5)
     ap.add_argument('--pan', type=float, nargs=4)
+    ap.add_argument('--keys')
     a = ap.parse_args()
+    keys = [(int(k.split(':')[0]), float(k.split(':')[1])) for k in a.keys.split(',')] if a.keys else None
     OUT.mkdir(parents=True, exist_ok=True)
     first = None
     for codec, ext in (('h264', 'mp4'), ('vp9', 'webm')):
@@ -93,7 +105,7 @@ def main():
                 pw = ffmpeg(OUT / f'{a.name}-wide.{ext}', wide_size, codec)
                 pt = ffmpeg(OUT / f'{a.name}-tall.{ext}', TALL, codec)
             wide = cv2.resize(fr, wide_size, interpolation=cv2.INTER_AREA)
-            tall = tall_crop(fr, crop_centre(n, a.crop, a.pan))
+            tall = tall_crop(fr, crop_centre(n, a.crop, a.pan, keys))
             if first is None:
                 first = (wide, tall)
             pw.stdin.write(wide.tobytes())

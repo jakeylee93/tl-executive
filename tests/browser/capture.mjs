@@ -87,18 +87,22 @@ for (const v of VIEWS) {
     }
   }
   check(`${v.tag}: every shot's video loaded and playing by scroll`, ready.every(Boolean), ready.join(','))
-  // the closing quote buttons stay tappable while the next shot waits (transparent) above them
+  // buttons stay tappable while later shots wait (transparent) above them:
+  // the hero's "Request a quote" at the start, the closing quote chips at the end
   {
-    const f = fs[0]
-    await scrollTo(page, f.top + 0.6 * f.span)
-    const hit = await page.evaluate(() => {
-      const chip = document.querySelector('#top .arr-chip')
-      if (!chip) return 'no chip'
-      const r = chip.getBoundingClientRect()
+    const tap = (sel) => page.evaluate(sel => {
+      const t = document.querySelector(sel)
+      if (!t) return 'missing ' + sel
+      const r = t.getBoundingClientRect()
       const el = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)
-      return el && chip.contains(el) ? 'ok' : (el ? el.className || el.tagName : 'nothing')
-    })
-    check(`${v.tag}: hero quote buttons are tappable at the end of the shot`, hit === 'ok', hit)
+      return el && t.contains(el) ? 'ok' : (el ? String(el.className || el.tagName) : 'nothing')
+    }, sel)
+    await scrollTo(page, fs[0].top + 0.04 * fs[0].span)
+    const a = await tap('#top .film-actions a')
+    const last = fs[fs.length - 1]
+    await scrollTo(page, last.top + 0.8 * last.span)
+    const b = await tap(`#${last.id} .arr-chip`)
+    check(`${v.tag}: hero and closing quote buttons are tappable`, a === 'ok' && b === 'ok', `${a} / ${b}`)
   }
   // reverse: the same scroll position reached from below gives the same frame
   {

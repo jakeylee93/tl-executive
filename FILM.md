@@ -12,27 +12,49 @@ The camera is locked off. A black Mercedes-Benz S-Class stands on a hilltop road
 
 The video reaches its last frame at 84% of the scroll and holds it for the rest, so the closing words only arrive once the car has gone (on desktop it leaves the wide frame late). Scrolling back plays the shot in reverse. On phones (portrait, `max-aspect-ratio: 4/5`), a 9:16 crop of the same 4K master is used. It is framed on the car's front (the TLE plate, the headlights, Canary Wharf) and eases left onto the Shard as the car leaves. With reduced motion, or in the anyOS editor, the dusk poster and all the copy stand still.
 
-## Section 2: inside the car (`#inside`)
+## The four sections (`components/film/Journey.tsx`)
 
-The cabin dissolves in over the hero's held London frame. `#inside` starts 170svh up inside the hero's 470svh track (`overlap`), and its stage fades from transparent over the first 27% of its own track (`fadeIn`) while the hero stays pinned beneath. The overlapping layer is click-through until it has faded in, so the hero's quote buttons stay tappable; QA checks this.
+Each later section starts 170svh up inside the previous one (`overlap`). Its stage fades in from transparent over its first ~60svh (`fadeIn`) while both sections are pinned, so every cut is a dissolve. Overlapping layers are click-through until they have faded in, and QA checks that the hero's "Request a quote" and the closing quote chips can be tapped.
 
-- **What it shows:** night, seen from the rear seat. The chauffeur is in the right-hand seat, seen only from behind, making small steering movements while the road and hedges stream past, with London lit ahead.
-- **Copy:** "Settle in."
-- **Phones:** a static 9:16 crop at 0.57 of the width, showing the Shard and the City through the windscreen, the hand on the wheel and the dash.
+1. **`#top` (hero).** Track 380svh; the video ends at 75% of it.
+   - **Shot:** dusk turns to night, then the lights come on and the car drives off. The section ends on the empty road and the lit skyline.
+   - **Copy:** the headline and CTAs, then "Day or night, door to door."
+2. **`#drive`.** Track 300svh.
+   - **Shot:** the TLE S-Class, seen from behind, drives calmly away along a straight road towards the city. The camera is locked off like the hero.
+   - **Copy:** "Door to door, on time."
+   - **Phones:** the crop follows the car (keys 0:0.36 → 120:0.67).
+3. **`#space`.** Track 420svh.
+   - **Shot:** the Tourneo stands with black cases beside its open boot. A dissolve follows: the cases are loaded and the tailgate shuts, then it pulls away.
+   - **Copy:** "Room for everyone, and everything. Our Tourneo seats eight with room for eight cases" (the site's 8/8).
+   - **Phones:** the crop runs from the cases to the TLE front, then follows the Tourneo out.
+4. **`#where`.** A still: the hero's last 4K frame, the empty road under the lit skyline (phone crop at 0.36, onto the Shard).
+   - **Copy:** "Where are we taking you?" and the four prefilled quote chips. This is the last section of the film, as Jake asked.
+
+The interior shot (`#inside`, Kling `hxdTlwyAHC6rWcQcw3YK`) was rejected by Jake ("too rocky and looks like the car is driving into a bush") and removed.
+
+### Media for sections 2–4
 
 | Asset | Model | Job | Credits |
 |---|---|---|---|
-| Interior at dusk (round 4) | Nano Banana Pro 4K, styled on the hero | `YvG7MQBe19Gnm3oyqS7M` | 80 |
-| Interior at night (start frame; the mirror shows no face) | Nano Banana Pro 4K edit | `j5SaT8DLlpVI0tOsLhCB` | 80 |
-| Clip: driving towards London | Kling 3.0, 4K, 5 s, start = night interior | `hxdTlwyAHC6rWcQcw3YK` | 600 |
+| S2 start: the S-Class from behind with a yellow TLE rear plate, road to the city | Nano Banana Pro 4K | `wrSIEBHee0JU4OpBmP69` | 80 |
+| S2 clip: drives away along the road | Kling 3.0, 4K, 5 s | `lcFZIPcnQOHBabDCblYw` | 600 |
+| S3 start: the Tourneo at night, cases out, tailgate up | Nano Banana Pro 4K edit of the round-4 Tourneo (`Hcj3ImJP4540k7bNcWRW`) | `PtJ3b9EQ8RelJu8X3ztw` | 80 |
+| S3 clip: chauffeur loads, tailgate shuts, drives off | Kling 3.0, 4K, 10 s | `jYkw7E6egIr7ld5Xm2Nt` | 1,200 |
 
-Encodes come from `scripts/film/build_film.py inside --crop 0.57 VI.mp4`:
+The S3 clip as generated showed the chauffeur's face (frames 24–48), and the loading looked unnatural. The web cut therefore keeps only frames 0–24 (cases beside the open boot, no one in shot), then a 0.6 s fade to frames 124–240 (tailgate shuts, Tourneo pulls away). The face never appears.
 
-| File | Size |
-|---|---|
-| `inside-wide.mp4` | 2560 px, 5.3 MB |
-| `inside-tall.mp4` | 1080×1920, 3.4 MB |
-| `.webm` twins and `inside-poster-*` | |
+```
+ffmpeg -i V3.mp4 -filter_complex "[0:v]trim=start_frame=0:end_frame=25,setpts=PTS-STARTPTS[a];[0:v]trim=start_frame=124,setpts=PTS-STARTPTS[b];[a][b]xfade=transition=fade:duration=0.6:offset=0.44" V3-edit.mp4
+```
+
+Encodes (`scripts/film/build_film.py`):
+
+| Section | Command | Desktop | Phone |
+|---|---|---|---|
+| Drive | `drive --keys 0:0.36,40:0.52,70:0.6,120:0.67` | 6.0 MB | 3.5 MB |
+| Space | `space --keys 0:0.36,30:0.5,62:0.62,128:0.8` | 6.5 MB | 4.0 MB |
+
+The `final-poster-*` images are cut from the hero master's last frame.
 
 ## Provenance (generated, not filmed)
 

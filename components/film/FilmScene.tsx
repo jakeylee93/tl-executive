@@ -16,7 +16,8 @@ import type { ReactNode } from 'react'
 // the anyOS editor, or if the video cannot play, the poster frame and the
 // copy stand still and nothing is pinned.
 
-export type FilmSource = { wide: string; tall: string; posterWide: string; posterTall: string; posterWideSet?: string; posterTallSet?: string }
+// wide/tall omitted = a still scene: the poster is pinned with its copy, no video
+export type FilmSource = { wide?: string; tall?: string; posterWide: string; posterTall: string; posterWideSet?: string; posterTallSet?: string }
 
 const PORTRAIT = '(max-aspect-ratio: 4/5)'
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v))
@@ -36,10 +37,9 @@ export function FilmScene({
 
   useEffect(() => {
     const el = root.current
-    const video = videoRef.current
-    if (!el || !video) return
+    if (!el) return
     const section: HTMLElement = el
-    const vid: HTMLVideoElement = video
+    const vid = videoRef.current // null for a still scene
     const trackEl = section.querySelector<HTMLElement>('[data-film-track]')!
     const stage = section.querySelector<HTMLElement>('[data-film-stage]')!
     const copies = Array.from(section.querySelectorAll<HTMLElement>('[data-in]'))
@@ -55,8 +55,9 @@ export function FilmScene({
     const still = () => mqReduce.matches || document.documentElement.classList.contains('anyos-editing')
 
     // H.264 where it plays (Safari, Chrome, Edge); the VP9 twin elsewhere
-    const mp4 = vid.canPlayType('video/mp4; codecs="avc1.640028"') !== ''
+    const mp4 = !vid || vid.canPlayType('video/mp4; codecs="avc1.640028"') !== ''
     function choose() {
+      if (!vid || !film.wide || !film.tall) return
       const base = mqPortrait.matches ? film.tall : film.wide
       const want = mp4 ? base : base.replace(/\.mp4$/, '.webm')
       if (want === src) return
@@ -99,7 +100,7 @@ export function FilmScene({
       const p = progress()
       paintCopy(p)
       paintFade(p)
-      if (ready && vid.duration) {
+      if (vid && ready && vid.duration) {
         target = Math.min(1, p / end) * Math.max(0, vid.duration - 0.04)
         if (!seeking && Math.abs(vid.currentTime - target) > 1 / 60) {
           seeking = true
@@ -107,7 +108,7 @@ export function FilmScene({
         }
       }
       // keep easing towards the target while it moves
-      if (near && ready && Math.abs(vid.currentTime - target) > 1 / 60) raf = requestAnimationFrame(tick)
+      if (vid && near && ready && Math.abs(vid.currentTime - target) > 1 / 60) raf = requestAnimationFrame(tick)
     }
     const request = () => { if (!raf) raf = requestAnimationFrame(tick) }
 
@@ -127,17 +128,23 @@ export function FilmScene({
 
     const onSeeked = () => { seeking = false; request() }
     const onReady = () => {
+      if (!vid) return
+      const v = vid
       ready = true
       section.dataset.ready = 'on'
       // some mobile browsers only decode frames after a play() call
-      const pr = vid.play()
-      if (pr && typeof pr.then === 'function') pr.then(() => { vid.pause(); request() }).catch(() => request())
-      else { vid.pause(); request() }
+      const pr = v.play()
+      if (pr && typeof pr.then === 'function') pr.then(() => { v.pause(); request() }).catch(() => request())
+      else { v.pause(); request() }
     }
     const onError = () => { section.dataset.ready = 'off' }
-    vid.addEventListener('seeked', onSeeked)
-    vid.addEventListener('loadeddata', onReady)
-    vid.addEventListener('error', onError)
+    if (vid) {
+      vid.addEventListener('seeked', onSeeked)
+      vid.addEventListener('loadeddata', onReady)
+      vid.addEventListener('error', onError)
+    } else {
+      section.dataset.ready = 'on'
+    }
 
     // load a shot shortly before it is reached
     const io = new IntersectionObserver(([e]) => {
@@ -154,9 +161,9 @@ export function FilmScene({
     mqPortrait.addEventListener?.('change', () => { if (section.dataset.pin === 'on') { choose(); request() } })
     return () => {
       io.disconnect()
-      vid.removeEventListener('seeked', onSeeked)
-      vid.removeEventListener('loadeddata', onReady)
-      vid.removeEventListener('error', onError)
+      vid?.removeEventListener('seeked', onSeeked)
+      vid?.removeEventListener('loadeddata', onReady)
+      vid?.removeEventListener('error', onError)
       window.removeEventListener('scroll', request)
       window.removeEventListener('resize', request)
       mqReduce.removeEventListener?.('change', decide)
@@ -193,7 +200,7 @@ export function FilmScene({
               fetchPriority={priority ? 'high' : 'auto'}
             />
           </picture>
-          <video ref={videoRef} className="film-video" muted playsInline preload="auto" aria-hidden="true" tabIndex={-1} disablePictureInPicture />
+          {film.wide && <video ref={videoRef} className="film-video" muted playsInline preload="auto" aria-hidden="true" tabIndex={-1} disablePictureInPicture />}
           <div className="film-shade" aria-hidden="true" />
           {children}
         </div>

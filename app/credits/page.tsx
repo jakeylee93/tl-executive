@@ -45,10 +45,10 @@ export default function Credits() {
       <section>
         <h2>Opening scene</h2>
         <p>
-          The opening film (a black Mercedes-Benz S-Class on a hilltop road as night falls over London) and the cabin scene that follows
-          are generated, not filmed. Their
-          frames were made with Nano Banana Pro and GPT Image, and the motion with Kling 3.0, all through OpenArt, starting from a
-          picture of the model. They show a representative car and a generic driver, not our own, and the “TLE” number plate is illustrative.
+          The opening film (a black Mercedes-Benz S-Class and a Ford Tourneo Custom on a hilltop road as night falls over London) is
+          generated, not filmed. Its frames were made with Nano Banana Pro and GPT Image, and the motion with Kling 3.0, all through
+          OpenArt, starting from pictures of the models. It shows representative vehicles, not our own, and the “TLE” number plates are
+          illustrative.
         </p>
       </section>
       <section>
