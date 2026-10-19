@@ -12,6 +12,28 @@ The camera is locked off. A black Mercedes-Benz S-Class stands on a hilltop road
 
 The video reaches its last frame at 84% of the scroll and holds it for the rest, so the closing words only arrive once the car has gone (on desktop it leaves the wide frame late). Scrolling back plays the shot in reverse. On phones (portrait, `max-aspect-ratio: 4/5`), a 9:16 crop of the same 4K master is used. It is framed on the car's front (the TLE plate, the headlights, Canary Wharf) and eases left onto the Shard as the car leaves. With reduced motion, or in the anyOS editor, the dusk poster and all the copy stand still.
 
+## Section 2: inside the car (`#inside`)
+
+The cabin dissolves in over the hero's held London frame. `#inside` starts 170svh up inside the hero's 470svh track (`overlap`), and its stage fades from transparent over the first 27% of its own track (`fadeIn`) while the hero stays pinned beneath. The overlapping layer is click-through until it has faded in, so the hero's quote buttons stay tappable; QA checks this.
+
+- **What it shows:** night, seen from the rear seat. The chauffeur is in the right-hand seat, seen only from behind, making small steering movements while the road and hedges stream past, with London lit ahead.
+- **Copy:** "Settle in."
+- **Phones:** a static 9:16 crop at 0.57 of the width, showing the Shard and the City through the windscreen, the hand on the wheel and the dash.
+
+| Asset | Model | Job | Credits |
+|---|---|---|---|
+| Interior at dusk (round 4) | Nano Banana Pro 4K, styled on the hero | `YvG7MQBe19Gnm3oyqS7M` | 80 |
+| Interior at night (start frame; the mirror shows no face) | Nano Banana Pro 4K edit | `j5SaT8DLlpVI0tOsLhCB` | 80 |
+| Clip: driving towards London | Kling 3.0, 4K, 5 s, start = night interior | `hxdTlwyAHC6rWcQcw3YK` | 600 |
+
+Encodes come from `scripts/film/build_film.py inside --crop 0.57 VI.mp4`:
+
+| File | Size |
+|---|---|
+| `inside-wide.mp4` | 2560 px, 5.3 MB |
+| `inside-tall.mp4` | 1080×1920, 3.4 MB |
+| `.webm` twins and `inside-poster-*` | |
+
 ## Provenance (generated, not filmed)
 
 All jobs ran in OpenArt project `tRnDk9awTx3wZPXHM5vj` on Jake's account, on 19 Oct 2026.

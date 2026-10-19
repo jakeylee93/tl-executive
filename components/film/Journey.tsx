@@ -10,6 +10,8 @@ import { FilmScene, type FilmSource } from './FilmScene'
 // the lit skyline; the last frame holds (end=0.84) while "Where are we
 // taking you?" comes in. Phones get a 9:16 crop of
 // the same 4K master that eases from the car onto the Shard as it leaves.
+// Then the cabin dissolves in over that held frame (#inside overlaps the
+// hero's last 170svh): night, the chauffeur at the wheel, London ahead.
 
 const F = '/media/film'
 const HERO: FilmSource = {
@@ -19,6 +21,15 @@ const HERO: FilmSource = {
   posterWideSet: `${F}/hero-poster-960.webp 960w, ${F}/hero-poster-1600.webp 1600w, ${F}/hero-poster-2560.webp 2560w`,
   posterTall: `${F}/hero-poster-p720.webp`,
   posterTallSet: `${F}/hero-poster-p720.webp 720w, ${F}/hero-poster-p1080.webp 1080w`,
+}
+
+const INSIDE: FilmSource = {
+  wide: `${F}/inside-wide.mp4`,
+  tall: `${F}/inside-tall.mp4`,
+  posterWide: `${F}/inside-poster-1600.webp`,
+  posterWideSet: `${F}/inside-poster-960.webp 960w, ${F}/inside-poster-1600.webp 1600w, ${F}/inside-poster-2560.webp 2560w`,
+  posterTall: `${F}/inside-poster-p720.webp`,
+  posterTallSet: `${F}/inside-poster-p720.webp 720w, ${F}/inside-poster-p1080.webp 1080w`,
 }
 
 const START = [
@@ -31,8 +42,8 @@ const START = [
 export function Journey() {
   return (
     <div data-hero>
-      <FilmScene id="top" film={HERO} track="340svh" end={0.84} priority label="Your car, from dusk into the night">
-        <div className="film-copy film-copy-open page-x" data-in="0" data-out="0.24">
+      <FilmScene id="top" film={HERO} track="470svh" end={0.545} priority label="Your car, from dusk into the night">
+        <div className="film-copy film-copy-open page-x" data-in="0" data-out="0.156">
           <div className="film-open-top">
             <div className="flex items-center gap-4">
               <div className="arr-badge w-[3.6rem] flex-none sm:w-[4.4rem]">
@@ -54,14 +65,14 @@ export function Journey() {
           </div>
         </div>
 
-        <div className="film-copy film-copy-top page-x" data-in="0.3" data-out="0.5">
+        <div className="film-copy film-copy-top page-x" data-in="0.195" data-out="0.324">
           <p suppressHydrationWarning data-anyos="hero.night.title" className="t-h2 text-white">Day or night, door to door.</p>
           <p suppressHydrationWarning data-anyos="hero.night.text" className="t-lead mt-3 max-w-[27rem] text-[#efedea]">
             Flights monitored, arrivals met, and home again however late you land.
           </p>
         </div>
 
-        <div className="film-copy film-copy-final page-x" data-in="0.83" data-out="1" data-final>
+        <div className="film-copy film-copy-final page-x" data-in="0.538" data-out="1" data-final>
           <div className="mx-auto max-w-[44rem] text-center">
             <p suppressHydrationWarning data-anyos="hero.final.title" className="t-h2 text-white">Where are we taking you?</p>
             <p suppressHydrationWarning data-anyos="hero.final.text" className="t-lead mx-auto mt-3 max-w-[30rem] text-[#efedea]">
@@ -78,6 +89,16 @@ export function Journey() {
               ))}
             </ul>
           </div>
+        </div>
+      </FilmScene>
+
+      {/* the cabin dissolves in over the held London frame, then drives on */}
+      <FilmScene id="inside" film={INSIDE} track="320svh" overlap="170svh" fadeIn={0.27} label="Inside the car, on the way">
+        <div className="film-copy film-copy-low page-x" data-in="0.36" data-out="0.86">
+          <p suppressHydrationWarning data-anyos="hero.cabin.title" className="t-h2 text-white">Settle in.</p>
+          <p suppressHydrationWarning data-anyos="hero.cabin.text" className="t-lead mt-3 max-w-[27rem] text-[#efedea]">
+            Quilted leather, a quiet cabin and a driver who knows the way.
+          </p>
         </div>
       </FilmScene>
     </div>

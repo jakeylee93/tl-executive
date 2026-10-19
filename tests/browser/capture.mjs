@@ -87,6 +87,19 @@ for (const v of VIEWS) {
     }
   }
   check(`${v.tag}: every shot's video loaded and playing by scroll`, ready.every(Boolean), ready.join(','))
+  // the closing quote buttons stay tappable while the next shot waits (transparent) above them
+  {
+    const f = fs[0]
+    await scrollTo(page, f.top + 0.6 * f.span)
+    const hit = await page.evaluate(() => {
+      const chip = document.querySelector('#top .arr-chip')
+      if (!chip) return 'no chip'
+      const r = chip.getBoundingClientRect()
+      const el = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)
+      return el && chip.contains(el) ? 'ok' : (el ? el.className || el.tagName : 'nothing')
+    })
+    check(`${v.tag}: hero quote buttons are tappable at the end of the shot`, hit === 'ok', hit)
+  }
   // reverse: the same scroll position reached from below gives the same frame
   {
     const f = fs[0]

@@ -121,6 +121,22 @@ Jake rejected the afternoon build: too much text, and keyframe zooms instead of 
   - 9:16 phone versions.
   - Then rebuild `FilmScene`/`Journey` around these clips at ≥1080p.
 
+### Hero section on the protected preview (19 Oct, evening)
+
+- **What Jake asked for.** "Stretch the desktop version for mobile to save credits; make that section first, put it on the website."
+- **Phone version, no new credits.** A 9:16 crop of the 4K master, 1210×2152 scaled to 1080×1920. It is framed on the car's front at 0.68 of the width, then eases to 0.36 onto the Shard as the car leaves (`scripts/film/build_hero.py`). The desktop version is the full frame at 2560×1430.
+- **What changed.** `Journey` is now a single FilmScene, `#top`, with `end=0.84`: the last frame holds while "Where are we taking you?" and the quote chips come in. The old Veo S1–S3 media, `encode.sh` and the blur scripts were removed. FILM.md records the provenance, the credits page was updated, and QA capture now waits for one film and settles seeks twice.
+- **Commits.** `19e3fb9`, then the fix `c0b4b64`, both pushed to `claude/tl-executive-redesign-20261018`.
+- **Previews.**
+  - `tl-executive-n7sf66haz` (`dpl_8iACskExdtaHFm2xQtA3Z3QZtcXV`, built from 19e3fb9). Superseded.
+  - **`tl-executive-33a2cagmt`** (`dpl_2DAtUFQotYkzHiYCq88FBWsEYe3a`, built from c0b4b64). Target preview, Ready, Vercel SSO applies.
+  - Both were verified: the enquiry reports `dry-run`, home and airport pages return 200, hero media returns 200, and the CMS contract passes 8/8 on the deployed HTML.
+- **Cloud QA.** Run 39284962616 on 19e3fb9 passed 35/35; its artifact was uploaded at 16:27Z even though the API still showed "queued".
+  - The desktop scroll-recorded film showed the closing copy over the passing car, which c0b4b64 fixes.
+  - Run 39285883582 on c0b4b64 passed 35/35 (artifact read; the API status lagged as "queued"). Its scroll-recorded films confirm the closing copy now appears only after the car has left, on both desktop and phone.
+- **Production.** Untouched.
+- **Release claim.** `68e3869a` is held during this preview iteration; release it after Jake's review.
+
 ## In plain English
 
 - **A protected preview (Vercel login needed) is ready for review.** The public site `tl-executive.vercel.app` is unchanged.

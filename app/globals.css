@@ -212,7 +212,11 @@
    full-screen pinned section; scroll position is the video's playhead.
    ------------------------------------------------------------------------ */
 .film-track { position: relative; }
-.film-stage { position: sticky; top: 0; height: 100svh; min-height: 30rem; overflow: hidden; background: #08090a; }
+.film-stage { position: sticky; top: 0; height: 100svh; min-height: 30rem; overflow: hidden; background: #08090a; isolation: isolate; }
+/* a section that cross-fades over the end of the previous film (FilmScene overlap/fadeIn) */
+.film[data-overlap] { pointer-events: none; }               /* never block the film beneath */
+.film[data-overlap] .film-stage { pointer-events: auto; }   /* FilmScene sets 'none' until faded in */
+.film[data-pin='off'][data-overlap] { margin-top: 0 !important; pointer-events: auto; }
 .film-poster, .film-video { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; }
 .film-video { opacity: 0; transition: opacity 0.35s var(--tl-ease); }
 .film[data-ready='on'] .film-video { opacity: 1; }
@@ -261,8 +265,12 @@
   .film-video { display: none; }
   .film-copy { position: relative; opacity: 1 !important; transform: none !important; }
   .film-copy-open { min-height: 100svh; }
+  .film[data-overlap] { margin-top: 0 !important; }
+  .film-stage { opacity: 1 !important; }
 }
 html.anyos-editing .film-track { height: auto !important; }
+html.anyos-editing .film[data-overlap] { margin-top: 0 !important; }
+html.anyos-editing .film-stage { opacity: 1 !important; }
 html.anyos-editing .film-stage { position: relative; height: auto; }
 html.anyos-editing .film-copy { position: relative; opacity: 1 !important; transform: none !important; }
 html.anyos-editing .film-video { display: none; }

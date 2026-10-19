@@ -8,7 +8,10 @@ import type { ReactNode } from 'react'
 // time 0 → end, so scrolling back rewinds it exactly. Phones (portrait) get
 // the native 9:16 file, everything else the 16:9 file. With `end` < 1 the
 // video reaches its last frame at that point of the track and holds it for
-// the rest (room for closing copy). Copy blocks carry
+// the rest (room for closing copy). With `overlap` the section starts that
+// far up inside the previous one and, with `fadeIn`, its stage cross-fades in
+// over the first part of its own track (transparent before), so one shot
+// dissolves into the next while both are pinned. Copy blocks carry
 // data-in / data-out (progress) and fade in place. With reduced motion, in
 // the anyOS editor, or if the video cannot play, the poster frame and the
 // copy stand still and nothing is pinned.
@@ -23,8 +26,11 @@ const smooth = (a: number, b: number, v: number) => {
 }
 
 export function FilmScene({
-  id, film, track = '230svh', end = 1, label, children, priority = false, className = '',
-}: { id: string; film: FilmSource; track?: string; end?: number; label?: string; children: ReactNode; priority?: boolean; className?: string }) {
+  id, film, track = '230svh', end = 1, overlap, fadeIn = 0, label, children, priority = false, className = '',
+}: {
+  id: string; film: FilmSource; track?: string; end?: number; overlap?: string; fadeIn?: number
+  label?: string; children: ReactNode; priority?: boolean; className?: string
+}) {
   const root = useRef<HTMLElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
 
@@ -80,11 +86,19 @@ export function FilmScene({
       })
     }
 
+    function paintFade(p: number) {
+      if (!fadeIn) return
+      const o = smooth(0, fadeIn, p)
+      stage.style.opacity = String(o)
+      stage.style.pointerEvents = o < 0.5 ? 'none' : ''
+    }
+
     function tick() {
       raf = 0
       if (section.dataset.pin !== 'on') return
       const p = progress()
       paintCopy(p)
+      paintFade(p)
       if (ready && vid.duration) {
         target = Math.min(1, p / end) * Math.max(0, vid.duration - 0.04)
         if (!seeking && Math.abs(vid.currentTime - target) > 1 / 60) {
@@ -102,8 +116,11 @@ export function FilmScene({
       section.dataset.pin = pin ? 'on' : 'off'
       if (!pin) {
         copies.forEach(c => { c.style.opacity = ''; c.style.transform = ''; c.removeAttribute('inert') })
+        stage.style.opacity = ''
+        stage.style.pointerEvents = ''
         return
       }
+      paintFade(progress())
       if (priority || near) choose()
       request()
     }
@@ -145,10 +162,20 @@ export function FilmScene({
       mqReduce.removeEventListener?.('change', decide)
       if (raf) cancelAnimationFrame(raf)
     }
-  }, [film, priority, end])
+  }, [film, priority, end, fadeIn])
 
   return (
-    <section ref={root} id={id} data-film data-pin="on" data-ready="off" className={`film on-photo relative bg-[#08090a] text-white ${className}`} aria-label={label}>
+    <section
+      ref={root}
+      id={id}
+      data-film
+      data-pin="on"
+      data-ready="off"
+      data-overlap={overlap ? '' : undefined}
+      className={`film on-photo relative text-white ${overlap ? '' : 'bg-[#08090a]'} ${className}`}
+      style={overlap ? { marginTop: `calc(-1 * ${overlap})` } : undefined}
+      aria-label={label}
+    >
       <div className="film-track" data-film-track style={{ height: track }}>
         <div className="film-stage" data-film-stage>
           <picture>
