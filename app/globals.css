@@ -232,6 +232,10 @@
 .film-copy-low { bottom: 0; padding-bottom: max(2.75rem, env(safe-area-inset-bottom)); }
 .film-copy-top { top: 0; padding-top: calc(var(--tl-header-h) + 1.5rem); }
 .film-copy-final { inset-block: 0; display: flex; align-items: center; justify-content: center; padding-top: var(--tl-header-h); padding-bottom: 2rem; }
+/* the closing words sit over the lit city: a soft scrim that fades with them */
+.film-copy-final::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse 70% 55% at 50% 52%, rgba(6, 7, 8, 0.55) 0%, rgba(6, 7, 8, 0.2) 70%, rgba(6, 7, 8, 0) 100%); }
+.film[data-pin='off'] .film-copy-final::before { display: none; }
 .film-copy .btn { text-shadow: none; }
 .arr-chip {
   @apply inline-flex min-h-[2.9rem] w-full items-center justify-center gap-2 rounded-full px-4 text-[0.98rem] font-semibold text-white;

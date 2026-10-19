@@ -73,12 +73,12 @@ async function shot(page, name, opts = {}) {
 for (const v of VIEWS) {
   const { ctx, page, errors } = await open(v)
   const fs = await films(page)
-  check(`${v.tag}: three pinned film sections`, fs.length === 3 && fs.every(f => f.pin === 'on'), fs.map(f => `${f.id}:${f.pin}`).join(' '))
+  check(`${v.tag}: the opening film is pinned`, fs.length >= 1 && fs[0].id === 'top' && fs.every(f => f.pin === 'on'), fs.map(f => `${f.id}:${f.pin}`).join(' '))
   const ready = []
   for (const f of fs) {
     await scrollTo(page, f.top)
     ready.push(await waitReady(page, f.id))
-    for (const st of [0, 0.25, 0.5, 0.75, 1]) {
+    for (const st of [0, 0.25, 0.45, 0.62, 0.8, 0.9, 1]) {
       await scrollTo(page, f.top + st * f.span)
       await shot(page, `film-${v.tag}-${f.id}-${String(Math.round(st * 100)).padStart(3, '0')}.jpg`)
     }
@@ -94,14 +94,14 @@ for (const v of VIEWS) {
     const b1 = await page.screenshot({ type: 'png' })
     check(`${v.tag}: scrolling back returns the same frame`, Buffer.compare(a1, b1) === 0)
   }
-  // the journey as a film: scroll positions through all three sections
+  // the journey as a film: scroll positions through every film section
   if (v.tag === 'phone390' || v.tag === 'desk1440') {
     const dir = join(OUT, `frames-${v.tag}`)
     mkdirSync(dir, { recursive: true })
     let n = 0
     for (const f of fs) {
-      for (let i = 0; i <= 48; i++) {
-        await scrollTo(page, f.top + (i / 48) * f.span)
+      for (let i = 0; i <= 72; i++) {
+        await scrollTo(page, f.top + (i / 72) * f.span)
         await page.screenshot({ path: join(dir, `f${String(n++).padStart(4, '0')}.jpg`), type: 'jpeg', quality: 80 })
       }
     }

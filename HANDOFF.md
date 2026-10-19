@@ -1,6 +1,125 @@
 # Handoff — T&L Executive Cars redesign (18 October 2026, evening: protected candidate)
 
+## 19 October 2026: new direction, stills stage (latest; read this first)
+
+- **Film build `9bea727`.** Three Veo 3.1 *fast* shots, scroll-scrubbed full-screen, with the fleet on a dusk road. It is deployed as protected preview `tl-executive-h7n6t94b9` (`dpl_Ekve8LgUosMZHpJ2JPYKa4iahAFW`). Cloud QA run 39252516868 passed 35/35. Dry-run enquiry and the CMS contract (8/8) were checked on the deployment. Production is untouched.
+- **Jake rejected that build's quality.** The video looked low-res: the fast tier, plus my 720 px / CRF 26 phone encodes. The pasted fleet cars looked unrealistic, and stray lamp-glow squares were a bug in `-lamps.webp`. He said extra compute is fine.
+- **His new storyboard:**
+  - **Hero:** a real-looking black S-Class with a **"TLE"** plate.
+  - **First 5 s:** about 5 s, high-res: push into the window, then the cabin and steering wheel, then out to the Tourneo with its luggage.
+  - **Fleet road:** the road with a realistic London skyline at evening. Scrolling moves car to car, showing each car's details.
+  - **Final scene:** a country house and a chauffeur with no face visible. Its "Where are we taking you?" options open the form on that same slide.
+  - **Order of work:** design the stills first, then agree the transitions.
+- **Plate blur dropped.** Jake objected ("why are you blurring the plate!?"), so plates stay as generated. `scripts/film/blur_plates.py` and `check_plates.py` are uncommitted and are not used.
+- **Stills, all in OpenArt project `tRnDk9awTx3wZPXHM5vj`, 16:9.** Picks are in the session scratchpad `stills/picks/`, not yet in the repo:
+
+  | Still | Model and settings | Job | Credits | Verdict |
+  |---|---|---|---|---|
+  | 1 Hero | GPT Image 2.5 Sunburst, 2K high | `Lu1qKeKRX6QZ3Sebz8ab` | 172 | Pick (2304×1296; upscale before video) |
+  | 1 alt | Nano Banana Pro 4K | `xckmoDdcc6QiuEILvlQO` | 80 | Rejected: front cut off |
+  | 2 Cabin, RHD | Nano Banana Pro 4K | `HTuFyGzjzAn7B99P58aR` | 80 | Pick |
+  | 3 Tourneo with luggage | Nano Banana Pro 4K | `IoaVYwWhbK1RrJaY34vm` | 80 | Pick |
+  | 4 Fleet road, first try | Nano Banana Pro 4K | `THElSlGTgphCNXojpiec` | 80 | Wrong lane; its skyline is reused |
+  | 4 Fleet road, edit | Nano Banana Pro 4K | `WhDWGhDn4goTCC5kuUZr` | 80 | Failed: edit made no change |
+  | 4 Fleet road, regenerated | Nano Banana Pro 4K | `8uOM8TELf8eCBhrLn6kx` | 80 | Correct lane |
+  | 4 Fleet road, composite | Local blend of the first try's sky and skyline (same plate, 0 px shift) | | 0 | Pick |
+  | 5 House, first try | Nano Banana Pro 4K | `6diZf2bH5Bd549bLhg7G` | 80 | Chauffeur's profile visible |
+  | 5 House, edit | Nano Banana Pro 4K | `wx3h4Uol3EtVkF8Z4Jdo` | 80 | Pick: back to camera |
+
+- **References** were our existing studio images (`pilot-sclass-4k`, `fleet/eclass`, `fleet/tourneo`) and the fleet road plate (STILL-016).
+- **Credits:** OpenArt went from 4,684 to 3,869 after these jobs (815 spent; I expected 812). The 4,684 was itself 150 below what I expected after the 2,570 film jobs, which is unexplained.
+- **Video prices quoted (not spent):**
+
+  | Model and settings | Credits |
+  |---|---|
+  | Kling 3.0 Pro (1080p), 5 s | 175 |
+  | Kling 3.0 4K, 5 s | 600 |
+  | Veo 3.1 normal, 1080p, 8 s | 560 |
+  | Veo 3.1 normal, 4K, 8 s | 1,080 |
+
+- **Next:**
+  1. Jake's verdict on the five stills.
+  2. 9:16 phone versions, about 80 each.
+  3. Agree the transitions and their budget.
+  4. Generate the video, then rebuild `Journey`/`FleetGarage` around it.
+  5. Wire the final slide into the quote wizard.
+- **Claims:** work claim `abbb0758` retained. Release claim `7765d8f3` was released on 19 Oct; take a new one before any preview deploy.
+
+### Stills round 2 (19 Oct, later): round 1 rejected
+
+- **Jake's verdict on round 1:** "so much more professional, clean… gorgeous, high res". The only car he liked was the TLE one.
+- **His revised storyboard:**
+  - **S1:** the TLE S-Class. The sun fades into night, the lights come on, and on scroll the car drives away, then fades into the cabin.
+  - **S2:** inside, driving, with a faceless chauffeur.
+  - **S3:** the Tourneo turned towards the front, black suitcases outside. On scroll the boot shuts and it drives off, then fades.
+  - **S4:** a London skyline carrying "Where are we taking you?" and the buttons.
+  - **Dropped:** the fleet convoy and the country house. An airport scene is welcome.
+- **Jobs.** GPT Image 2.5 Sunburst at 2K high quality (~172 each): S1A estate drive `NLoDFbLD2HfD37M49D12`, S1B modern house `H4pmqKu7stbvzDHQRAtV`, S2 interior `1H5kwHP07vFhswGHXGci`, S3 private-jet terminal `bWXNb7hIvDyLqAZpMjKV`, S4 Waterloo Bridge view `REAVnkcnUgyYraQvIw41`. Night/lights-on end frames, Nano Banana Pro 2K (40 each): S1A `xmFFrF58KonhA9BDLahE`, S1B `dPbU5KaMH0pjxZozYJ02`.
+- **Balance:** 3,869 before the jobs, 3,008 after the five GPT stills, and about 2,928 after the two night edits.
+- **Awaiting Jake:**
+  - a pick between hero A and hero B;
+  - plate text for the Tourneo, whose front plate is blank;
+  - the phone 9:16 set;
+  - an S3 end frame (boot shut);
+  - the video model and budget.
+
 Jake rejected the afternoon build: too much text, and keyframe zooms instead of real motion. This is the redesign that replaces it. The afternoon checkpoint (`40c77d5`, preview `tl-executive-rdh98hgh2`) is untouched and documented further down.
+
+### Stills round 3 (19 Oct, evening): real lifestyle photography
+
+- **Jake's verdict on round 2:** "still so unrealistic… too detailed". He wants real lifestyle shots with consistent colouring.
+- **What I found:** the model was not the cause. GPT Image 2.5 Sunburst is OpenArt's top OpenAI image model, and Flare costs the same 172 at 2K high. The cause was my glossy "brochure / ultra-sharp" prompts.
+- **Fix:** a photographer's brief. Available light, eye level from about 10 m, 50 mm at f/2, soft contrast with no HDR, a Portra-style warm grade, grain, shallow depth of field, no CGI gloss.
+- **Rejected:** Nano Banana Pro "restyle" edits barely changed the images (`gKSsjA4n…`, `Zgbl44Xm…`, 40 each). The local grade `tools/grade.py` is a consistency layer only.
+- **Round 3 jobs:**
+
+  | Still | Model | Job |
+  |---|---|---|
+  | Hero, sunset | GPT | `3Ypz0kWWMXbyCY81hWZ4` |
+  | Hero, night with lights on | Nano Banana Pro edit | `WLT5HrZDsc4VXBVJsvbv` |
+  | Interior | GPT | `i1Dl1eGEigIrwoyKzLjE` |
+  | Airport Tourneo (TLE plate) | GPT | `tWcQ5RdGVun5gEKfYM7U` |
+  | London | GPT | `H8c0Srfvfh364W4ERbx6` |
+
+- **Balance:** 2,021. The 100-credit gap seen earlier is still unexplained; my own spend since 2,828 matches exactly.
+- **Waiting on Jake:** approval of round 3, phone 9:16 versions, the airport end frame (boot shut), the first video test, and whether to top up credits.
+
+### Stills round 4 (19 Oct, night): car-first, country road with London behind
+
+- **Round 3 rejected.** Jake said it wasn't British and that the jet, the runway and the lighting looked wrong. Via AskUserQuestion he chose **Nano Banana Pro 4K** and "real places, AI cars".
+- **Real-photo plan dropped.** I sourced Commons photos: Wilton Crescent (CVB, CC BY-SA 4.0), the Heathrow T5 Drop Off Point (Lewis Clarke, CC BY-SA 2.0) and Eaton Place. Jake then redirected: "not industrial, not British obvious… gorgeous images focusing on the car… country roads with the city in the background". The photos were uploaded but no edits were run, so nothing was spent on them.
+- **The look that worked:** a 135 mm telephoto from low down, on a smooth hilltop road with neat verges. The London skyline (the Shard, the City and Canary Wharf) appears large behind the car in a pastel dusk.
+- **Picks:**
+
+  | Shot | Job | Credits |
+  |---|---|---|
+  | H4b hero, dusk | `7iBGBqsHMYrMVysXUJtJ` (2 images; the other had two cars and was rejected) | 160 |
+  | H4b night, city lit, lights on | `TdEe73UMS20PfRvRTor9` | 80 |
+  | I4 interior | `YvG7MQBe19Gnm3oyqS7M` | 80 |
+  | T4 Tourneo with luggage | `Hcj3ImJP4540k7bNcWRW` | 80 |
+
+  I4 still needs one fix: the rear-view mirror shows the top of the driver's head.
+- **Credits:** Jake's top-up arrived, and the balance after round 4 is **6,421**.
+- **Next:**
+  1. Jake's verdict on round 4.
+  2. Finale plate: the same viewpoint at night with no car (the car has driven off), carrying "Where are we taking you?" and the buttons that open the form.
+  3. Tourneo end frame with the tailgate shut.
+  4. Phone 9:16 versions.
+  5. The video test.
+
+### Hero video (19 Oct, night): Kling 3.0 4K, chosen by Jake
+
+- **Clip A** `f4WiU9dLTndGMVKiSW7b`: start H4b, end H4b-night. Dusk turns to night, the city lights up and the headlights come on. 600 credits; QC pass.
+- **Clip B** `ngcOJVK3vY91tazWB1Wn`: start H4b-night. The car pulls away and exits right, and focus shifts to the skyline. 600 credits; QC pass. The driver's face is softly visible for about 1 s.
+- **Masters:** both 3852×2152, 24 fps, 5.04 s, no audio.
+- **Join A→B:** difference 2.2/255 and shift under 0.1 px, so the cut is seamless. The 10 s preview `TL-hero-sequence-1080p.mp4` (scratchpad `video/`) was sent to Jake. Nothing is in the repo or deployed yet.
+- **Credits:** balance 6,371 before these clips, so about 5,171 expected after.
+- **Next:**
+  - Jake's verdict.
+  - The interior clip (I4) and the Tourneo clip (T4 → boot shut → drive off).
+  - The finale plate.
+  - 9:16 phone versions.
+  - Then rebuild `FilmScene`/`Journey` around these clips at ≥1080p.
 
 ## In plain English
 

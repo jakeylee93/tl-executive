@@ -45,10 +45,9 @@ export default function Credits() {
       <section>
         <h2>Opening scene</h2>
         <p>
-          The opening scene (the car on a country lane, its cabin at dusk and the motorway at night) uses generated images of a
-          representative Mercedes-Benz S-Class, made with OpenArt from the manufacturer’s model picture. They are not photographs of our
-          own car. The car, its wheels and lamps, and the view through its windows are separated into layers so they can move as you
-          scroll.
+          The opening film (a black Mercedes-Benz S-Class on a hilltop road as night falls over London) is generated, not filmed. Its
+          frames were made with Nano Banana Pro and GPT Image, and the motion with Kling 3.0, all through OpenArt, starting from a
+          picture of the model. It shows a representative car, not our own, and its “TLE” number plate is illustrative.
         </p>
       </section>
       <section>
