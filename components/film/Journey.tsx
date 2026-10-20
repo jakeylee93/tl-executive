@@ -53,7 +53,7 @@ export function Journey() {
               Airports, business and occasions, arranged personally since 2008.
             </p>
           </div>
-          <div className="film-actions flex flex-col gap-3 xs:flex-row">
+          <div className="film-actions flex flex-col gap-3 xs:flex-row xs:flex-wrap">
             <a href="#plan" className="btn btn-light">Request a quote<Icon name="arrowRight" className="h-5 w-5" /></a>
             <a href={BUSINESS.phoneHref} className="btn btn-ghost tabular text-white"><Icon name="phone" className="h-[1.1rem] w-[1.1rem]" />Call {BUSINESS.phoneDisplay}</a>
           </div>
