@@ -99,8 +99,10 @@ for (const v of VIEWS) {
     }, sel)
     await scrollTo(page, fs[0].top + 0.04 * fs[0].span)
     const a = await tap('#top .film-actions a')
-    const last = fs.find(f => f.id === 'where') || fs[fs.length - 1]
-    await scrollTo(page, last.top + 0.8 * last.span)
+    // the closing quote chips live in whichever film section holds them (#where, or #drive after PR #3)
+    const chipsIn = await page.evaluate(() => document.querySelector('[data-film] .arr-chip')?.closest('[data-film]')?.id || '')
+    const last = fs.find(f => f.id === chipsIn) || fs[fs.length - 1]
+    await scrollTo(page, last.top + 0.85 * last.span)
     const b = await tap(`#${last.id} .arr-chip`)
     check(`${v.tag}: hero and closing quote buttons are tappable`, a === 'ok' && b === 'ok', `${a} / ${b}`)
   }
