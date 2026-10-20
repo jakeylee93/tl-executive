@@ -8,11 +8,9 @@ export const metadata: Metadata = {
   alternates: { canonical: '/credits' },
 }
 
-// Photographs in use outside the opening scene ('day' and 'night' are retired).
+// Photographs still in use ('day', 'night', 'london' and 'village' are retired).
 const USES: Partial<Record<PlateName, string>> = {
-  airport: 'Services: airports and travel',
-  london: 'Services: business and London',
-  village: 'Services: occasions and events',
+  airport: 'Airport transfers page',
   forest: 'About: Epping Forest',
 }
 
@@ -45,19 +43,18 @@ export default function Credits() {
       <section>
         <h2>Opening scene</h2>
         <p>
-          The opening film (a black Mercedes-Benz S-Class and a Ford Tourneo Custom on a hilltop road as night falls over London) is
-          generated, not filmed. Its frames were made with Nano Banana Pro and GPT Image, and the motion with Kling 3.0, all through
-          OpenArt, starting from pictures of the models. It shows representative vehicles, not our own, and the “TLE” number plates are
-          illustrative.
+          The opening film (a black Mercedes-Benz S-Class and a Ford Tourneo Custom on a hilltop road as night falls over London), the
+          fleet film of all four vehicles on that road, and the Journeys photographs (an airport kerb, the drive into London, a
+          country-house occasion) are generated, not photographed or filmed. Their frames were made with Nano Banana Pro and GPT Image,
+          and the motion with Kling 3.0, all through OpenArt, starting from pictures of the models. They show representative vehicles
+          and generic drivers, not our own, and the “TLE” number plates are illustrative.
         </p>
       </section>
       <section>
         <h2>Brand and vehicles</h2>
         <p>
           The Theydon &amp; Loughton Executive Cars badge is the business’s own logo. The vehicle pictures show each model in the fleet and
-          are not photographs of our own cars. The E-Class, S-Class and Tourneo Custom studio pictures were generated from the
-          manufacturers’ model pictures; the V-Class picture is the model render. All four are shown together in one studio, at
-          their true relative size.
+          are not photographs of our own cars; each was generated from the manufacturer’s model picture and placed on the same road.
         </p>
       </section>
     </LegalPage>

@@ -2,10 +2,10 @@
 //
 //   node tests/browser/capture.mjs <baseUrl> <outDir>
 //
-// Writes, for phone and desktop: scroll-position frames of the opening
-// journey (forward, then the same positions reached backwards), an MP4 of the
-// journey built from scroll-driven frames, the fleet convoy driving between
-// cars, the reduced-motion still, and full-page screenshots. Also records
+// Writes, for phone and desktop: scroll-position frames of every scroll film
+// (the opening journey and the fleet; forward, then the same positions
+// reached backwards), an MP4 built from scroll-driven frames, each fleet tab's
+// car, the reduced-motion still, and section screenshots. Also records
 // simple checks (console errors, horizontal overflow, CMS keys in the DOM,
 // determinism of reverse scrolling) in report.json. Never submits the form.
 import { createRequire } from 'node:module'
@@ -99,7 +99,7 @@ for (const v of VIEWS) {
     }, sel)
     await scrollTo(page, fs[0].top + 0.04 * fs[0].span)
     const a = await tap('#top .film-actions a')
-    const last = fs[fs.length - 1]
+    const last = fs.find(f => f.id === 'where') || fs[fs.length - 1]
     await scrollTo(page, last.top + 0.8 * last.span)
     const b = await tap(`#${last.id} .arr-chip`)
     check(`${v.tag}: hero and closing quote buttons are tappable`, a === 'ok' && b === 'ok', `${a} / ${b}`)
@@ -132,37 +132,25 @@ for (const v of VIEWS) {
     rmSync(dir, { recursive: true, force: true })
   }
 
-  // fleet: the convoy drives in, then between cars
-  await page.evaluate(() => { document.documentElement.style.scrollBehavior = 'auto'; document.getElementById('fleet').scrollIntoView({ block: 'start' }) })
-  await page.waitForTimeout(3600)
-  await shot(page, `fleet-${v.tag}-0-entered.jpg`)
-  for (let n = 1; n <= 3; n++) {
-    await page.evaluate(() => document.querySelector('.garage-steps button:last-of-type').click())
-    for (const t of [250, 650, 1100]) {
-      await page.waitForTimeout(t === 250 ? 250 : t === 650 ? 400 : 450)
-      if (v.tag === 'desk1440' || v.tag === 'phone390') await shot(page, `fleet-${v.tag}-${n}-t${t}.jpg`)
-    }
-    await page.waitForTimeout(2600)
-    await shot(page, `fleet-${v.tag}-${n}-stopped.jpg`)
-  }
-  // a filmed drive: Previous back to the first car, frames every ~70 ms
-  if (v.tag === 'desk1440' || v.tag === 'phone390') {
-    const dir = join(OUT, `fleet-frames-${v.tag}`)
-    mkdirSync(dir, { recursive: true })
-    await page.evaluate(() => document.querySelector('.garage-tab').click())
-    for (let i = 0; i < 60; i++) {
-      await page.screenshot({ path: join(dir, `f${String(i).padStart(4, '0')}.jpg`), type: 'jpeg', quality: 80 })
-    }
-    const mp4 = join(OUT, `fleet-${v.tag}.mp4`)
-    const r = spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', '15', '-i', join(dir, 'f%04d.jpg'), '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '22', mp4])
-    check(`${v.tag}: fleet drive video encoded`, r.status === 0, r.stderr?.toString().slice(0, 200))
-    if (r.status === 0) report.files.push(`fleet-${v.tag}.mp4`)
-    rmSync(dir, { recursive: true, force: true })
-    await page.waitForTimeout(3200)
-    for (let n = 0; n < 3; n++) { await page.evaluate(() => document.querySelector('.garage-steps button:last-of-type').click()); await page.waitForTimeout(3300) }
+  // fleet: a scroll film on the opening road; each tab drives to its car
+  await page.evaluate(() => { document.documentElement.style.scrollBehavior = 'auto' })
+  for (const [n, name] of ['E-Class', 'S-Class', 'V-Class', 'Tourneo'].entries()) {
+    await page.evaluate(n => document.querySelectorAll('#fleet .garage-tab')[n].click(), n)
+    await page.waitForFunction(n => document.querySelectorAll('#fleet .garage-tab')[n]?.getAttribute('aria-selected') === 'true', n, { timeout: 8000 }).catch(() => {})
+    await page.waitForTimeout(1600)
+    await page.waitForFunction(() => Array.from(document.querySelectorAll('video')).every(v => !v.seeking), null, { timeout: 4000 }).catch(() => {})
+    await page.waitForTimeout(200)
+    await shot(page, `fleet-${v.tag}-${n}-${name}.jpg`)
   }
   const sel = await page.evaluate(() => document.querySelector('.garage-tab[aria-selected="true"]')?.textContent)
-  check(`${v.tag}: Next reaches the fourth car`, sel === 'Tourneo', `selected=${sel}`)
+  const card = await page.evaluate(() => {
+    const c = document.querySelector('#fleet .fleet-card[data-on] .fleet-cta')
+    if (!c) return 'no card'
+    const r = c.getBoundingClientRect()
+    const el = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)
+    return el && c.contains(el) && r.bottom <= innerHeight ? 'ok' : 'hidden'
+  })
+  check(`${v.tag}: the Tourneo tab drives to the fourth car, its card on screen`, sel === 'Tourneo' && card === 'ok', `selected=${sel} card=${card}`)
 
   // whole page and simple checks
   await page.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += innerHeight * 0.8) { scrollTo(0, y); await new Promise(r => setTimeout(r, 60)) } })

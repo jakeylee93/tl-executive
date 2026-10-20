@@ -14,7 +14,10 @@ import type { ReactNode } from 'react'
 // dissolves into the next while both are pinned. Copy blocks carry
 // data-in / data-out (progress) and fade in place. With reduced motion, in
 // the anyOS editor, or if the video cannot play, the poster frame and the
-// copy stand still and nothing is pinned.
+// copy stand still and nothing is pinned. `timeline` ([progress, fraction]
+// pairs, piecewise linear) replaces the straight progress → time mapping, so
+// a section can hold on chosen frames (the fleet stops on each car), and
+// `onProgress` reports the pinned progress to the section's own UI.
 
 // wide/tall omitted = a still scene: the poster is pinned with its copy, no video
 export type FilmSource = { wide?: string; tall?: string; posterWide: string; posterTall: string; posterWideSet?: string; posterTallSet?: string }
@@ -27,13 +30,17 @@ const smooth = (a: number, b: number, v: number) => {
 }
 
 export function FilmScene({
-  id, film, track = '230svh', end = 1, overlap, fadeIn = 0, label, children, priority = false, className = '',
+  id, film, track = '230svh', end = 1, overlap, fadeIn = 0, timeline, onProgress, label, children, priority = false, className = '',
 }: {
   id: string; film: FilmSource; track?: string; end?: number; overlap?: string; fadeIn?: number
+  timeline?: number[][]; onProgress?: (p: number) => void
   label?: string; children: ReactNode; priority?: boolean; className?: string
 }) {
   const root = useRef<HTMLElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const report = useRef(onProgress)
+  report.current = onProgress
+  const tl = timeline ? JSON.stringify(timeline) : ''
 
   useEffect(() => {
     const el = root.current
@@ -94,14 +101,27 @@ export function FilmScene({
       stage.style.pointerEvents = o < 0.5 ? 'none' : ''
     }
 
+    const keys: number[][] = tl ? JSON.parse(tl) : []
+    function fraction(p: number) {
+      if (!keys.length) return Math.min(1, p / end)
+      if (p <= keys[0][0]) return keys[0][1]
+      for (let i = 1; i < keys.length; i++) {
+        const [p0, f0] = keys[i - 1]
+        const [p1, f1] = keys[i]
+        if (p <= p1) return p1 > p0 ? f0 + ((p - p0) / (p1 - p0)) * (f1 - f0) : f1
+      }
+      return keys[keys.length - 1][1]
+    }
+
     function tick() {
       raf = 0
       if (section.dataset.pin !== 'on') return
       const p = progress()
       paintCopy(p)
       paintFade(p)
+      report.current?.(p)
       if (vid && ready && vid.duration) {
-        target = Math.min(1, p / end) * Math.max(0, vid.duration - 0.04)
+        target = fraction(p) * Math.max(0, vid.duration - 0.04)
         if (!seeking && Math.abs(vid.currentTime - target) > 1 / 60) {
           seeking = true
           vid.currentTime = target
@@ -169,7 +189,7 @@ export function FilmScene({
       mqReduce.removeEventListener?.('change', decide)
       if (raf) cancelAnimationFrame(raf)
     }
-  }, [film, priority, end, fadeIn])
+  }, [film, priority, end, fadeIn, tl])
 
   return (
     <section

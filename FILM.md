@@ -56,6 +56,52 @@ Encodes (`scripts/film/build_film.py`):
 
 The `final-poster-*` images are cut from the hero master's last frame.
 
+## Fleet (`#fleet`, `components/fleet/Fleet.tsx`), 20 Oct 2026
+
+This replaces the cut-out convoy, which Jake called "so unrealistic, it's awful".
+
+- **What it shows.** The four published vehicles stand on the opening film's night road, at the hero's spot. One video of three Kling 3.0 clips plays by scroll; in each, the parked car drives off to the right and the next one comes along the road from the left and stops where it stood. The order is E-Class → S-Class → V-Class → Tourneo.
+- **Timeline.** `TIMELINE` holds the scroll on each parked car: holds at 0–8%, 30–38%, 60–68% and 90–100% of a 600svh track. The tabs and the steps scroll to those holds, so the cars drive there. The card for the car on screen fades in; only it can be reached.
+- **anyOS images.** The four parked stills carry `fleet.<slug>.image`. They show while the video loads, with reduced motion and in the editor. A replaced image is shown over the film while its car is chosen.
+- **Layout.**
+  - **Phones (and whenever nothing is pinned):** the heading, then a band of the road, then the card, then the tabs.
+  - **Wide screens:** the road full screen, the heading top centre, the card and controls along the foot, the car in the clear middle.
+
+| Asset | Model | Job | Credits |
+|---|---|---|---|
+| E-Class parked (edit of the hero night frame) | Nano Banana Pro 2K | `XVEzkH8oFwBFqVW4r8YX` | 40 |
+| S-Class parked | the hero night frame itself (`TdEe73UMS20PfRvRTor9`) | | 0 |
+| V-Class parked | Nano Banana Pro 2K | `5otKoyuiZ2xx41jBjVxN` | 40 |
+| Tourneo parked | Nano Banana Pro 2K | `WjQEaL9MYx6s8Q5jIbUW` | 40 |
+| E → S changeover | Kling 3.0, 1080p, 5 s, start E, end S | `6SCpSaMJDpIAtyRnTtHP` | 175 |
+| S → V changeover | Kling 3.0, 1080p, 5 s, start S, end V | `C6fWUHhzLNjdJPN4Zwkl` | 175 |
+| V → T changeover | Kling 3.0, 1080p, 5 s, start V, end T | `KVAhxWFqslDsa3tSgNIW` | 175 |
+
+- **Alignment.** The parked stills' backgrounds sit within 0.5 px of each other (phase correlation on the sky). At the joins between clips the difference is under 2/255 and the shift is under 0.3 px.
+- **Web files.**
+  - `fleet-wide.mp4`: 1920×1074, 361 frames, 15 s, 12 MB. Phones get the same file, shown as a band.
+  - `.webm` twin: 5.3 MB.
+  - `public/media/fleet-road/<slug>-{960,1600,2560}.webp`.
+
+## Journeys (`#journeys`, `components/Journeys.tsx`), 20 Oct 2026
+
+This replaces the tabbed section over Commons plates, which Jake called "messy".
+
+- **Structure.** Three chapters (airports & travel, business & London, occasions & events). Each has a night photograph from the same shoot.
+  - **Phones:** the photograph heads its chapter and drifts with the scroll, about 9% of its height; the text sits on the dark below it.
+  - **Desktop:** the photograph is pinned beside the text and dissolves to the next chapter's as each chapter reaches mid-screen.
+- **Unchanged.** Every service and airport key, and the one-open-at-a-time trips with their quote links.
+
+| Photograph | Model | Job | Credits |
+|---|---|---|---|
+| Airport kerb at night, the chauffeur loading a case | Nano Banana Pro 4K, 4:3 | `HBPzyqnT6K0ysJTRpI46`, then the edit `xyY1XOzy37SIewE2Ga74` (head turned away: the first showed the face in profile) | 80 + 80 |
+| The drive into London | the film's S2 start frame (`wrSIEBHee0JU4OpBmP69`), cropped to 4:3 | | 0 |
+| A country-house venue at night, the door held | Nano Banana Pro 4K, 4:3 | `Uj3cRwHMTiCmd0DRuh1m` | 80 |
+
+The web files are `public/media/journeys/{travel,evenings,occasions}-{960,1600,2400}.webp`, built with `scripts/media/build_stills.py`.
+
+This round spent 885 credits of the 1,000 Jake allowed: stills 360 (5 jobs and 1 edit) and Kling 525.
+
 ## Provenance (generated, not filmed)
 
 All jobs ran in OpenArt project `tRnDk9awTx3wZPXHM5vj` on Jake's account, on 19 Oct 2026.

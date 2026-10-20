@@ -1,3 +1,5 @@
+> **Superseded (20 Oct 2026).** The layer-cutout approach described here was replaced by generated video (FILM.md). Its scripts and assets (`scripts/motion`, `lib/motion`, `public/media/motion`) have been removed; this file is kept as history.
+
 # Motion and media: how the moving scenes are made (18 Oct 2026)
 
 **What this is:** real-time animation of photographic layers. Each scene's photograph is separated into the parts that would really move: the car, its wheels, its lamps and its shadow, or the world outside a window. Native scroll, or the fleet buttons, then moves those parts physically. There is no video and no AI interpolation. A still is never zoomed or dissolved into another still. Changing scene is a cut through darkness: the dark car glass, or the camera tilting up into the night.
