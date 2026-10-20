@@ -163,6 +163,26 @@ Jake rejected the afternoon build: too much text, and keyframe zooms instead of 
 - **Balance:** 3,991 → 2,191, exactly as expected this time. Earlier there was a further unexplained 100 (4,091 → 3,991).
 - **Commit and preview:** commit `f10e94d`. Preview **`tl-executive-8l14brwra`** (`dpl_H5dv36yWgNemqaGXYESqtVKXFLqS`, target preview), verified: enquiry dry-run; home, airport and all film media 200; CMS 8/8; all four section ids present. Cloud QA run 39298867595 passed 39/39 (all four sections pinned and loaded on 375/390/430/1440; hero and closing quote buttons tappable). The recorded journey shows hero → drive → Tourneo → 'Where are we taking you?' with dissolves between them.
 
+### Journeys and fleet rebuilt (20 Oct)
+
+- **Jake's brief.** He approved the four-shot film. He said the Journeys and fleet pages were "messy" and the road convoy "so unrealistic, it's awful". He asked for a moving part, nicer layout and UX, and realistic cars on the road, and allowed up to 1,000 credits. Via AskUserQuestion he chose **Kling + Nano Banana**.
+- **Fleet.**
+  - **Media:** four parked cars on the hero's night road, from Nano Banana Pro edits; the S-Class is the hero frame. They are joined by three Kling 3.0 1080p changeovers, each car driving off as the next pulls up, played by scroll with a hold on each car. Tabs and steps scroll to that car.
+  - **Removed:** the cut-out convoy and the whole layer pipeline (`scripts/motion`, `lib/motion`, `public/media/motion`).
+  - **Layout:** on phones, a heading, a road band, the card, then tabs. On desktop, a full-screen road with the heading top centre and the controls along the foot.
+- **Journeys.** Three chapters with night photos: an airport kerb (face turned away), the drive into London, and a country-house venue. On phones the photo drifts with the scroll; on desktop it is pinned beside the text and dissolves between chapters. All CMS keys are kept.
+- **Spend.**
+  - Jobs: 885 credits (FILM.md lists them).
+  - Balance: 5,451 → 4,526, i.e. 925. The other 40 is unexplained, which continues the pattern noted earlier.
+- **Commit and preview.** Commit `25d8f60`. Preview **`tl-executive-fc5aq4rkh`** (`dpl_G9UDVLFJ4HFEvEubNzyoCBgJHToM`, target preview), verified:
+  - enquiry dry-run;
+  - home, airport and credits return 200;
+  - new media return 200;
+  - CMS 8/8.
+- **Cloud QA.** Run 39345060795 passed 37/37. Phone and desktop shots checked: the four fleet cars stop and their cards show, tabs drive to each car, and Journeys renders as chapters.
+- **Follow-up fix.** `72a415d` removes the label text-shadow halo on the dark sections. It is on preview **`tl-executive-li78n3ihm`** (`dpl_5NBiLxT74uzD1PjX1n3jRt7DFPCd`), verified: dry-run, 200s, CMS 8/8. This is the current review link.
+- **Claims.** Release claim `68e3869a` was released after this preview. Work claim `abbb0758` is retained. Production is untouched.
+
 ## In plain English
 
 - **A protected preview (Vercel login needed) is ready for review.** The public site `tl-executive.vercel.app` is unchanged.
