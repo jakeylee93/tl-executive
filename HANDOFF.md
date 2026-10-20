@@ -1,6 +1,36 @@
 # Handoff — T&L Executive Cars redesign (18 October 2026, evening: protected candidate)
 
-## 19 October 2026: new direction, stills stage (latest; read this first)
+## 20 October 2026: changes by Vish (read this first)
+
+Vish (`vishal-mayo`) made these changes on branch `vishal/tl-where-after-drive`, which was branched from `claude/tl-executive-redesign-20261018` at `7eef01c`. They come back to Jake as a PR into that branch. Nothing was deployed: no preview, production, Vercel, anyOS, DNS or env changes.
+
+- **Opening film, now two shots (`components/film/Journey.tsx`).**
+  - `#top`: the title, then the car's lights come on and it drives off.
+  - `#drive`: the car seen from behind, driving towards London. "Where are we taking you?" and the four quote chips fade in over it, centred, at `data-in="0.3"`.
+  - `#drive` now has track 360svh and end 0.8, so the car keeps receding while the words are on screen.
+- **Removed from the opening.**
+  - The Tourneo shot (`#space`). Its media files are still in `public/media/film/space-*`, so it can be restored.
+  - The `#where` still scene. `final-poster-*` is now unused.
+  - Two lines, "Day or night, door to door" (`hero.night.*`) and "Door to door, on time" (`hero.road.*`). If Simon saved edits to those anyOS keys, they no longer show.
+- **Hero buttons.**
+  - "Request a quote" and "Call 07904 428896" keep each label on one line.
+  - The 27rem cap now applies only to `.film-open-top`. `.film-actions .btn` is nowrap, and the row wraps to a stack only when the buttons don't fit side by side.
+  - Quote chip labels (`.arr-chip`) are also nowrap, with tighter padding on phones.
+- **Quote wizard: "Drop-off and collection" (`components/JourneyPlanner.tsx`, `lib/enquiry.ts`).**
+  - A third "Which way?" choice, `airportDirection: 'both'`. It turns the return on, relabels the dates "Drop-off date" and "Collection date", and asks for both the departing flight and the flight home.
+  - Notes read "Airport: drop-off and collection". The upstream payload shape is unchanged.
+  - Without a return, `'both'` falls back to `'to'` in both `derive()` and `normaliseEnquiry()`.
+  - Choosing "Going" or "Collected" after "both" sets the trip back to one-way. Swap turns "both" into "from".
+- **Checks run.**
+  - `npm run typecheck` passes.
+  - Checked by hand in the local dev server (desktop 1280, ~690 px, and 375 px mobile):
+    - scroll sequence and copy opacities by progress
+    - all labels on one line
+    - all three airport options, with their labels and flight fields
+  - **Not run:** `npm test` and `test:browser`. They need a production build and server, and `tests/browser/site.mjs` still expects two `airportDirection` radios (now three). `tests/browser/capture.mjs` looks for `#where` and falls back to the last scene.
+- **Discussed, not built.** A live flight-number lookup (for example AeroDataBox, with a free tier). It would need a key in the Vercel env, so it's left for Jake to decide.
+
+## 19 October 2026: new direction, stills stage
 
 - **Film build `9bea727`.** Three Veo 3.1 *fast* shots, scroll-scrubbed full-screen, with the fleet on a dusk road. It is deployed as protected preview `tl-executive-h7n6t94b9` (`dpl_Ekve8LgUosMZHpJ2JPYKa4iahAFW`). Cloud QA run 39252516868 passed 35/35. Dry-run enquiry and the CMS contract (8/8) were checked on the deployment. Production is untouched.
 - **Jake rejected that build's quality.** The video looked low-res: the fast tier, plus my 720 px / CRF 26 phone encodes. The pasted fleet cars looked unrealistic, and stray lamp-glow squares were a bug in `-lamps.webp`. He said extra compute is fine.
