@@ -19,7 +19,8 @@ export const SITE_KEY = 't-l-executive-cars'
 export const TL_CLIENT_ID = '2f9b5bf7-bea0-48de-aba9-c933ce112cd8' // public routing id, not a secret
 
 export type TripType = 'one-way' | 'return'
-export type AirportDirection = '' | 'to' | 'from'
+// 'both': dropped at the airport, then collected from it on the return
+export type AirportDirection = '' | 'to' | 'from' | 'both'
 
 /** The journey-type value sent when the visitor chooses "Other". */
 export const OTHER_OCCASION = 'Something else'
@@ -113,7 +114,9 @@ export function normaliseEnquiry(body: unknown): EnquiryInput {
     occasion,
     journeyDetails: isOtherOccasion(occasion) ? cleanMultiline(b.journeyDetails, LIMITS.journeyDetails) : '',
     flying: b.flying === true || Boolean(flightIn || flightOut),
-    airportDirection: (b.airportDirection === 'to' ? 'to' : b.airportDirection === 'from' ? 'from' : '') as AirportDirection,
+    // 'both' only makes sense with a return; without one it is a drop-off
+    airportDirection: (b.airportDirection === 'to' || b.airportDirection === 'from' ? b.airportDirection
+      : b.airportDirection === 'both' ? (tripType === 'return' ? 'both' : 'to') : '') as AirportDirection,
     flightIn,
     flightOut,
     notes: cleanMultiline(b.notes, LIMITS.notes),
@@ -160,7 +163,7 @@ export function validateEnquiry(e: EnquiryInput, today: string = ukToday()): Fie
   else if (!TIME_RE.test(e.travelTime)) errors.travelTime = 'Enter a time, for example 06:30.'
 
   if (e.tripType === 'return') {
-    if (!e.returnDate) errors.returnDate = 'Choose the date of your return journey.'
+    if (!e.returnDate) errors.returnDate = e.airportDirection === 'both' ? 'Choose the date we collect you from the airport.' : 'Choose the date of your return journey.'
     else if (!isRealDate(e.returnDate)) errors.returnDate = 'Enter a real date, for example 21/03/2027.'
     else if (!errors.travelDate && e.returnDate < e.travelDate) errors.returnDate = 'The return must be on or after the outward date.'
     if (e.returnTime && !TIME_RE.test(e.returnTime)) errors.returnTime = 'Enter a time, for example 18:45.'
@@ -238,12 +241,12 @@ export function summariseEnquiry(e: EnquiryInput): { label: string; value: strin
   return rows
 }
 
-export const AIRPORT_DIRECTION_TEXT = { to: 'Going to the airport', from: 'Collection from the airport' } as const
+export const AIRPORT_DIRECTION_TEXT = { to: 'Going to the airport', from: 'Collection from the airport', both: 'Drop-off and collection' } as const
 
 /** Which flight numbers apply. Going to the airport: the departing flight
  *  (and, with a return, the flight home). Collected from it: the arriving
- *  flight (and, with a return, the flight out). Direction not given (older
- *  callers): keep whatever was entered. */
+ *  flight (and, with a return, the flight out). Drop-off and collection:
+ *  both. Direction not given (older callers): keep whatever was entered. */
 export function flightFields(e: Pick<EnquiryInput, 'flying' | 'airportDirection' | 'tripType'>) {
   if (!e.flying) return { flightIn: false, flightOut: false }
   const ret = e.tripType === 'return'

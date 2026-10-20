@@ -71,6 +71,8 @@ function derive(d: EnquiryInput, kind: Kind, directionChosen: boolean): EnquiryI
   const flying = kind === 'airport' || toAirport || fromAirport
   let airportDirection: AirportDirection = flying ? d.airportDirection : ''
   if (flying && !directionChosen) airportDirection = toAirport && !fromAirport ? 'to' : fromAirport && !toAirport ? 'from' : airportDirection
+  // drop-off and collection needs the return; without it, it is a drop-off
+  if (airportDirection === 'both' && d.tripType !== 'return') airportDirection = 'to'
   return { ...d, flying, airportDirection }
 }
 
@@ -81,7 +83,7 @@ function checkSteps(steps: number[], d: EnquiryInput, kind: Kind, today: string)
   for (const i of steps) {
     for (const field of STEP_FIELDS[i]) if (all[field]) out[field] = all[field]
     if (i === 0 && !kind) out.occasion = 'Choose the kind of journey.'
-    if (i === 1 && d.flying && !d.airportDirection) out.airportDirection = 'Tell us whether you’re going to the airport or being collected from it.'
+    if (i === 1 && d.flying && !d.airportDirection) out.airportDirection = 'Tell us whether you’re going to the airport, being collected from it, or both.'
   }
   if (!f.flightIn) delete out.flightIn
   if (!f.flightOut) delete out.flightOut
@@ -367,6 +369,7 @@ export function JourneyPlanner() {
   const cases = Number(data.bags) || 0
   const flights = flightFields(data)
   const dir = data.airportDirection
+  const toAirport = dir === 'to' || dir === 'both' // the outward journey ends at the airport
   const chosen = findVehicle(data.vehicle)
   const kindInfo = KINDS.find(k => k.id === kind)
   // Notes share the platform's 1,000-character notes field with the journey
@@ -520,11 +523,18 @@ export function JourneyPlanner() {
             {data.flying ? (
               <fieldset aria-describedby={errors.airportDirection ? `${fid('airportDirection')}-error` : undefined}>
                 <legend className="field-label">Which way?</legend>
-                <div id={fid('airportDirection')} className="grid gap-3 sm:grid-cols-2">
-                  {(['to', 'from'] as const).map(d => (
-                    <Choice key={d} name="airportDirection" value={d} checked={dir === d} onChange={() => { directionChosen.current = true; update('airportDirection', d) }} className="choice-row">
-                      <Icon name="plane" className={`h-5 w-5 flex-none text-steel ${d === 'from' ? 'rotate-90' : ''}`} />
-                      <span className="font-semibold text-ink">{d === 'to' ? 'Going to the airport' : 'Being collected from it'}</span>
+                <div id={fid('airportDirection')} className="grid gap-3 lg:grid-cols-3">
+                  {(['to', 'from', 'both'] as const).map(d => (
+                    <Choice key={d} name="airportDirection" value={d} checked={dir === d} onChange={() => {
+                      directionChosen.current = true
+                      // the return carries the collection, so set it before the direction
+                      if (d === 'both') update('tripType', 'return')
+                      // leaving drop-off and collection drops the collection it added
+                      else if (dir === 'both') update('tripType', 'one-way')
+                      update('airportDirection', d)
+                    }} className="choice-row">
+                      {d === 'both' ? <Icon name="swap" className="h-5 w-5 flex-none text-steel" /> : <Icon name="plane" className={`h-5 w-5 flex-none text-steel ${d === 'from' ? 'rotate-90' : ''}`} />}
+                      <span className="font-semibold text-ink">{d === 'to' ? 'Going to the airport' : d === 'from' ? 'Being collected from it' : 'Drop-off and collection'}</span>
                     </Choice>
                   ))}
                 </div>
@@ -541,11 +551,11 @@ export function JourneyPlanner() {
               <div>
                 <div className="flex items-end justify-between">
                   <label htmlFor={fid('destination')} className="field-label">Destination</label>
-                  <button type="button" onClick={() => setData(d => derive({ ...d, pickup: d.destination, destination: d.pickup, airportDirection: d.airportDirection === 'to' ? 'from' : d.airportDirection === 'from' ? 'to' : '' }, kind, directionChosen.current))} className="-mt-3 mb-0.5 inline-flex min-h-[2.75rem] items-center gap-1.5 rounded-full px-2.5 text-[0.86rem] font-semibold text-ink-2 hover:text-ink" aria-label="Swap pick-up and destination">
+                  <button type="button" onClick={() => setData(d => derive({ ...d, pickup: d.destination, destination: d.pickup, airportDirection: d.airportDirection === 'to' || d.airportDirection === 'both' ? 'from' : d.airportDirection === 'from' ? 'to' : '' }, kind, directionChosen.current))} className="-mt-3 mb-0.5 inline-flex min-h-[2.75rem] items-center gap-1.5 rounded-full px-2.5 text-[0.86rem] font-semibold text-ink-2 hover:text-ink" aria-label="Swap pick-up and destination">
                     <Icon name="swap" className="h-4 w-4" />Swap
                   </button>
                 </div>
-                <input id={fid('destination')} name="destination" className="field-input" value={data.destination} onChange={onText('destination')} onBlur={onBlur('destination')} list={dir === 'to' ? `${uid}-airports` : undefined} placeholder={dir === 'to' ? 'Airport and terminal' : 'Address, venue, port or airport'} autoComplete="off" required aria-invalid={errors.destination ? true : undefined} aria-describedby={described('destination', errors)} />
+                <input id={fid('destination')} name="destination" className="field-input" value={data.destination} onChange={onText('destination')} onBlur={onBlur('destination')} list={toAirport ? `${uid}-airports` : undefined} placeholder={toAirport ? 'Airport and terminal' : 'Address, venue, port or airport'} autoComplete="off" required aria-invalid={errors.destination ? true : undefined} aria-describedby={described('destination', errors)} />
                 <FieldError field="destination" errors={errors} />
               </div>
               <datalist id={`${uid}-airports`}>
@@ -555,7 +565,7 @@ export function JourneyPlanner() {
 
             <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:max-w-[36rem]">
               <div>
-                <label htmlFor={fid('travelDate')} className="field-label">{isReturn ? 'Outward date' : 'Date'}</label>
+                <label htmlFor={fid('travelDate')} className="field-label">{dir === 'both' ? 'Drop-off date' : isReturn ? 'Outward date' : 'Date'}</label>
                 <input id={fid('travelDate')} name="travelDate" type="date" className="field-input tabular" min={today || undefined} value={data.travelDate} onChange={onText('travelDate')} onBlur={onBlur('travelDate')} required aria-invalid={errors.travelDate ? true : undefined} aria-describedby={described('travelDate', errors)} />
                 <FieldError field="travelDate" errors={errors} />
               </div>
@@ -567,21 +577,24 @@ export function JourneyPlanner() {
               </div>
             </div>
 
-            <label className="inline-flex min-h-[2.75rem] cursor-pointer items-center gap-2.5 text-[0.98rem] font-medium">
-              <input type="checkbox" checked={isReturn} onChange={e => update('tripType', e.target.checked ? 'return' : 'one-way')} className="h-5 w-5 accent-[var(--tl-ink)]" />
-              Add a return journey
-            </label>
+            {dir === 'both' ? null : (
+              <label className="inline-flex min-h-[2.75rem] cursor-pointer items-center gap-2.5 text-[0.98rem] font-medium">
+                <input type="checkbox" checked={isReturn} onChange={e => update('tripType', e.target.checked ? 'return' : 'one-way')} className="h-5 w-5 accent-[var(--tl-ink)]" />
+                Add a return journey
+              </label>
+            )}
 
             {isReturn ? (
               <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:max-w-[36rem]">
                 <div>
-                  <label htmlFor={fid('returnDate')} className="field-label">Return date</label>
+                  <label htmlFor={fid('returnDate')} className="field-label">{dir === 'both' ? 'Collection date' : 'Return date'}</label>
                   <input id={fid('returnDate')} name="returnDate" type="date" className="field-input tabular" min={data.travelDate || today || undefined} value={data.returnDate} onChange={onText('returnDate')} onBlur={onBlur('returnDate')} required aria-invalid={errors.returnDate ? true : undefined} aria-describedby={described('returnDate', errors)} />
                   <FieldError field="returnDate" errors={errors} />
                 </div>
                 <div>
-                  <label htmlFor={fid('returnTime')} className="field-label">Return time <span className="font-normal text-steel">(optional)</span></label>
-                  <input id={fid('returnTime')} name="returnTime" type="time" className="field-input tabular" value={data.returnTime} onChange={onText('returnTime')} onBlur={onBlur('returnTime')} aria-invalid={errors.returnTime ? true : undefined} aria-describedby={described('returnTime', errors)} />
+                  <label htmlFor={fid('returnTime')} className="field-label">{dir === 'both' ? 'Collection time' : 'Return time'} <span className="font-normal text-steel">(optional)</span></label>
+                  <input id={fid('returnTime')} name="returnTime" type="time" className="field-input tabular" value={data.returnTime} onChange={onText('returnTime')} onBlur={onBlur('returnTime')} aria-invalid={errors.returnTime ? true : undefined} aria-describedby={described('returnTime', errors, dir === 'both')} />
+                  {dir === 'both' ? <span id={`${fid('returnTime')}-hint`} className="field-hint">Your scheduled landing time is fine.</span> : null}
                   <FieldError field="returnTime" errors={errors} />
                 </div>
               </div>
@@ -589,9 +602,9 @@ export function JourneyPlanner() {
 
             {data.flying && dir ? (
               <div className="grid gap-4 sm:grid-cols-2">
-                {((dir === 'to' ? ['flightOut', 'flightIn'] : ['flightIn', 'flightOut']) as ('flightIn' | 'flightOut')[]).filter(f => flights[f]).map(f => {
-                  const outward = (dir === 'to' && f === 'flightOut') || (dir === 'from' && f === 'flightIn')
-                  const label = f === 'flightIn' ? (outward ? 'Arriving flight number' : 'Return flight number (landing)') : (outward ? 'Departing flight number' : 'Return flight number (departing)')
+                {((toAirport ? ['flightOut', 'flightIn'] : ['flightIn', 'flightOut']) as ('flightIn' | 'flightOut')[]).filter(f => flights[f]).map(f => {
+                  const outward = (toAirport && f === 'flightOut') || (dir === 'from' && f === 'flightIn')
+                  const label = f === 'flightIn' ? (outward ? 'Arriving flight number' : dir === 'both' ? 'Flight home (landing)' : 'Return flight number (landing)') : (outward ? 'Departing flight number' : 'Return flight number (departing)')
                   const hint = f === 'flightIn' ? 'Optional. We monitor it and meet you in arrivals.' : 'Optional. Helps us time your journey.'
                   return (
                     <div key={f}>

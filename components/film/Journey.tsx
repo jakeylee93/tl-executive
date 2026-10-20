@@ -4,14 +4,12 @@ import { Icon } from '../Icon'
 import { QuoteLink } from '../QuoteLink'
 import { FilmScene, type FilmSource } from './FilmScene'
 
-// The opening film (FILM.md): four shots from one night on a hilltop road
-// with London behind, each played by scroll and dissolving into the next
-// (each later section starts 170svh up inside the previous one and fades in
-// while both are pinned).
-//   1 #top     dusk turns to night, the TLE S-Class's lights come on, it drives off
-//   2 #drive   it carries on along the road towards the city
-//   3 #space   the Tourneo is loaded, the boot shuts and it leaves
-//   4 #where   the lit skyline: "Where are we taking you?" and the quote buttons
+// The opening film (FILM.md): two shots from one night on a hilltop road
+// with London behind, each played by scroll, the second dissolving in over
+// the first (it starts 170svh up inside it and fades in while both are pinned).
+//   1 #top     the title; dusk turns to night, the TLE S-Class's lights come on, it drives off
+//   2 #drive   seen from behind, it carries on towards the city, and "Where are
+//              we taking you?" with the quote buttons fades in as it goes
 // Phones get 9:16 crops of the same 4K masters (scripts/film/build_*.py).
 
 const F = '/media/film'
@@ -24,8 +22,6 @@ const shot = (name: string, still = false): FilmSource => ({
 })
 const HERO = shot('hero')
 const DRIVE = shot('drive')
-const SPACE = shot('space')
-const WHERE = shot('final', true)
 const XFADE = '170svh'
 
 const START = [
@@ -55,40 +51,15 @@ export function Journey() {
               Airports, business and occasions, arranged personally since 2008.
             </p>
           </div>
-          <div className="film-actions flex flex-col gap-3 xs:flex-row">
+          <div className="film-actions flex flex-col gap-3 xs:flex-row xs:flex-wrap">
             <a href="#plan" className="btn btn-light">Request a quote<Icon name="arrowRight" className="h-5 w-5" /></a>
             <a href={BUSINESS.phoneHref} className="btn btn-ghost tabular text-white"><Icon name="phone" className="h-[1.1rem] w-[1.1rem]" />Call {BUSINESS.phoneDisplay}</a>
           </div>
         </div>
-
-        <div className="film-copy film-copy-top page-x" data-in="0.26" data-out="0.44">
-          <p suppressHydrationWarning data-anyos="hero.night.title" className="t-h2 text-white">Day or night, door to door.</p>
-          <p suppressHydrationWarning data-anyos="hero.night.text" className="t-lead mt-3 max-w-[27rem] text-[#efedea]">
-            Flights monitored, arrivals met, and home again however late you land.
-          </p>
-        </div>
       </FilmScene>
 
-      <FilmScene id="drive" film={DRIVE} track="300svh" end={0.65} overlap={XFADE} fadeIn={0.3} label="On the way into London">
-        <div className="film-copy film-copy-low page-x" data-in="0.32" data-out="0.62">
-          <p suppressHydrationWarning data-anyos="hero.road.title" className="t-h2 text-white">Door to door, on time.</p>
-          <p suppressHydrationWarning data-anyos="hero.road.text" className="t-lead mt-3 max-w-[27rem] text-[#efedea]">
-            Your driver watches the traffic and the clock. You sit back.
-          </p>
-        </div>
-      </FilmScene>
-
-      <FilmScene id="space" film={SPACE} track="420svh" end={0.78} overlap={XFADE} fadeIn={0.19} label="Room for everyone and their luggage">
-        <div className="film-copy film-copy-top page-x" data-in="0.22" data-out="0.6">
-          <p suppressHydrationWarning data-anyos="hero.space.title" className="t-h2 text-white">Room for everyone, and everything.</p>
-          <p suppressHydrationWarning data-anyos="hero.space.text" className="t-lead mt-3 max-w-[27rem] text-[#efedea]">
-            Our Tourneo seats eight with room for eight cases, for airport runs, families and groups.
-          </p>
-        </div>
-      </FilmScene>
-
-      <FilmScene id="where" film={WHERE} track="220svh" overlap={XFADE} fadeIn={0.5} label="Where are we taking you?">
-        <div className="film-copy film-copy-final page-x" data-in="0.5" data-out="1" data-final>
+      <FilmScene id="drive" film={DRIVE} track="360svh" end={0.8} overlap={XFADE} fadeIn={0.3} label="Where are we taking you?">
+        <div className="film-copy film-copy-final page-x" data-in="0.3" data-out="1" data-final>
           <div className="mx-auto max-w-[44rem] text-center">
             <p suppressHydrationWarning data-anyos="hero.final.title" className="t-h2 text-white">Where are we taking you?</p>
             <p suppressHydrationWarning data-anyos="hero.final.text" className="t-lead mx-auto mt-3 max-w-[30rem] text-[#efedea]">
