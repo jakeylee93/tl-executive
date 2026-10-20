@@ -184,6 +184,24 @@ Jake rejected the afternoon build: too much text, and keyframe zooms instead of 
 - **Shareable link.** On Jake's request ("make it public on vercel so i can share"), a Vercel shareable link was created for this one deployment only (`dpl_5NBiLxT74uzD1PjX1n3jRt7DFPCd`). It needs no login and expires on 19 Nov 2026. The token was given to Jake in chat and is not recorded here. Revoke it with `patch_url_protection_bypass` (revoke) on that deployment. Project-wide protection and production are unchanged, and the quote form stays dry-run.
 - **Claims.** Release claim `68e3869a` was released after this preview. Work claim `abbb0758` is retained. Production is untouched.
 
+### Review of Vish's PR #3 for going live (20 Oct, evening)
+
+- **What Jake asked:** "Vishal just made some changes in his own branch. Can you have a look and see if we can push it live?"
+- **PR #3** (`vishal/tl-where-after-drive` @ `e09579c`, based on `7eef01c`). Reviewed: two-shot opening, one-line hero buttons, and the airport "Drop-off and collection" option. The code is sound.
+  - Dry-run POST on its preview with `airportDirection: 'both'` + return carried both flights. The notes read "Return journey: back … · Airport: drop-off and collection". The payload keys are unchanged.
+  - The removed copy keys (`hero.night/road/space.*`) are not in the 114-key fixture; CMS 8/8.
+- **Preview of PR #3:** `tl-executive-ez7lfnx1z` (`dpl_GMH44otaFBgVs1WHvCCeeY1vVLuv`), built from a detached worktree of `e09579c` with release claim `9a8f0309`, which is released. Verified: dry-run; home and airport 200; CMS 8/8.
+- **CI.**
+  - Run 39477060798 on PR #3 alone: build and contract tests passed. 29/37 browser checks: 4 failed on the stale `#where` chip lookup in my capture script, and 4 on the reverse-scroll frame.
+  - My test fixes are `64ec385` (find the chips in whichever film holds them) and `8954794` (save both frames on a reverse mismatch).
+  - On scratch branch `claude/pr3-qa-check` (PR #3 head plus those two commits), run 39478247511 passed **37/37**. The reverse failures came from the stale lookup scrolling to the fleet just before that check; nothing is wrong in the site.
+- **Merge blocked.** `gh pr merge 3` into the redesign branch was denied by the Claude Code permission guard ("Merge Without Review"). I did not work around it. Jake must merge PR #3 or approve the merge.
+- **Live means:** project `anyos/tl-executive` production, served only at `tl-executive.vercel.app` (the anyOS-registered T&L site; no custom domain on this project).
+  - The current production is `dpl_J5NyesoC12NnKoCgWQC6d5jeqrxG` (July, `main` a6ace9c). It is a rollback candidate.
+  - The project has no env vars, so production runs `ENQUIRY_MODE` live by default. It posts to `platform.anyos.co.uk/api/public/transfer-enquiry`, which returned 405 to a GET, so it exists. No token is needed; the site-lead fallback is skipped with no token.
+  - `main` is an ancestor of the branch (fast-forward). Routes are a superset of main's: `/airport-transfers` and `/credits` are added.
+- **Not yet done:** merging PR #3, fast-forwarding `main`, and the production deploy with its own release claim, which needs Jake's go-ahead.
+
 ## In plain English
 
 - **A protected preview (Vercel login needed) is ready for review.** The public site `tl-executive.vercel.app` is unchanged.
