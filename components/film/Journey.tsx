@@ -4,14 +4,13 @@ import { Icon } from '../Icon'
 import { QuoteLink } from '../QuoteLink'
 import { FilmScene, type FilmSource } from './FilmScene'
 
-// The opening film (FILM.md): four shots from one night on a hilltop road
+// The opening film (FILM.md): three shots from one night on a hilltop road
 // with London behind, each played by scroll and dissolving into the next
 // (each later section starts 170svh up inside the previous one and fades in
 // while both are pinned).
 //   1 #top     dusk turns to night, the TLE S-Class's lights come on, it drives off
 //   2 #drive   it carries on along the road towards the city
-//   3 #space   the Tourneo is loaded, the boot shuts and it leaves
-//   4 #where   the lit skyline: "Where are we taking you?" and the quote buttons
+//   3 #where   the lit skyline: "Where are we taking you?" and the quote buttons
 // Phones get 9:16 crops of the same 4K masters (scripts/film/build_*.py).
 
 const F = '/media/film'
@@ -24,7 +23,6 @@ const shot = (name: string, still = false): FilmSource => ({
 })
 const HERO = shot('hero')
 const DRIVE = shot('drive')
-const SPACE = shot('space')
 const WHERE = shot('final', true)
 const XFADE = '170svh'
 
@@ -74,15 +72,6 @@ export function Journey() {
           <p suppressHydrationWarning data-anyos="hero.road.title" className="t-h2 text-white">Door to door, on time.</p>
           <p suppressHydrationWarning data-anyos="hero.road.text" className="t-lead mt-3 max-w-[27rem] text-[#efedea]">
             Your driver watches the traffic and the clock. You sit back.
-          </p>
-        </div>
-      </FilmScene>
-
-      <FilmScene id="space" film={SPACE} track="420svh" end={0.78} overlap={XFADE} fadeIn={0.19} label="Room for everyone and their luggage">
-        <div className="film-copy film-copy-top page-x" data-in="0.22" data-out="0.6">
-          <p suppressHydrationWarning data-anyos="hero.space.title" className="t-h2 text-white">Room for everyone, and everything.</p>
-          <p suppressHydrationWarning data-anyos="hero.space.text" className="t-lead mt-3 max-w-[27rem] text-[#efedea]">
-            Our Tourneo seats eight with room for eight cases, for airport runs, families and groups.
           </p>
         </div>
       </FilmScene>
