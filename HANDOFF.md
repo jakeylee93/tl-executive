@@ -181,6 +181,7 @@ Jake rejected the afternoon build: too much text, and keyframe zooms instead of 
   - CMS 8/8.
 - **Cloud QA.** Run 39345060795 passed 37/37. Phone and desktop shots checked: the four fleet cars stop and their cards show, tabs drive to each car, and Journeys renders as chapters.
 - **Follow-up fix.** `72a415d` removes the label text-shadow halo on the dark sections. It is on preview **`tl-executive-li78n3ihm`** (`dpl_5NBiLxT74uzD1PjX1n3jRt7DFPCd`), verified: dry-run, 200s, CMS 8/8. This is the current review link.
+- **Shareable link.** On Jake's request ("make it public on vercel so i can share"), a Vercel shareable link was created for this one deployment only (`dpl_5NBiLxT74uzD1PjX1n3jRt7DFPCd`). It needs no login and expires on 19 Nov 2026. The token was given to Jake in chat and is not recorded here. Revoke it with `patch_url_protection_bypass` (revoke) on that deployment. Project-wide protection and production are unchanged, and the quote form stays dry-run.
 - **Claims.** Release claim `68e3869a` was released after this preview. Work claim `abbb0758` is retained. Production is untouched.
 
 ## In plain English
