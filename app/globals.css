@@ -282,8 +282,9 @@ html.anyos-editing .film-video { display: none; }
    pinned beside the text and dissolves from chapter to chapter.
    ------------------------------------------------------------------------ */
 .jr { background: #0b0e14; }
+.jr .label, #fleet .label { text-shadow: none; }
 .jr-grid { position: relative; }
-.jr-head { padding-top: 4.5rem; }
+.jr-head { padding-top: 3.5rem; }
 .jr-chapter { position: relative; padding-bottom: 3rem; }
 .jr-band {
   position: relative; height: min(78vw, 60svh); margin: 2rem 0 0; overflow: hidden;
