@@ -114,7 +114,12 @@ for (const v of VIEWS) {
     await scrollTo(page, f.top + 0.8 * f.span)
     await scrollTo(page, f.top + 0.5 * f.span)
     const b1 = await page.screenshot({ type: 'png' })
-    check(`${v.tag}: scrolling back returns the same frame`, Buffer.compare(a1, b1) === 0)
+    const same = Buffer.compare(a1, b1) === 0
+    if (!same) { // keep both frames so a mismatch can be inspected
+      writeFileSync(join(OUT, `reverse-${v.tag}-a.png`), a1); writeFileSync(join(OUT, `reverse-${v.tag}-b.png`), b1)
+      report.files.push(`reverse-${v.tag}-a.png`, `reverse-${v.tag}-b.png`)
+    }
+    check(`${v.tag}: scrolling back returns the same frame`, same)
   }
   // the journey as a film: scroll positions through every film section
   if (v.tag === 'phone390' || v.tag === 'desk1440') {
