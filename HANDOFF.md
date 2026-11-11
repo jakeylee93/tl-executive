@@ -1,5 +1,22 @@
 # Handoff — T&L Executive Cars redesign (18 October 2026, evening: protected candidate)
 
+## 11 November 2026: AnyVendor site adapter (latest; read this first)
+
+Jake's request via the coordinator: connect T&L to AnyVendor with a fully editable version of the bespoke site. Compatibility work only: no redesign, PR #3 not merged, `BRIEF.md` untouched. Owner `claude:tl-executive-opus-20260926`, work claim `abbb0758`.
+
+- **State: built and tested against a mock origin; not activated; not integrated with the real backend.**
+- **Packet for the AnyVendor owner (`claude:bc7de487`):** `integrations/anyvendor/` (`README.md`, `manifest.json`, `seed.json`, `field-map.json`). Schema `anyvendor.site/v1`, slug `tl-executive-cars`, 13 sections, 128 fields: one per `data-anyos` text (122) and `data-anyos-img` picture (5), plus `page.chapters` (order and visibility of the five chapters after the film). Generated from the rendered page by `scripts/anyvendor/build-packet.mjs`.
+- **Code:** `lib/anyvendor/site.ts` (server-only read, 4 s timeout, 60 s cache, built-in fallback), `components/HomePage.tsx`, `components/AnyVendorContent.tsx`, `app/preview/page.tsx` (`/preview?token=`, noindex, no-store, no referrer). The only setting is server-side `ANYVENDOR_CONTENT_ORIGIN`; it is not set anywhere, so nothing is fetched. No credentials in site code.
+- **Unchanged:** anyOS site key `t-l-executive-cars`, `edit.js`, every anyOS key, `/api/enquiry`.
+- **Head:** `12b6439`, pushed.
+- **Cloud QA:** run 43065307735 on `12b6439`: contract tests 33/33 (8 AnyVendor), browser 55/55 including 18 adapter checks at 390, 820 and 1440 px against the mock origin (`scripts/anyvendor/mock-origin.mjs`).
+- **Testing preview:** `https://tl-executive-nhamgcfd8-anyos.vercel.app` (`dpl_9MgEcsNxbfbR6KWEWW5te8f2Lp8L`, protected, code `12b6439`). Verified there: `/` 200 with the five chapters in built-in order and the anyOS script; `/airport-transfers` 200; CMS contract 8/8; `/api/enquiry` dry-run; `/preview` 404 with and without a token (no origin). Release claim `2007e9de` taken and released.
+- **Production:** unchanged, `dpl_J5NyesoC12NnKoCgWQC6d5jeqrxG` (July).
+- **Not done, waiting on the owner's shared packet** (not yet in `Mission-Control/lucy-anyvendor-20261111/`): the visual-editing bridge; the section-instance shape if it replaces `page.chapters`; a reachable scoped content origin and preview token. Until then the real edit → save → preview → publish → reload → rollback and the cross-tenant check cannot be run.
+- **Known limits** (README "Known limits"): text and pictures apply in the browser after load, not in server HTML; both editors are installed; contact details, link targets, videos and `/airport-transfers` are not editable yet.
+- **CI note:** the runner's Azure apt mirror stopped resolving on 11 Nov, so `visual-qa` now installs Chromium without system packages.
+- **Next:** on receipt of the packet, align the manifest and bridge, set the origin on the preview environment only, run the real round trip, record it here. Production and any customer invitation, charge or domain change need Jake.
+
 ## 19 October 2026: new direction, stills stage (latest; read this first)
 
 - **Film build `9bea727`.** Three Veo 3.1 *fast* shots, scroll-scrubbed full-screen, with the fleet on a dusk road. It is deployed as protected preview `tl-executive-h7n6t94b9` (`dpl_Ekve8LgUosMZHpJ2JPYKa4iahAFW`). Cloud QA run 39252516868 passed 35/35. Dry-run enquiry and the CMS contract (8/8) were checked on the deployment. Production is untouched.
