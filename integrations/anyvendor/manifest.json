@@ -1,0 +1,881 @@
+{
+  "version": 1,
+  "name": "Theydon & Loughton Executive Cars",
+  "sections": [
+    {
+      "key": "brand",
+      "label": "Brand",
+      "fields": [
+        {
+          "key": "name",
+          "label": "Name",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "strapline",
+          "label": "Strapline",
+          "type": "text",
+          "max": 120
+        }
+      ]
+    },
+    {
+      "key": "hero",
+      "label": "Opening film",
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Eyebrow",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "title",
+          "label": "Title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "title_accent",
+          "label": "Title accent",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "intro",
+          "label": "Intro",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "night_title",
+          "label": "Night title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "night_text",
+          "label": "Night text",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "road_title",
+          "label": "Road title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "road_text",
+          "label": "Road text",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "space_title",
+          "label": "Space title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "space_text",
+          "label": "Space text",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "final_title",
+          "label": "Final title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "final_text",
+          "label": "Final text",
+          "type": "text",
+          "max": 120
+        }
+      ]
+    },
+    {
+      "key": "services",
+      "label": "Journeys",
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Eyebrow",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "title",
+          "label": "Title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "intro",
+          "label": "Intro",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "group_travel",
+          "label": "Group travel",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item0_title",
+          "label": "Item 1 title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item0_description",
+          "label": "Item 1 description",
+          "type": "textarea",
+          "max": 400
+        },
+        {
+          "key": "item9_title",
+          "label": "Item 10 title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item9_description",
+          "label": "Item 10 description",
+          "type": "textarea",
+          "max": 400
+        },
+        {
+          "key": "item7_title",
+          "label": "Item 8 title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item7_description",
+          "label": "Item 8 description",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "group_evenings",
+          "label": "Group evenings",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item1_title",
+          "label": "Item 2 title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item1_description",
+          "label": "Item 2 description",
+          "type": "textarea",
+          "max": 400
+        },
+        {
+          "key": "item11_title",
+          "label": "Item 12 title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item11_description",
+          "label": "Item 12 description",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item10_title",
+          "label": "Item 11 title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item10_description",
+          "label": "Item 11 description",
+          "type": "textarea",
+          "max": 400
+        },
+        {
+          "key": "item4_title",
+          "label": "Item 5 title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item4_description",
+          "label": "Item 5 description",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item8_title",
+          "label": "Item 9 title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item8_description",
+          "label": "Item 9 description",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item12_title",
+          "label": "Item 13 title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item12_description",
+          "label": "Item 13 description",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "group_occasions",
+          "label": "Group occasions",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item3_title",
+          "label": "Item 4 title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item3_description",
+          "label": "Item 4 description",
+          "type": "textarea",
+          "max": 400
+        },
+        {
+          "key": "item2_title",
+          "label": "Item 3 title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item2_description",
+          "label": "Item 3 description",
+          "type": "textarea",
+          "max": 400
+        },
+        {
+          "key": "item5_title",
+          "label": "Item 6 title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item5_description",
+          "label": "Item 6 description",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item6_title",
+          "label": "Item 7 title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item6_description",
+          "label": "Item 7 description",
+          "type": "text",
+          "max": 120
+        }
+      ]
+    },
+    {
+      "key": "airports",
+      "label": "Airports",
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Eyebrow",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "title",
+          "label": "Title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "intro",
+          "label": "Intro",
+          "type": "textarea",
+          "max": 400
+        },
+        {
+          "key": "note_0_title",
+          "label": "Note 1 title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "note_0_text",
+          "label": "Note 1 text",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "note_1_title",
+          "label": "Note 2 title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "note_1_text",
+          "label": "Note 2 text",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "note_2_title",
+          "label": "Note 3 title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "note_2_text",
+          "label": "Note 3 text",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "note_3_title",
+          "label": "Note 4 title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "note_3_text",
+          "label": "Note 4 text",
+          "type": "text",
+          "max": 120
+        }
+      ]
+    },
+    {
+      "key": "fleet",
+      "label": "Fleet",
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Eyebrow",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "title",
+          "label": "Title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "intro",
+          "label": "Intro",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "e_class_name",
+          "label": "E class name",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "e_class_passengers",
+          "label": "E class passengers",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "e_class_bags",
+          "label": "E class bags",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "e_class_description",
+          "label": "E class description",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "s_class_name",
+          "label": "S class name",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "s_class_passengers",
+          "label": "S class passengers",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "s_class_bags",
+          "label": "S class bags",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "s_class_description",
+          "label": "S class description",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "v_class_name",
+          "label": "V class name",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "v_class_passengers",
+          "label": "V class passengers",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "v_class_bags",
+          "label": "V class bags",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "v_class_description",
+          "label": "V class description",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "tourneo_name",
+          "label": "Tourneo name",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "tourneo_passengers",
+          "label": "Tourneo passengers",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "tourneo_bags",
+          "label": "Tourneo bags",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "tourneo_description",
+          "label": "Tourneo description",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "e_class_image",
+          "label": "E class image",
+          "type": "image"
+        },
+        {
+          "key": "s_class_image",
+          "label": "S class image",
+          "type": "image"
+        },
+        {
+          "key": "v_class_image",
+          "label": "V class image",
+          "type": "image"
+        },
+        {
+          "key": "tourneo_image",
+          "label": "Tourneo image",
+          "type": "image"
+        }
+      ]
+    },
+    {
+      "key": "about",
+      "label": "About",
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Eyebrow",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "title",
+          "label": "Title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "story",
+          "label": "Story",
+          "type": "textarea",
+          "max": 400
+        },
+        {
+          "key": "promise",
+          "label": "Promise",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "signoff",
+          "label": "Signoff",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "image",
+          "label": "Image",
+          "type": "image"
+        }
+      ]
+    },
+    {
+      "key": "areas",
+      "label": "Areas covered",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "intro",
+          "label": "Intro",
+          "type": "text",
+          "max": 120
+        }
+      ]
+    },
+    {
+      "key": "testimonials",
+      "label": "Testimonials",
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Eyebrow",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "title",
+          "label": "Title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "jamil_qureshi_quote",
+          "label": "Jamil qureshi quote",
+          "type": "textarea",
+          "max": 450
+        },
+        {
+          "key": "jamil_qureshi_name",
+          "label": "Jamil qureshi name",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "jamil_qureshi_role",
+          "label": "Jamil qureshi role",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "ken_spry_quote",
+          "label": "Ken spry quote",
+          "type": "textarea",
+          "max": 450
+        },
+        {
+          "key": "ken_spry_name",
+          "label": "Ken spry name",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "ken_spry_role",
+          "label": "Ken spry role",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "peter_joarder_quote",
+          "label": "Peter joarder quote",
+          "type": "textarea",
+          "max": 400
+        },
+        {
+          "key": "peter_joarder_name",
+          "label": "Peter joarder name",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "peter_joarder_role",
+          "label": "Peter joarder role",
+          "type": "text",
+          "max": 120
+        }
+      ]
+    },
+    {
+      "key": "clients",
+      "label": "Clients",
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Eyebrow",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "title",
+          "label": "Title",
+          "type": "text",
+          "max": 120
+        }
+      ]
+    },
+    {
+      "key": "quote",
+      "label": "Quote",
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Eyebrow",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "title",
+          "label": "Title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "intro",
+          "label": "Intro",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "step_0_title",
+          "label": "Step 1 title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "step_0_text",
+          "label": "Step 1 text",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "step_1_title",
+          "label": "Step 2 title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "step_1_text",
+          "label": "Step 2 text",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "step_2_title",
+          "label": "Step 3 title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "step_2_text",
+          "label": "Step 3 text",
+          "type": "text",
+          "max": 120
+        }
+      ]
+    },
+    {
+      "key": "faq",
+      "label": "Questions",
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Eyebrow",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "title",
+          "label": "Title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item0_q",
+          "label": "Item 1 q",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item0_a",
+          "label": "Item 1 a",
+          "type": "textarea",
+          "max": 400
+        },
+        {
+          "key": "item1_q",
+          "label": "Item 2 q",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item1_a",
+          "label": "Item 2 a",
+          "type": "textarea",
+          "max": 400
+        },
+        {
+          "key": "item2_q",
+          "label": "Item 3 q",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item2_a",
+          "label": "Item 3 a",
+          "type": "textarea",
+          "max": 400
+        },
+        {
+          "key": "item3_q",
+          "label": "Item 4 q",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item3_a",
+          "label": "Item 4 a",
+          "type": "textarea",
+          "max": 400
+        },
+        {
+          "key": "item4_q",
+          "label": "Item 5 q",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item4_a",
+          "label": "Item 5 a",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item5_q",
+          "label": "Item 6 q",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "item5_a",
+          "label": "Item 6 a",
+          "type": "textarea",
+          "max": 400
+        }
+      ]
+    },
+    {
+      "key": "footer",
+      "label": "Footer",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "strapline",
+          "label": "Strapline",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "location",
+          "label": "Location",
+          "type": "text",
+          "max": 120
+        }
+      ]
+    },
+    {
+      "key": "page",
+      "label": "Page layout",
+      "fields": [
+        {
+          "key": "chapters",
+          "label": "Chapters after the opening film",
+          "type": "list",
+          "max": 5,
+          "fields": [
+            {
+              "key": "chapter",
+              "label": "Chapter",
+              "type": "select",
+              "options": [
+                {
+                  "value": "journeys",
+                  "label": "Journeys"
+                },
+                {
+                  "value": "fleet",
+                  "label": "Fleet"
+                },
+                {
+                  "value": "trust",
+                  "label": "About, areas and testimonials"
+                },
+                {
+                  "value": "plan",
+                  "label": "Quote form"
+                },
+                {
+                  "value": "contact",
+                  "label": "Questions and contact"
+                }
+              ]
+            },
+            {
+              "key": "visible",
+              "label": "Show on the page",
+              "type": "boolean"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

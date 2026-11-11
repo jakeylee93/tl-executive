@@ -1,0 +1,192 @@
+{
+  "brand": {
+    "name": "Theydon & Loughton Executive Cars",
+    "strapline": "Theydon Bois · Est. 2008"
+  },
+  "hero": {
+    "eyebrow": "Theydon Bois · Essex · London",
+    "title": "Executive cars",
+    "title_accent": "from Theydon Bois.",
+    "intro": "Airports, business and occasions, arranged personally since 2008.",
+    "night_title": "Day or night, door to door.",
+    "night_text": "Flights monitored, arrivals met, and home again however late you land.",
+    "road_title": "Door to door, on time.",
+    "road_text": "Your driver watches the traffic and the clock. You sit back.",
+    "space_title": "Room for everyone, and everything.",
+    "space_text": "Our Tourneo seats eight with room for eight cases, for airport runs, families and groups.",
+    "final_title": "Where are we taking you?",
+    "final_text": "Tell us the journey and we’ll reply with a price. Nothing is booked until you accept."
+  },
+  "services": {
+    "eyebrow": "Journeys",
+    "title": "Tailored to your needs",
+    "intro": "If your journey isn’t listed, ask: most trips can be arranged.",
+    "group_travel": "Airports & travel",
+    "item0_title": "Airport transfers",
+    "item0_description": "Heathrow, Gatwick, London City, Luton, Stansted and Southend. Flights are monitored, and arrivals are met in the terminal.",
+    "item9_title": "VIP & private aviation",
+    "item9_description": "Drivers familiar with the VIP and private terminals, including the Windsor Suite, Harrods Aviation, TAG Aviation and Signature.",
+    "item7_title": "Seaport & cruise",
+    "item7_description": "Southampton, Dover, Tilbury and Harwich, with help for the luggage at the terminal.",
+    "group_evenings": "Business & London",
+    "item1_title": "Corporate travel",
+    "item1_description": "Meetings, roadshows and client collections, with discreet, punctual drivers who know London and the M25.",
+    "item11_title": "Speakers & keynotes",
+    "item11_description": "Speaker-bureau clients collected, briefed and delivered on time to conferences and events.",
+    "item10_title": "Media & production",
+    "item10_description": "Talent, crew and guests moved between locations, studios and events on a production schedule.",
+    "item4_title": "Theatre",
+    "item4_description": "Door to door for West End shows, with no parking to find and no last train to catch.",
+    "item8_title": "Fine dining",
+    "item8_description": "Dinner in London or closer to home, with the journey back taken care of.",
+    "item12_title": "West End shopping",
+    "item12_description": "A day in the West End without the parking: dropped off and collected when you are ready.",
+    "group_occasions": "Occasions & events",
+    "item3_title": "Weddings",
+    "item3_description": "The couple, the family and guest transfers between hotel and venue, planned around your day.",
+    "item2_title": "Special occasions",
+    "item2_description": "Birthdays, anniversaries and red-carpet evenings: arrive together and leave the driving to us.",
+    "item5_title": "Race days",
+    "item5_description": "Cheltenham, Ascot and Newmarket: enjoy the racing and travel home in comfort.",
+    "item6_title": "Sporting events",
+    "item6_description": "Rugby and football fixtures, dropped at the venue and collected afterwards."
+  },
+  "airports": {
+    "eyebrow": "Airports",
+    "title": "Every London airport, from your door",
+    "intro": "Heathrow, Gatwick, London City, Luton, Stansted and Southend, plus the private and VIP terminals.",
+    "note_0_title": "Your flight, monitored",
+    "note_0_text": "Share your flight number and your driver knows your actual arrival time.",
+    "note_1_title": "Met in arrivals",
+    "note_1_text": "A full meet-and-greet in the arrivals hall.",
+    "note_2_title": "Ten minutes early",
+    "note_2_text": "For departures, at your door ten minutes before the agreed time.",
+    "note_3_title": "To the check-in desk",
+    "note_3_text": "A chaperone to check-in when you need one; mention it when you book."
+  },
+  "fleet": {
+    "eyebrow": "The fleet",
+    "title": "Choose your car",
+    "intro": "From an executive saloon to an eight-seat minibus. Not sure? We’ll recommend one.",
+    "e_class_name": "Mercedes-Benz E-Class",
+    "e_class_passengers": "4 Passengers",
+    "e_class_bags": "3 Bags",
+    "e_class_description": "The executive saloon for airport runs and business travel.",
+    "s_class_name": "Mercedes-Benz S-Class",
+    "s_class_passengers": "4 Passengers",
+    "s_class_bags": "3 Bags",
+    "s_class_description": "Mercedes’ flagship saloon for occasions and VIP travel.",
+    "v_class_name": "Mercedes-Benz V-Class",
+    "v_class_passengers": "7 Passengers",
+    "v_class_bags": "7 Bags",
+    "v_class_description": "Room for families and small groups, and their luggage.",
+    "tourneo_name": "Tourneo Custom Executive",
+    "tourneo_passengers": "8 Passengers",
+    "tourneo_bags": "8 Bags",
+    "tourneo_description": "Executive-specification minibus for larger parties and events.",
+    "e_class_image": {
+      "src": "/media/fleet-road/mercedes-e-class-1600.webp",
+      "alt": "Mercedes-Benz E-Class saloon"
+    },
+    "s_class_image": {
+      "src": "/media/fleet-road/mercedes-s-class-1600.webp",
+      "alt": "Mercedes-Benz S-Class saloon"
+    },
+    "v_class_image": {
+      "src": "/media/fleet-road/mercedes-v-class-1600.webp",
+      "alt": "Mercedes-Benz V-Class people carrier"
+    },
+    "tourneo_image": {
+      "src": "/media/fleet-road/tourneo-custom-executive-spec-1600.webp",
+      "alt": "Ford Tourneo Custom executive minibus"
+    }
+  },
+  "about": {
+    "eyebrow": "About us",
+    "title": "A personal guarantee",
+    "story": "I founded Theydon & Loughton Executive Cars in 2008 to look after local people and businesses, and they have kept coming back.",
+    "promise": "I personally guarantee the service to every customer.",
+    "signoff": "Simon Burns, founder",
+    "image": {
+      "src": "/media/forest-1600.webp",
+      "alt": "Lodge Road in Epping Forest"
+    }
+  },
+  "areas": {
+    "title": "Areas we cover",
+    "intro": "Collections from Theydon Bois and the towns and villages around Epping Forest."
+  },
+  "testimonials": {
+    "eyebrow": "What our clients say",
+    "title": "Trusted since 2008",
+    "jamil_qureshi_quote": "As a busy international speaker, my reputation is dependent upon reliable logistics. I have used Simon’s services for a number of years, and have been absolutely delighted on every occasion. Simon is extremely professional, 100% reliable, and balances all this with a friendly and personable manner.",
+    "jamil_qureshi_name": "Jamil Qureshi",
+    "jamil_qureshi_role": "International Speaker",
+    "ken_spry_quote": "We have been using T&L Executive Cars both for family trips to London and airport transfers, for some years. Their service has always been friendly and reliable. It does take some of the pressure off any journey when you know that the car you have organised will arrive in plenty of time.",
+    "ken_spry_name": "Ken Spry",
+    "ken_spry_role": "Client",
+    "peter_joarder_quote": "I have been a client of Simon Burns and T&L Executive Cars for many years, initially for my personal executive car needs but then after experiencing their extraordinarily professional service, I began using them for my business requirements as well.",
+    "peter_joarder_name": "Peter Joarder",
+    "peter_joarder_role": "Chapman Freeborn"
+  },
+  "clients": {
+    "eyebrow": "Trusted by",
+    "title": "Clients have included"
+  },
+  "quote": {
+    "eyebrow": "Plan your journey",
+    "title": "Request a quote",
+    "intro": "Tell us where and when, and we’ll come back with a price.",
+    "step_0_title": "Send your journey",
+    "step_0_text": "Use the form, or call if you’d rather talk it through.",
+    "step_1_title": "Receive your quote",
+    "step_1_text": "We reply by email or phone with a price for your journey.",
+    "step_2_title": "Confirm and travel",
+    "step_2_text": "Nothing is booked until you accept the quote."
+  },
+  "faq": {
+    "eyebrow": "Good to know",
+    "title": "Questions, answered",
+    "item0_q": "How do I get a price?",
+    "item0_a": "Send your journey with the form on this page, or call 07904 428896. We reply with a quote by email or phone, and nothing is booked until you accept it.",
+    "item1_q": "What if my flight is delayed?",
+    "item1_a": "Include your flight number. Flights are monitored, so your driver knows your actual arrival time and meets you in the arrivals hall.",
+    "item2_q": "Which car do I need?",
+    "item2_a": "As a guide, the E-Class and S-Class seat up to 4 with 3 cases, the V-Class up to 7, and the Tourneo Custom up to 8. Tell us what you’re bringing and we’ll recommend the right one.",
+    "item3_q": "Are your drivers and cars licensed?",
+    "item3_a": "Our drivers and vehicles are licensed by Epping Forest District Council, and our executive vehicles are exempt from displaying standard private hire plates.",
+    "item4_q": "How can I pay?",
+    "item4_a": "We accept Visa, Mastercard, American Express and Apple Pay.",
+    "item5_q": "When can I reach you?",
+    "item5_a": "Our hours are Monday to Friday, 9.00am to 6.30pm. You can send a journey request with the form at any time and we’ll reply with a quote."
+  },
+  "footer": {
+    "title": "Theydon & Loughton Executive Cars",
+    "strapline": "Theydon Bois · Est. 2008",
+    "location": "Theydon Bois, Essex"
+  },
+  "page": {
+    "chapters": [
+      {
+        "chapter": "journeys",
+        "visible": true
+      },
+      {
+        "chapter": "fleet",
+        "visible": true
+      },
+      {
+        "chapter": "trust",
+        "visible": true
+      },
+      {
+        "chapter": "plan",
+        "visible": true
+      },
+      {
+        "chapter": "contact",
+        "visible": true
+      }
+    ]
+  }
+}

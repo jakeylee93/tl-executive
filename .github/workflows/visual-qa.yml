@@ -40,7 +40,11 @@ jobs:
         run: |
           (pnpm start -p 3100 > /tmp/next.log 2>&1 &)
           for i in $(seq 1 60); do curl -sf http://localhost:3100/ >/dev/null && break; sleep 1; done
-          node tests/browser/capture.mjs http://localhost:3100 shots
+          # a second server reading the mock AnyVendor content origin (adapter QA)
+          (node scripts/anyvendor/mock-origin.mjs 3301 > /tmp/mock.log 2>&1 &)
+          (ANYVENDOR_CONTENT_ORIGIN=http://127.0.0.1:3301 pnpm start -p 3101 > /tmp/next-av.log 2>&1 &)
+          for i in $(seq 1 60); do curl -sf http://localhost:3101/ >/dev/null && break; sleep 1; done
+          AV_BASE=http://localhost:3101 node tests/browser/capture.mjs http://localhost:3100 shots
       - uses: actions/upload-artifact@v4
         if: always()
         with:

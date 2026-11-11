@@ -1,30 +1,10 @@
-import { Journey } from '@/components/film/Journey'
-import { Fleet } from '@/components/fleet/Fleet'
-import { Footer } from '@/components/Footer'
-import { Header } from '@/components/Header'
-import { HomeContact } from '@/components/HomeContact'
-import { Journeys } from '@/components/Journeys'
-import { PlanSection } from '@/components/PlanSection'
-import { Trust } from '@/components/Trust'
-import { JsonLd, localBusinessSchema } from '@/lib/schema'
+import { HomePage } from '@/components/HomePage'
+import { getSite } from '@/lib/anyvendor/site'
 
-// Five chapters: the journey (three continuous shots, each a full screen) →
-// journeys → the fleet on the road → trust → the quote (contact, answers).
-// See DESIGN.md and FILM.md.
-export default function Home() {
-  return (
-    <>
-      <JsonLd data={localBusinessSchema()} />
-      <Header />
-      <main id="main" tabIndex={-1} className="focus:outline-none">
-        <Journey />
-        <Journeys />
-        <Fleet />
-        <Trust />
-        <PlanSection />
-        <HomeContact />
-      </main>
-      <Footer />
-    </>
-  )
+// Published content: built-in unless the AnyVendor content origin is configured
+// (lib/anyvendor/site.ts); then re-read at most every 60 seconds.
+export const revalidate = 60
+
+export default async function Home() {
+  return <HomePage site={await getSite()} />
 }

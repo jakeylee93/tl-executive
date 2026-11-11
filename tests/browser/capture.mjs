@@ -197,6 +197,53 @@ for (const v of [VIEWS[0], VIEWS[3]]) {
   await ctx.close()
 }
 
+// AnyVendor adapter in a real browser (AV_BASE = a server reading the mock
+// content origin, scripts/anyvendor/mock-origin.mjs): published edits are on
+// the page, the replaced picture loads, chapters follow the content, every
+// editable element carries its field path, and the quote form still opens.
+if (process.env.AV_BASE) {
+  const AV = process.env.AV_BASE
+  for (const v of [VIEWS[0], { tag: 'tablet820', width: 820, height: 1180, dpr: 2, mobile: true }, VIEWS[3]]) {
+    const ctx = await browser.newContext({ viewport: { width: v.width, height: v.height }, deviceScaleFactor: v.dpr, isMobile: v.mobile, hasTouch: v.mobile })
+    const page = await ctx.newPage()
+    // the prerendered page picks up published content within its 60 s revalidation
+    for (let i = 0; i < 40; i++) {
+      await page.goto(AV + '/', { waitUntil: 'domcontentloaded' })
+      if ((await page.content()).includes('Chauffeur-driven cars')) break
+      await page.waitForTimeout(3000)
+    }
+    await page.waitForTimeout(5000)
+    const r = await page.evaluate(async () => {
+      const img = document.querySelector('img[data-anyos-img="fleet.mercedes-e-class.image"]')
+      return {
+        source: document.documentElement.dataset.avSource,
+        title: document.querySelector('[data-anyos="hero.title"]')?.textContent,
+        intro: document.querySelector('[data-anyos="hero.intro"]')?.textContent,
+        script: !!document.querySelector('[data-anyos] script'),
+        chapters: Array.from(document.querySelectorAll('[data-av-chapter]')).map(e => e.getAttribute('data-av-chapter')),
+        fleet: !!document.getElementById('fleet'),
+        fields: document.querySelectorAll('[data-av-field]').length,
+        unlabelled: document.querySelectorAll('[data-anyos]:not([data-av-field])').length,
+        overflow: document.documentElement.scrollWidth > innerWidth + 1,
+      }
+    })
+    check(`${v.tag}: AnyVendor published edits are on the page`, r.source === 'published' && r.title === 'Chauffeur-driven cars' && /Arranged personally since 2008\.$/.test(r.intro || '') && !r.script, JSON.stringify(r))
+    check(`${v.tag}: AnyVendor chapter order and hidden chapter`, r.chapters.join() === 'plan,journeys,contact' && !r.fleet, r.chapters.join())
+    check(`${v.tag}: every editable element carries its AnyVendor field, no overflow`, r.fields >= 100 && r.unlabelled === 0 && !r.overflow, `fields=${r.fields} unlabelled=${r.unlabelled}`)
+    await shot(page, `anyvendor-${v.tag}-published.jpg`)
+    await page.click('#top .film-actions a')
+    await page.waitForTimeout(1200)
+    const form = await page.evaluate(() => { const q = document.getElementById('quote'); if (!q) return false; const b = q.getBoundingClientRect(); return b.top < innerHeight && b.bottom > 0 })
+    check(`${v.tag}: "Request a quote" still reaches the form with AnyVendor content`, form)
+    await page.goto(AV + '/preview?token=mock-preview-token-0123456789', { waitUntil: 'domcontentloaded' })
+    await page.waitForTimeout(2500)
+    const d = await page.evaluate(() => ({ title: document.querySelector('[data-anyos="hero.title"]')?.textContent, source: document.documentElement.dataset.avSource, robots: document.querySelector('meta[name="robots"]')?.getAttribute('content') }))
+    check(`${v.tag}: draft preview shows the draft, noindex`, d.source === 'draft' && d.title === 'Draft headline, not yet published' && /noindex/.test(d.robots || ''), JSON.stringify(d))
+    await shot(page, `anyvendor-${v.tag}-draft.jpg`)
+    await ctx.close()
+  }
+}
+
 await browser.close()
 writeFileSync(join(OUT, 'report.json'), JSON.stringify(report, null, 1))
 const failed = report.checks.filter(c => !c.ok)
