@@ -21,6 +21,8 @@ export function startMock(port) {
   published.hero.intro = '<script>alert(1)</script>Arranged <b>personally</b> since 2008.'
   published.fleet.e_class_image = NEW_IMAGE
   published.fleet.s_class_image = { src: 'javascript:alert(1)', alt: 'x' }
+  published.clients.names = 'Client One  ·  Client Two'
+  published.services.travel_photo = { src: '/media/journeys/occasions-1600.webp', alt: 'A venue at night' }
   published.page.chapters = [{ chapter: 'plan', visible: true }, { chapter: 'journeys', visible: true }, { chapter: 'fleet', visible: false }, { chapter: 'contact', visible: true }]
   const draft = structuredClone(published)
   draft.hero.title = DRAFT_TITLE

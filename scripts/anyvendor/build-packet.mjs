@@ -20,7 +20,7 @@ const OUT = fileURLToPath(new URL('../../integrations/anyvendor/', import.meta.u
 const SECTIONS = [
   ['brand', 'Brand'], ['hero', 'Opening film'], ['services', 'Journeys'], ['airports', 'Airports'],
   ['fleet', 'Fleet'], ['about', 'About'], ['areas', 'Areas covered'], ['testimonials', 'Testimonials'],
-  ['clients', 'Clients'], ['quote', 'Quote'], ['faq', 'Questions'], ['footer', 'Footer'],
+  ['clients', 'Clients'], ['quote', 'Quote'], ['faq', 'Questions'], ['contact', 'Contact'], ['footer', 'Footer'],
 ]
 // the page's movable chapters (components in app/page.tsx), in their built-in order
 export const CHAPTERS = [
@@ -42,7 +42,7 @@ const seed = {}
 const map = {}
 const byKey = Object.fromEntries(SECTIONS.map(([key, label]) => { const s = { key, label, fields: [] }; manifest.sections.push(s); seed[key] = {}; return [key, s] }))
 
-const add = (anyosKey, kind, value) => {
+const add = (anyosKey, kind, value, av = false) => {
   const [sec, ...rest] = anyosKey.split('.')
   if (!byKey[sec]) throw new Error(`no section for ${anyosKey}`)
   const key = fieldKey(rest)
@@ -55,9 +55,11 @@ const add = (anyosKey, kind, value) => {
     byKey[sec].fields.push({ key, label: words(key), type: long ? 'textarea' : 'text', max: long ? Math.max(400, Math.ceil(value.length * 1.5 / 50) * 50) : 120 })
   }
   seed[sec][key] = value
-  map[`${sec}.${key}`] = kind === 'image'
-    ? { kind, anyos: anyosKey, selector: `img[data-anyos-img="${anyosKey}"]`, sets: ['src', 'alt'] }
-    : { kind, anyos: anyosKey, selector: `[data-anyos="${anyosKey}"]`, sets: ['textContent'] }
+  // "anyos": the element is also editable in the anyOS editor under that key;
+  // "av": content only AnyVendor addresses (data-av-key), added 11 Nov 2026
+  const id = av ? { av: anyosKey } : { anyos: anyosKey }
+  const sel = av ? `[data-av-key="${anyosKey}"]` : kind === 'image' ? `img[data-anyos-img="${anyosKey}"]` : `[data-anyos="${anyosKey}"]`
+  map[`${sec}.${key}`] = kind === 'image' ? { kind, ...id, selector: sel, sets: ['src', 'alt'] } : { kind, ...id, selector: sel, sets: ['textContent'] }
 }
 
 let m
@@ -68,6 +70,13 @@ while ((m = text.exec(html))) {
 }
 const img = /<img\b[^>]*\sdata-anyos-img="([^"]+)"[^>]*>/g
 while ((m = img.exec(html))) add(m[1], 'image', { src: attr(m[0], 'src'), alt: attr(m[0], 'alt') })
+const avText = /<(?!img\b)([a-z0-9]+)\b[^>]*\sdata-av-key="([^"]+)"[^>]*>([\s\S]*?)<\/\1>/g
+while ((m = avText.exec(html))) {
+  if (/<[a-z]/i.test(m[3])) throw new Error(`${m[2]} is not a text leaf`)
+  add(m[2], 'text', decode(m[3]).trim(), true)
+}
+const avImg = /<img\b[^>]*\sdata-av-key="([^"]+)"[^>]*>/g
+while ((m = avImg.exec(html))) add(m[1], 'image', { src: attr(m[0], 'src'), alt: attr(m[0], 'alt') }, true)
 
 // Page chapters: which appear, and in what order. Plain v1 (a list of select +
 // boolean), so it works before the shared section-instances extension lands.

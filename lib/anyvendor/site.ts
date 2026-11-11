@@ -19,7 +19,7 @@ export type SiteOverrides = {
   /** where the content came from */
   source: 'built-in' | 'published' | 'draft'
   revision: string
-  /** anyOS key → text, only where it differs from the built-in content */
+  /** element key (anyOS key, or data-av-key) → text, only where it differs from the built-in content */
   text: Record<string, string>
   /** anyOS image key → picture */
   images: Record<string, { src: string; alt: string }>
@@ -28,11 +28,11 @@ export type SiteOverrides = {
   chapters: Chapter[]
 }
 
-type MapEntry = { kind: string; anyos?: string }
+type MapEntry = { kind: string; anyos?: string; av?: string }
 const MAP = fieldMap as Record<string, MapEntry>
 const SEED = seed as unknown as Record<string, Record<string, unknown>>
 const FIELDS: Record<string, string> = {}
-Object.keys(MAP).forEach(path => { const a = MAP[path].anyos; if (a) FIELDS[a] = path })
+Object.keys(MAP).forEach(path => { const a = MAP[path].anyos || MAP[path].av; if (a) FIELDS[a] = path })
 
 const builtIn = (): SiteOverrides => ({ source: 'built-in', revision: '', text: {}, images: {}, fields: FIELDS, chapters: CHAPTERS.slice() })
 
@@ -69,17 +69,18 @@ export function toOverrides(content: unknown, source: SiteOverrides['source'], r
   Object.keys(MAP).forEach(path => {
     const [sec, key] = path.split('.')
     const entry = MAP[path]
+    const id = entry.anyos || entry.av
     const value = c[sec] ? c[sec][key] : undefined
     if (value === undefined || value === null) return
-    if (entry.kind === 'text' && entry.anyos && typeof value === 'string') {
+    if (entry.kind === 'text' && id && typeof value === 'string') {
       const text = value.replace(/<[^>]*>/g, '').trim()
-      if (text && text !== SEED[sec]?.[key]) o.text[entry.anyos] = text.slice(0, 2000)
-    } else if (entry.kind === 'image' && entry.anyos && typeof value === 'object') {
+      if (text && text !== SEED[sec]?.[key]) o.text[id] = text.slice(0, 2000)
+    } else if (entry.kind === 'image' && id && typeof value === 'object') {
       const img = value as { src?: unknown; alt?: unknown }
       const src = safeSrc(img.src)
       const was = SEED[sec]?.[key] as { src?: string; alt?: string } | undefined
       const alt = typeof img.alt === 'string' ? img.alt.slice(0, 300) : was?.alt || ''
-      if (src && (src !== was?.src || alt !== was?.alt)) o.images[entry.anyos] = { src, alt }
+      if (src && (src !== was?.src || alt !== was?.alt)) o.images[id] = { src, alt }
     } else if (entry.kind === 'layout') {
       o.chapters = chaptersFrom(value)
     }

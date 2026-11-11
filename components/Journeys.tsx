@@ -72,7 +72,7 @@ export function Journeys() {
           {SERVICE_GROUPS.map((g, gi) => (
             <article key={g.key} data-chapter={gi} aria-labelledby={`jc-${g.key}`} className="jr-chapter">
               <figure className="jr-band" aria-hidden="true">
-                <img data-drift src={`${PHOTOS[g.key].src}-1600.webp`} srcSet={srcSet(PHOTOS[g.key].src)} sizes="100vw" alt="" width={1600} height={1195} loading="lazy" decoding="async" />
+                <img data-drift data-av-key={`services.${g.key}.photo`} src={`${PHOTOS[g.key].src}-1600.webp`} srcSet={srcSet(PHOTOS[g.key].src)} sizes="100vw" alt="" width={1600} height={1195} loading="lazy" decoding="async" />
               </figure>
               <div className="jr-body page-x">
                 <p className="jr-count label tabular">{String(gi + 1).padStart(2, '0')} / {String(SERVICE_GROUPS.length).padStart(2, '0')}</p>
@@ -129,7 +129,7 @@ export function Journeys() {
         <div className="jr-visual" aria-hidden="true">
           <div className="jr-pin">
             {SERVICE_GROUPS.map((g, gi) => (
-              <img key={g.key} data-on={chapter === gi ? '' : undefined} src={`${PHOTOS[g.key].src}-1600.webp`} srcSet={srcSet(PHOTOS[g.key].src)} sizes="60vw" alt="" width={1600} height={1195} loading="lazy" decoding="async" />
+              <img key={g.key} data-on={chapter === gi ? '' : undefined} data-av-key={`services.${g.key}.photo`} src={`${PHOTOS[g.key].src}-1600.webp`} srcSet={srcSet(PHOTOS[g.key].src)} sizes="60vw" alt="" width={1600} height={1195} loading="lazy" decoding="async" />
             ))}
           </div>
         </div>

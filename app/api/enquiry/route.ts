@@ -82,7 +82,11 @@ export async function POST(request: NextRequest) {
 
   const transfer = buildTransferPayload(enquiry)
 
-  if (mode() === 'dry-run') {
+  // a draft preview (the AnyVendor editor's view of the site) never sends anything on
+  const referer = request.headers.get('referer') || ''
+  const fromDraft = request.headers.get('x-site-draft') === '1' || /^https?:\/\/[^/]+\/preview(\?|$)/.test(referer)
+
+  if (mode() === 'dry-run' || fromDraft) {
     return reply({ ok: true, dryRun: true, payload: transfer })
   }
 

@@ -136,7 +136,7 @@ export function Fleet() {
             return (
               <div key={v.name} id={`fleet-panel-${key}`} role="tabpanel" aria-labelledby={`fleet-tab-${key}`} data-on={active === i ? '' : undefined} className="fleet-card">
                 <div className="fleet-card-id">
-                  <p className="label">{v.kind}</p>
+                  <p data-av-key={`fleet.${slug(v.name)}.kind`} className="label">{v.kind}</p>
                   <h3 suppressHydrationWarning data-anyos={`fleet.${key}.name`} data-vehicle-name={v.name} className="t-h3 mt-1.5 text-white">{v.display}</h3>
                   <dl className="mt-1.5 flex flex-wrap gap-x-5 gap-y-1 text-[0.98rem] text-[#dfe2e8]">
                     <div className="flex items-center gap-2"><dt><Icon name="users" className="h-4 w-4 text-[#b9bec9]" /><span className="sr-only">Passengers</span></dt><dd suppressHydrationWarning data-anyos={`fleet.${key}.passengers`}>{v.passengersLabel}</dd></div>
@@ -181,7 +181,7 @@ export function Fleet() {
             </button>
           </div>
         </div>
-        <p className="fleet-note page-x">Pictures show each model. Your car may differ in year, colour and specification.</p>
+        <p data-av-key="fleet.note" className="fleet-note page-x">Pictures show each model. Your car may differ in year, colour and specification.</p>
       </div>
     </FilmScene>
   )

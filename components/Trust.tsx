@@ -10,9 +10,9 @@ export function Trust() {
   const [q, setQ] = useState(0)
   const n = TESTIMONIALS.length
   const facts = [
-    { label: 'Established', value: '2008, Theydon Bois' },
-    { label: 'Licensing', value: BUSINESS.licensing },
-    { label: 'Payment', value: BUSINESS.payments },
+    { key: 'about.established', label: 'Established', value: '2008, Theydon Bois' },
+    { key: 'about.licensing', label: 'Licensing', value: BUSINESS.licensing },
+    { key: 'about.payment', label: 'Payment', value: BUSINESS.payments },
   ]
   return (
     <section id="about" aria-labelledby="about-title" className="on-dark bg-charcoal text-on-dark">
@@ -32,7 +32,7 @@ export function Trust() {
             {facts.map(f => (
               <div key={f.label}>
                 <dt className="label text-[0.72rem]">{f.label}</dt>
-                <dd className="mt-1.5 text-[0.95rem] leading-snug text-[#e6e6e4]">{f.value}</dd>
+                <dd data-av-key={f.key} className="mt-1.5 text-[0.95rem] leading-snug text-[#e6e6e4]">{f.value}</dd>
               </div>
             ))}
           </dl>
@@ -40,7 +40,7 @@ export function Trust() {
             <span suppressHydrationWarning data-anyos="areas.title" className="font-semibold text-[#e6e6e4]">Areas we cover</span>
             {': '}
             <span suppressHydrationWarning data-anyos="areas.intro">Collections from Theydon Bois and the towns and villages around Epping Forest.</span>
-            {' '}{AREAS.join(' · ')}
+            {' '}<span data-av-key="areas.towns">{AREAS.join(' · ')}</span>
           </p>
         </div>
       </div>
@@ -90,7 +90,7 @@ export function Trust() {
           <p suppressHydrationWarning data-anyos="clients.eyebrow" className="label">Trusted by</p>
           <h3 suppressHydrationWarning data-anyos="clients.title" className="mt-2 font-display text-[1.45rem] text-white">Clients have included</h3>
         </div>
-        <p className="text-[1.02rem] leading-[1.9] text-[#dedddb] lg:col-span-8 lg:pt-1">{CLIENTS.join('  ·  ')}</p>
+        <p data-av-key="clients.names" className="text-[1.02rem] leading-[1.9] text-[#dedddb] lg:col-span-8 lg:pt-1">{CLIENTS.join('  ·  ')}</p>
       </div>
     </section>
   )

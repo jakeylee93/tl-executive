@@ -324,7 +324,9 @@ export function JourneyPlanner() {
       returnTime: data.tripType === 'return' ? data.returnTime : '',
     }
     try {
-      const res = await fetch('/api/enquiry', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      // from a draft preview (the AnyVendor editor's view) nothing is ever sent on
+      const draft = document.documentElement.dataset.avSource === 'draft' || location.pathname.indexOf('/preview') === 0
+      const res = await fetch('/api/enquiry', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(draft ? { 'x-site-draft': '1' } : {}) }, body: JSON.stringify(payload) })
       const result = (await res.json().catch(() => ({}))) as { ok?: boolean; dryRun?: boolean; error?: string; fields?: FieldErrors }
       if (res.ok && result.ok) {
         setSent({ rows: summariseEnquiry(payload), firstName: data.name.split(' ')[0] })

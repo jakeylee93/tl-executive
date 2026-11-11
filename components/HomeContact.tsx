@@ -9,13 +9,13 @@ export function HomeContact() {
     <section id="contact" aria-labelledby="contact-title" className="on-light bg-mist py-14 sm:py-16 lg:py-20">
       <div className="page-x grid gap-10 lg:grid-cols-12 lg:gap-16">
         <div className="lg:col-span-5">
-          <h2 id="contact-title" className="t-h3 text-ink">Prefer to talk?</h2>
+          <h2 id="contact-title" data-av-key="contact.title" className="t-h3 text-ink">Prefer to talk?</h2>
           <a href={BUSINESS.phoneHref} className="mt-4 inline-flex min-h-[3rem] items-center font-display text-[clamp(1.9rem,1.5rem+1.4vw,2.6rem)] leading-none text-ink tabular hover:underline">
             {BUSINESS.phoneDisplay}
           </a>
           <ul className="mt-4 grid gap-0.5 text-[1rem] text-ink-2">
             <li className="flex items-center gap-3"><Icon name="mail" className="h-5 w-5 flex-none text-steel" /><a href={`mailto:${BUSINESS.email}`} className="text-link inline-flex min-h-[2.75rem] items-center text-ink [overflow-wrap:anywhere]">{BUSINESS.email}</a></li>
-            <li className="flex min-h-[2.75rem] items-center gap-3"><Icon name="clock" className="h-5 w-5 flex-none text-steel" />{BUSINESS.hours}</li>
+            <li className="flex min-h-[2.75rem] items-center gap-3"><Icon name="clock" className="h-5 w-5 flex-none text-steel" /><span data-av-key="contact.hours">{BUSINESS.hours}</span></li>
             <li className="flex min-h-[2.75rem] items-center gap-3"><Icon name="pin" className="h-5 w-5 flex-none text-steel" />Theydon Bois, Essex</li>
           </ul>
         </div>

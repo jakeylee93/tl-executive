@@ -220,6 +220,8 @@ if (process.env.AV_BASE) {
         title: document.querySelector('[data-anyos="hero.title"]')?.textContent,
         intro: document.querySelector('[data-anyos="hero.intro"]')?.textContent,
         script: !!document.querySelector('[data-anyos] script'),
+        photo: document.querySelector('img[data-av-key="services.travel.photo"]')?.getAttribute('src'),
+        unlabelledAv: document.querySelectorAll('[data-av-key]:not([data-av-field])').length,
         chapters: Array.from(document.querySelectorAll('[data-av-chapter]')).map(e => e.getAttribute('data-av-chapter')),
         fleet: !!document.getElementById('fleet'),
         fields: document.querySelectorAll('[data-av-field]').length,
@@ -229,7 +231,7 @@ if (process.env.AV_BASE) {
       }
     })
     check(`${v.tag}: no menu link points at a hidden chapter`, r.dead.length === 0, r.dead.join())
-    check(`${v.tag}: AnyVendor published edits are on the page`, r.source === 'published' && r.title === 'Chauffeur-driven cars' && /Arranged personally since 2008\.$/.test(r.intro || '') && !r.script, JSON.stringify(r))
+    check(`${v.tag}: AnyVendor published edits are on the page`, r.source === 'published' && r.title === 'Chauffeur-driven cars' && /Arranged personally since 2008\.$/.test(r.intro || '') && !r.script && r.photo === '/media/journeys/occasions-1600.webp' && r.unlabelledAv === 0, JSON.stringify(r))
     check(`${v.tag}: AnyVendor chapter order and hidden chapter`, r.chapters.join() === 'plan,journeys,contact' && !r.fleet, r.chapters.join())
     check(`${v.tag}: every editable element carries its AnyVendor field, no overflow`, r.fields >= 60 && r.unlabelled === 0 && !r.overflow, `fields=${r.fields} unlabelled=${r.unlabelled}`)
     await shot(page, `anyvendor-${v.tag}-published.jpg`)

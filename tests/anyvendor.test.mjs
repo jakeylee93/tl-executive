@@ -37,18 +37,21 @@ test('seed has a value for every field, and every field is mapped to an element'
   for (const s of manifest.sections) for (const f of s.fields) {
     const v = seed[s.key]?.[f.key]
     assert.ok(v !== undefined && v !== '', `seed ${s.key}.${f.key}`)
-    if (f.type === 'image') { assert.ok(v.src && v.alt, `image ${s.key}.${f.key}`) }
+    // decorative pictures (the Journeys photographs) have an empty alt
+    if (f.type === 'image') { assert.ok(v.src && typeof v.alt === 'string', `image ${s.key}.${f.key}`) }
     if (f.max && typeof v === 'string') assert.ok(v.length <= f.max, `${s.key}.${f.key} longer than max`)
     assert.ok(map[`${s.key}.${f.key}`], `map ${s.key}.${f.key}`)
   }
 })
 
 test('every anyOS key on the built page (and every pinned September key) has an AnyVendor field', () => {
-  const mapped = new Set(Object.values(map).map(m => m.anyos).filter(Boolean))
-  const onPage = [...built.matchAll(/data-anyos(?:-img)?="([^"]+)"/g)].map(m => m[1])
+  const mapped = new Set(Object.values(map).map(m => m.anyos || m.av))
+  const onPage = [...built.matchAll(/data-(?:anyos(?:-img)?|av-key)="([^"]+)"/g)].map(m => m[1])
   const missing = [...new Set([...onPage, ...fixture.text, ...fixture.image])].filter(k => !mapped.has(k))
   assert.deepEqual(missing, [])
-  for (const m of Object.values(map)) if (m.anyos) assert.ok(onPage.includes(m.anyos), `${m.anyos} is in the map but not on the page (re-run scripts/anyvendor/build-packet.mjs)`)
+  const anyos = Object.values(map).map(m => m.anyos).filter(Boolean)
+  for (const m of Object.values(map)) if (m.av) assert.ok(!anyos.includes(m.av), `${m.av} is used by both editors`)
+  for (const m of Object.values(map)) if (m.anyos || m.av) assert.ok(onPage.includes(m.anyos || m.av), `${m.anyos || m.av} is in the map but not on the page (re-run scripts/anyvendor/build-packet.mjs)`)
 })
 
 test('the built page is the built-in content: five chapters in order, anyOS editor still loaded', () => {
@@ -96,6 +99,8 @@ test('draft preview: right token only, never indexed or cached, no referrer', as
   assert.match(ok.html, /<meta name="robots" content="noindex[^"]*"/)
   assert.match(ok.html, /<meta name="referrer" content="no-referrer"/)
   assert.ok(!/s-maxage|public/.test(ok.headers.get('cache-control') || ''), ok.headers.get('cache-control'))
+  assert.match(ok.headers.get('x-robots-tag') || '', /noindex/)
+  assert.equal(ok.headers.get('referrer-policy'), 'no-referrer')
   for (const path of ['/preview', '/preview?token=short', '/preview?token=wrong-token-0123456789abcdef']) assert.equal((await get(ON, path)).status, 404, path)
 })
 

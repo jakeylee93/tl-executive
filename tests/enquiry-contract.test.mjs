@@ -132,6 +132,17 @@ test('live: a valid enquiry is sent once, structured, to transfer-enquiry', asyn
   assert.ok(body.notes.length <= 1000)
 })
 
+test('live: an enquiry from a draft preview (AnyVendor editor) is validated but never sent', async () => {
+  for (const headers of [{ 'x-site-draft': '1' }, { Referer: `http://localhost:${LIVE_PORT}/preview?token=abc` }]) {
+    reset()
+    const res = await fetch(`http://localhost:${LIVE_PORT}/api/enquiry`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...headers }, body: JSON.stringify(valid()) })
+    const body = await res.json()
+    assert.equal(res.status, 200)
+    assert.equal(body.dryRun, true, JSON.stringify(headers))
+    assert.equal(received.length, 0, 'nothing reached the platform')
+  }
+})
+
 test('live: flight numbers are dropped when the visitor is not flying', async () => {
   reset()
   const e = { ...valid(), flying: false, flightIn: '', flightOut: '', destination: 'The Ivy, West Street', tripType: 'one-way' }
