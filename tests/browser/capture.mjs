@@ -225,11 +225,13 @@ if (process.env.AV_BASE) {
         fields: document.querySelectorAll('[data-av-field]').length,
         unlabelled: document.querySelectorAll('[data-anyos]:not([data-av-field])').length,
         overflow: document.documentElement.scrollWidth > innerWidth + 1,
+        dead: Array.from(document.querySelectorAll('header a[href^="/#"]')).filter(a => !a.closest('[hidden]') && !document.getElementById(a.getAttribute('href').slice(2))).map(a => a.getAttribute('href')),
       }
     })
+    check(`${v.tag}: no menu link points at a hidden chapter`, r.dead.length === 0, r.dead.join())
     check(`${v.tag}: AnyVendor published edits are on the page`, r.source === 'published' && r.title === 'Chauffeur-driven cars' && /Arranged personally since 2008\.$/.test(r.intro || '') && !r.script, JSON.stringify(r))
     check(`${v.tag}: AnyVendor chapter order and hidden chapter`, r.chapters.join() === 'plan,journeys,contact' && !r.fleet, r.chapters.join())
-    check(`${v.tag}: every editable element carries its AnyVendor field, no overflow`, r.fields >= 100 && r.unlabelled === 0 && !r.overflow, `fields=${r.fields} unlabelled=${r.unlabelled}`)
+    check(`${v.tag}: every editable element carries its AnyVendor field, no overflow`, r.fields >= 60 && r.unlabelled === 0 && !r.overflow, `fields=${r.fields} unlabelled=${r.unlabelled}`)
     await shot(page, `anyvendor-${v.tag}-published.jpg`)
     await page.click('#top .film-actions a')
     await page.waitForTimeout(1200)

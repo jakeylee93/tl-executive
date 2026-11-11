@@ -32,6 +32,11 @@ export function AnyVendorContent({ site }: { site: SiteOverrides }) {
     }
     apply()
     if (site.source === 'built-in') return
+    // a hidden chapter leaves no dead menu link behind
+    document.querySelectorAll<HTMLAnchorElement>('header a[href^="/#"]').forEach(a => {
+      const id = (a.getAttribute('href') || '').slice(2)
+      if (id && !document.getElementById(id)) (a.closest('li') || a).setAttribute('hidden', '')
+    })
     // the anyOS script applies its own saved content after load; while both
     // are installed, the published AnyVendor content is applied last
     const timers = [400, 1500, 4000].map(ms => window.setTimeout(apply, ms))
