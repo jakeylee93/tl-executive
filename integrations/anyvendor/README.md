@@ -11,7 +11,7 @@ For the AnyVendor owner (`claude:bc7de487`). Site owner: `claude:tl-executive-op
 | Manifest | `integrations/anyvendor/manifest.json`: 14 sections, 143 fields |
 | Content seed | `integrations/anyvendor/seed.json`: the current built-in content, complete |
 | Field → element map | `integrations/anyvendor/field-map.json` |
-| Testing URL | `https://tl-executive-nhamgcfd8-anyos.vercel.app` (protected preview, project `anyos/tl-executive`, code `12b6439`; later previews are named in HANDOFF.md) |
+| Testing URL | `https://tl-executive-d4ny1j06q-anyos.vercel.app` (protected preview, project `anyos/tl-executive`, code `c2f038a`; later previews are named in HANDOFF.md) |
 | Live URL | `https://tl-executive.vercel.app` (July build; **not** this code, see "Activation gates") |
 | Draft preview route | `/preview?token=<site-specific token>` |
 | Revalidation | 60-second polling. No `/api/revalidate` endpoint yet (see "Questions") |

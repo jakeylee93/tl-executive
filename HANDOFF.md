@@ -1,5 +1,19 @@
 # Handoff — T&L Executive Cars redesign (18 October 2026, evening: protected candidate)
 
+## 11 November 2026, late: AnyVendor coverage and draft safety (latest; read this first)
+
+Coordinator's follow-up: bounded site-side work so main AnyVendor (`claude:bc7de487`) can bind the commissioned T&L site to Jake's account. Same branch, same work claim `abbb0758`. Supersedes the numbers in the section below.
+
+- **Head:** `c2f038a` (code and packet) on `claude/tl-executive-redesign-20261018`, pushed.
+- **Preview:** `https://tl-executive-d4ny1j06q-anyos.vercel.app` (`dpl_3YrX5u8KRxZg1F9yWSFH6MUo9Jf5`, protected, built from `c2f038a`). No content origin set, so built-in content.
+- **Packet (`integrations/anyvendor/`):** 14 sections, 143 fields. 127 share an element with the anyOS editor (map entry `anyos`); 15 are AnyVendor-only (`av`, element `data-av-key`): fleet class labels ×4, fleet note, established, licensing, payment, towns, client names, contact heading, office hours, Journeys photographs ×3. Plus `page.chapters`. Regenerating from the preview's page gives an identical packet.
+- **Audit method:** every visible text node and media element of the preview page was checked against the map. What remains unkeyed is listed in the README ("Not editable yet"): phone, email, address, link targets, menu and button labels, videos and posters, brand badge, quote-form labels, `/airport-transfers`.
+- **Draft safety:** `/preview` responds `Cache-Control: private, no-store`, `X-Robots-Tag: noindex`, `Referrer-Policy: no-referrer` (seen on the preview). An enquiry posted from a draft preview is validated and never sent, even in live mode (contract test). Nothing is applied while the anyOS editor is open; a focused or contenteditable element is not overwritten.
+- **Cloud QA:** run 43114380935 on `c2f038a`: contract 34/34, browser 55/55 (mock origin; includes an AnyVendor-only text and photograph).
+- **Verified on the preview:** `/` and `/airport-transfers` 200; CMS contract 8/8; anyOS script present; `/api/enquiry` dry-run; `/preview` 404. Release claim `60d3f4db` taken and released. Production unchanged (`dpl_J5NyesoC12NnKoCgWQC6d5jeqrxG`).
+- **Not verified:** anything against the real AnyVendor backend.
+- **Dependencies on main AnyVendor:** (1) the bridge protocol (messages, allowed origins, capability flags); (2) the section-instance shape, if it replaces `page.chapters`; (3) confirmation of the v1 `list`/`select` item shape; (4) a scoped content origin and preview token, to set `ANYVENDOR_CONTENT_ORIGIN` on the preview environment; (5) whether the token arrives as `/preview?token=`.
+
 ## 11 November 2026: AnyVendor site adapter (latest; read this first)
 
 Jake's request via the coordinator: connect T&L to AnyVendor with a fully editable version of the bespoke site. Compatibility work only: no redesign, PR #3 not merged, `BRIEF.md` untouched. Owner `claude:tl-executive-opus-20260926`, work claim `abbb0758`.
