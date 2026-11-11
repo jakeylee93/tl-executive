@@ -7,7 +7,7 @@
 //    content when the origin is missing, down or says 404.
 import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readFileSync, cpSync, rmSync } from 'node:fs'
 import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { startMock, TOKEN, PUBLISHED_TITLE, DRAFT_TITLE, NEW_IMAGE } from '../scripts/anyvendor/mock-origin.mjs'
@@ -67,7 +67,11 @@ const chapters = html => [...html.matchAll(/data-av-chapter="([a-z]+)"/g)].map(m
 
 before(async () => {
   mock = await startMock(MOCK)
-  start(ON, { ANYVENDOR_CONTENT_ORIGIN: `http://127.0.0.1:${MOCK}`, ENQUIRY_MODE: 'dry-run' })
+  // the server that reads the mock origin runs from its own copy of the build:
+  // servers that share .next also share its page cache
+  rmSync(`${root}.next-av`, { recursive: true, force: true })
+  cpSync(`${root}.next`, `${root}.next-av`, { recursive: true })
+  start(ON, { ANYVENDOR_CONTENT_ORIGIN: `http://127.0.0.1:${MOCK}`, ENQUIRY_MODE: 'dry-run', NEXT_DIST_DIR: '.next-av' })
   start(OFF, { ANYVENDOR_CONTENT_ORIGIN: '', ENQUIRY_MODE: 'dry-run' })
   await until(async () => (await get(ON, '/api/enquiry')).status === 200 && (await get(OFF, '/api/enquiry')).status === 200, 60000)
 })

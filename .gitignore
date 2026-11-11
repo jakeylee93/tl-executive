@@ -10,3 +10,4 @@ node_modules/
 
 # 4K OpenArt masters: kept locally and in Mission Control, never deployed
 public/media/tl-20261018/*.png
+.next-av/
