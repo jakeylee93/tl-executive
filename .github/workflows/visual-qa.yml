@@ -32,8 +32,11 @@ jobs:
       - name: Browser
         run: |
           mkdir -p /tmp/pw && cd /tmp/pw && npm init -y >/dev/null && npm i playwright@1.48.2 >/dev/null
-          # the runner's apt mirror sometimes fails to resolve: retry rather than fail the run
-          for i in 1 2 3 4 5; do npx --prefix /tmp/pw playwright install --with-deps chromium && break; echo "browser install failed (attempt $i)"; sleep 45; sudo apt-get update || true; done
+          # the runner's Azure apt mirror has failed to resolve: use the main Ubuntu mirror only
+          sudo sed -i '/azure\.archive\.ubuntu\.com/d' /etc/apt/apt-mirrors.txt 2>/dev/null || true
+          sudo sed -i 's|http://azure.archive.ubuntu.com|http://archive.ubuntu.com|g' /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null || true
+          cat /etc/apt/apt-mirrors.txt 2>/dev/null || true
+          for i in 1 2 3; do timeout 420 npx --prefix /tmp/pw playwright install --with-deps chromium && break; echo "browser install failed (attempt $i)"; sleep 20; done
           npx --prefix /tmp/pw playwright install chromium
           which ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
       - name: Capture
