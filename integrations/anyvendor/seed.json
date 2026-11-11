@@ -49,7 +49,19 @@
     "item5_title": "Race days",
     "item5_description": "Cheltenham, Ascot and Newmarket: enjoy the racing and travel home in comfort.",
     "item6_title": "Sporting events",
-    "item6_description": "Rugby and football fixtures, dropped at the venue and collected afterwards."
+    "item6_description": "Rugby and football fixtures, dropped at the venue and collected afterwards.",
+    "travel_photo": {
+      "src": "/media/journeys/travel-1600.webp",
+      "alt": ""
+    },
+    "evenings_photo": {
+      "src": "/media/journeys/evenings-1600.webp",
+      "alt": ""
+    },
+    "occasions_photo": {
+      "src": "/media/journeys/occasions-1600.webp",
+      "alt": ""
+    }
   },
   "airports": {
     "eyebrow": "Airports",
@@ -99,7 +111,12 @@
     "tourneo_image": {
       "src": "/media/fleet-road/tourneo-custom-executive-spec-1600.webp",
       "alt": "Ford Tourneo Custom executive minibus"
-    }
+    },
+    "e_class_kind": "Executive saloon",
+    "s_class_kind": "Flagship saloon",
+    "v_class_kind": "People carrier",
+    "tourneo_kind": "Executive minibus",
+    "note": "Pictures show each model. Your car may differ in year, colour and specification."
   },
   "about": {
     "eyebrow": "About us",
@@ -110,11 +127,15 @@
     "image": {
       "src": "/media/forest-1600.webp",
       "alt": "Lodge Road in Epping Forest"
-    }
+    },
+    "established": "2008, Theydon Bois",
+    "licensing": "Drivers and vehicles licensed by Epping Forest District Council",
+    "payment": "Visa, Mastercard, American Express and Apple Pay"
   },
   "areas": {
     "title": "Areas we cover",
-    "intro": "Collections from Theydon Bois and the towns and villages around Epping Forest."
+    "intro": "Collections from Theydon Bois and the towns and villages around Epping Forest.",
+    "towns": "Theydon Bois · Loughton · Epping · Abridge · Ongar · Buckhurst Hill · Chigwell · Woodford Green"
   },
   "testimonials": {
     "eyebrow": "What our clients say",
@@ -131,7 +152,8 @@
   },
   "clients": {
     "eyebrow": "Trusted by",
-    "title": "Clients have included"
+    "title": "Clients have included",
+    "names": "London Speaker Bureau  ·  Speakers Corner  ·  Jamil Qureshi  ·  The Jockey Club  ·  EndemolShine Group  ·  Chapman Freeborn  ·  JLA  ·  GB Helicopters  ·  Fresh Partners  ·  Precision"
   },
   "quote": {
     "eyebrow": "Plan your journey",
@@ -159,6 +181,10 @@
     "item4_a": "We accept Visa, Mastercard, American Express and Apple Pay.",
     "item5_q": "When can I reach you?",
     "item5_a": "Our hours are Monday to Friday, 9.00am to 6.30pm. You can send a journey request with the form at any time and we’ll reply with a quote."
+  },
+  "contact": {
+    "title": "Prefer to talk?",
+    "hours": "Mon–Fri, 9.00am–6.30pm"
   },
   "footer": {
     "title": "Theydon & Loughton Executive Cars",

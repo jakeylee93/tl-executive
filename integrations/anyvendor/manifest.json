@@ -293,6 +293,21 @@
           "label": "Item 7 description",
           "type": "text",
           "max": 120
+        },
+        {
+          "key": "travel_photo",
+          "label": "Travel photo",
+          "type": "image"
+        },
+        {
+          "key": "evenings_photo",
+          "label": "Evenings photo",
+          "type": "image"
+        },
+        {
+          "key": "occasions_photo",
+          "label": "Occasions photo",
+          "type": "image"
         }
       ]
     },
@@ -505,6 +520,36 @@
           "key": "tourneo_image",
           "label": "Tourneo image",
           "type": "image"
+        },
+        {
+          "key": "e_class_kind",
+          "label": "E class kind",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "s_class_kind",
+          "label": "S class kind",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "v_class_kind",
+          "label": "V class kind",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "tourneo_kind",
+          "label": "Tourneo kind",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "note",
+          "label": "Note",
+          "type": "text",
+          "max": 120
         }
       ]
     },
@@ -546,6 +591,24 @@
           "key": "image",
           "label": "Image",
           "type": "image"
+        },
+        {
+          "key": "established",
+          "label": "Established",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "licensing",
+          "label": "Licensing",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "payment",
+          "label": "Payment",
+          "type": "text",
+          "max": 120
         }
       ]
     },
@@ -564,6 +627,12 @@
           "label": "Intro",
           "type": "text",
           "max": 120
+        },
+        {
+          "key": "towns",
+          "label": "Towns",
+          "type": "textarea",
+          "max": 400
         }
       ]
     },
@@ -654,6 +723,12 @@
           "label": "Title",
           "type": "text",
           "max": 120
+        },
+        {
+          "key": "names",
+          "label": "Names",
+          "type": "textarea",
+          "max": 400
         }
       ]
     },
@@ -804,6 +879,24 @@
           "label": "Item 6 a",
           "type": "textarea",
           "max": 400
+        }
+      ]
+    },
+    {
+      "key": "contact",
+      "label": "Contact",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Title",
+          "type": "text",
+          "max": 120
+        },
+        {
+          "key": "hours",
+          "label": "Hours",
+          "type": "text",
+          "max": 120
         }
       ]
     },

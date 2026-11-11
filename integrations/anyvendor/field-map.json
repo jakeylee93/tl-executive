@@ -1020,6 +1020,129 @@
       "alt"
     ]
   },
+  "fleet.e_class_kind": {
+    "kind": "text",
+    "av": "fleet.mercedes-e-class.kind",
+    "selector": "[data-av-key=\"fleet.mercedes-e-class.kind\"]",
+    "sets": [
+      "textContent"
+    ]
+  },
+  "fleet.s_class_kind": {
+    "kind": "text",
+    "av": "fleet.mercedes-s-class.kind",
+    "selector": "[data-av-key=\"fleet.mercedes-s-class.kind\"]",
+    "sets": [
+      "textContent"
+    ]
+  },
+  "fleet.v_class_kind": {
+    "kind": "text",
+    "av": "fleet.mercedes-v-class.kind",
+    "selector": "[data-av-key=\"fleet.mercedes-v-class.kind\"]",
+    "sets": [
+      "textContent"
+    ]
+  },
+  "fleet.tourneo_kind": {
+    "kind": "text",
+    "av": "fleet.tourneo-custom-executive-spec.kind",
+    "selector": "[data-av-key=\"fleet.tourneo-custom-executive-spec.kind\"]",
+    "sets": [
+      "textContent"
+    ]
+  },
+  "fleet.note": {
+    "kind": "text",
+    "av": "fleet.note",
+    "selector": "[data-av-key=\"fleet.note\"]",
+    "sets": [
+      "textContent"
+    ]
+  },
+  "about.established": {
+    "kind": "text",
+    "av": "about.established",
+    "selector": "[data-av-key=\"about.established\"]",
+    "sets": [
+      "textContent"
+    ]
+  },
+  "about.licensing": {
+    "kind": "text",
+    "av": "about.licensing",
+    "selector": "[data-av-key=\"about.licensing\"]",
+    "sets": [
+      "textContent"
+    ]
+  },
+  "about.payment": {
+    "kind": "text",
+    "av": "about.payment",
+    "selector": "[data-av-key=\"about.payment\"]",
+    "sets": [
+      "textContent"
+    ]
+  },
+  "areas.towns": {
+    "kind": "text",
+    "av": "areas.towns",
+    "selector": "[data-av-key=\"areas.towns\"]",
+    "sets": [
+      "textContent"
+    ]
+  },
+  "clients.names": {
+    "kind": "text",
+    "av": "clients.names",
+    "selector": "[data-av-key=\"clients.names\"]",
+    "sets": [
+      "textContent"
+    ]
+  },
+  "contact.title": {
+    "kind": "text",
+    "av": "contact.title",
+    "selector": "[data-av-key=\"contact.title\"]",
+    "sets": [
+      "textContent"
+    ]
+  },
+  "contact.hours": {
+    "kind": "text",
+    "av": "contact.hours",
+    "selector": "[data-av-key=\"contact.hours\"]",
+    "sets": [
+      "textContent"
+    ]
+  },
+  "services.travel_photo": {
+    "kind": "image",
+    "av": "services.travel.photo",
+    "selector": "[data-av-key=\"services.travel.photo\"]",
+    "sets": [
+      "src",
+      "alt"
+    ]
+  },
+  "services.evenings_photo": {
+    "kind": "image",
+    "av": "services.evenings.photo",
+    "selector": "[data-av-key=\"services.evenings.photo\"]",
+    "sets": [
+      "src",
+      "alt"
+    ]
+  },
+  "services.occasions_photo": {
+    "kind": "image",
+    "av": "services.occasions.photo",
+    "selector": "[data-av-key=\"services.occasions.photo\"]",
+    "sets": [
+      "src",
+      "alt"
+    ]
+  },
   "page.chapters": {
     "kind": "layout",
     "renders": "order and visibility of <main> chapters (components/HomePage.tsx)",

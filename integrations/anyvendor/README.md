@@ -8,7 +8,7 @@ For the AnyVendor owner (`claude:bc7de487`). Site owner: `claude:tl-executive-op
 |---|---|
 | Slug | `tl-executive-cars` |
 | Schema | `anyvendor.site/v1`, `kind: bespoke`, manifest version 1 |
-| Manifest | `integrations/anyvendor/manifest.json`: 13 sections, 128 fields |
+| Manifest | `integrations/anyvendor/manifest.json`: 14 sections, 143 fields |
 | Content seed | `integrations/anyvendor/seed.json`: the current built-in content, complete |
 | Field → element map | `integrations/anyvendor/field-map.json` |
 | Testing URL | `https://tl-executive-nhamgcfd8-anyos.vercel.app` (protected preview, project `anyos/tl-executive`, code `12b6439`; later previews are named in HANDOFF.md) |
@@ -20,10 +20,11 @@ The three JSON files are generated from the rendered page by `node scripts/anyve
 
 ## Sections and fields
 
-- **One field per editable element.** Every `data-anyos` text and every `data-anyos-img` picture on the home page is one field. The anyOS key is kept in the map (`anyos`), so both editors address the same elements.
-- **Sections:** `brand` 2, `hero` 12 (opening film copy), `services` 32 (journeys), `airports` 11, `fleet` 23, `about` 6, `areas` 2, `testimonials` 11, `clients` 2, `quote` 9, `faq` 14, `footer` 3, `page` 1.
-- **Fleet:** for each of the four vehicles (`e_class`, `s_class`, `v_class`, `tourneo`): `_name`, `_passengers`, `_bags`, `_description` (text) and `_image` (`{src, alt}`).
-- **Images:** 5 (`fleet.*_image`, `about.image`). The seed's `src` values are site-relative (`/media/…`). The renderer accepts a same-site path or an `https://` URL and drops anything else.
+- **One field per editable element.** Every `data-anyos` text and every `data-anyos-img` picture on the home page is one field (127). The anyOS key is kept in the map (`anyos`), so both editors address the same elements.
+- **AnyVendor-only content (15 fields, map entry `av`, element `data-av-key`).** Content the anyOS editor never covered: the four fleet class labels and the fleet note; established, licensing and payment; the list of towns; the client names; the contact heading and office hours; the three Journeys photographs.
+- **Sections:** `brand` 2, `hero` 12 (opening film copy), `services` 35 (journeys), `airports` 11, `fleet` 28, `about` 9, `areas` 3, `testimonials` 11, `clients` 3, `quote` 9, `faq` 14, `contact` 2, `footer` 3, `page` 1.
+- **Fleet:** for each of the four vehicles (`e_class`, `s_class`, `v_class`, `tourneo`): `_name`, `_kind`, `_passengers`, `_bags`, `_description` (text) and `_image` (`{src, alt}`).
+- **Images:** 8 (`fleet.*_image`, `about.image`, `services.{travel,evenings,occasions}_photo`; the three photographs are decorative, so their seed `alt` is empty). The seed's `src` values are site-relative (`/media/…`). The renderer accepts a same-site path or an `https://` URL and drops anything else.
 - **Text:** `text` (max 120) or `textarea`. The renderer sets it as text, never HTML, and strips tags.
 - **Layout:** `page.chapters` is a plain v1 `list` of `{chapter: select, visible: boolean}`. It gives add, reorder, hide and remove for the five chapters after the opening film: `journeys`, `fleet`, `trust`, `plan`, `contact`.
   - Each chapter is a singleton. "Remove" means delete the row or set `visible: false`; "add" means put the row back.
@@ -38,7 +39,9 @@ The three JSON files are generated from the rendered page by `node scripts/anyve
   - It returns the built-in content if the origin is unset, the response is not 200, the schema or mode is wrong, or the request fails. A URL or token is never logged.
 - **`components/HomePage.tsx`** renders the chapters in the content's order, on the server. Each is wrapped in `[data-av-chapter="<key>"]`.
 - **`components/AnyVendorContent.tsx`** applies changed text and pictures to the mapped elements in the browser. It labels every editable element `data-av-field="<section>.<field>"` and the document `data-av-source` / `data-av-revision`.
-- **`app/preview/page.tsx`** is the draft preview: dynamic, `noindex`, `referrer: no-referrer`. It returns 404 without a token the backend accepts.
+- **`app/preview/page.tsx`** is the draft preview: dynamic, `noindex`, `referrer: no-referrer`, and the same as response headers (`Cache-Control: private, no-store`, `X-Robots-Tag`, `Referrer-Policy`). It returns 404 without a token the backend accepts.
+- **A draft preview never sends an enquiry.** The quote form marks requests made from `/preview`, and `/api/enquiry` validates them and returns the dry-run reply even where the site is live.
+- **Edit-mode safety.** Nothing is applied while the anyOS editor is open, and an element that is focused or `contenteditable` is never overwritten.
 - **Unchanged:** the anyOS site key `t-l-executive-cars`, `edit.js`, all `data-anyos` / `data-anyos-img` keys, and `/api/enquiry` (forwarding and dry-run).
 - **No credentials** of any kind are in the site code. The only setting is the server-side `ANYVENDOR_CONTENT_ORIGIN`.
 
@@ -47,9 +50,10 @@ The three JSON files are generated from the rendered page by `node scripts/anyve
 1. **Text and pictures are applied in the browser, not in the server HTML.** Search engines and the first paint see the built-in text until the page hydrates. Chapter order and visibility are server-rendered. Moving text into the server render is a follow-up once the bridge is agreed.
 2. **Both editors are installed.** While the anyOS script is still loaded, AnyVendor content is applied after it (re-applied at 0.4, 1.5 and 4 s). After acceptance, one of the two should be retired; that is Jake's decision.
 3. **Not editable yet:**
-   - the phone number, email, hours and address (`lib/site.ts`, also used in structured data);
-   - link targets;
-   - the film and fleet videos;
+   - the phone number, email and address (`lib/site.ts`; also in `tel:`/`mailto:` links and structured data, so they need a server-side change);
+   - link targets, menu labels and button labels;
+   - the brand badge and the quote form's own labels and options;
+   - the film and fleet videos and their poster frames (a poster alone would not match its video);
    - the vehicle seat and bag numbers used by the quote form's capacity rules (the labels are editable, the rules are not);
    - the `/airport-transfers` page.
 
