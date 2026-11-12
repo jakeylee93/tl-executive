@@ -1,5 +1,14 @@
 # Handoff — T&L Executive Cars redesign (18 October 2026, evening: protected candidate)
 
+## 12 November 2026, later: public testing alias now serves the bridge build (latest; read this first)
+
+On root's instruction (Jake authorised; testing address only), the existing alias `https://tl-executive-testing.vercel.app` was reassigned with `vercel alias set` from `dpl_BErvPtLJyCiCdn1vwrAdjEr7Nh2s` (`tl-executive-pn5kq1ksp`, 18 Oct) to `dpl_8D97o3AEB9TKxV3M4qqTqVuzy8Um` (`tl-executive-62l2ah8wx`, code `68d6a47`). The alias was not deleted or recreated; no protection, bypass, domain or project setting was changed; no share link was made. Release claim `4307e40a` taken and released.
+
+- **Anonymous checks on the alias after the change:** `/` 200 (five built-in chapters), `/airport-transfers` 200, `/anyvendor-bridge.js` 200 and byte-identical to the parent's, `/api/enquiry` dry-run. `/preview` with no token, a malformed token and an unknown UUID: 404, with `Cache-Control: private, no-store`, `X-Robots-Tag: noindex`, `Referrer-Policy: no-referrer`, `Content-Security-Policy: frame-ancestors 'self' https://platform.anyvendor.co.uk`, no `X-Frame-Options`.
+- **Production:** `tl-executive.vercel.app` still `dpl_J5NyesoC12NnKoCgWQC6d5jeqrxG`.
+- **Rollback:** `vercel alias set tl-executive-pn5kq1ksp-anyos.vercel.app tl-executive-testing.vercel.app`.
+- **Next (parent and root):** bind `https://tl-executive-testing.vercel.app` and run the real editor round trip. Still unverified from this side: a real draft render (no token held here).
+
 ## 12 November 2026: AnyVendor editor bridge installed (latest; read this first)
 
 Coordinator's instruction: finish the child side of the real bridge against main AnyVendor's protocol (`jakeylee93/anyvendor`, branch `claude/bookedevents-reconstruction`, read at `788f4f7d4`: `docs/backend/HANDOFF-TL-SITE-BRIDGE.md`, `docs/backend/adapters/anyvendor-bridge.js`). Main AnyVendor stays the sole parent integrator and releaser.
