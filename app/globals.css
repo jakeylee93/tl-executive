@@ -432,7 +432,6 @@ html.anyos-editing [data-reveal] { opacity: 1 !important; transform: none !impor
    ------------------------------------------------------------------------ */
 :root { --chapter-h: calc(100svh - var(--tl-header-h)); }
 .chapter { min-height: var(--chapter-h); }
-.trust-voice { min-height: 22rem; }
 .trust-more > summary { display: inline-flex; min-height: 2.75rem; cursor: pointer; list-style: none; align-items: center; gap: 0.6rem; }
 .trust-more > summary::-webkit-details-marker { display: none; }
 
@@ -446,7 +445,7 @@ html.anyos-editing [data-reveal] { opacity: 1 !important; transform: none !impor
 .film-night-text { margin-top: 0.35rem; font-size: 0.98rem; line-height: 1.5; }
 @media (max-aspect-ratio: 11/10) and (max-height: 760px) { .film-night-text { display: none; } }
 .film-cue { margin-top: 0.9rem; }
-.film-toggle { position: absolute; z-index: 3; top: calc(var(--tl-header-h) + 0.6rem); right: 1rem; display: grid; height: 2.75rem; width: 2.75rem; place-items: center; border-radius: 999px; color: #fff; background: rgba(255, 255, 255, 0.14); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.film-toggle { position: absolute; z-index: 3; bottom: max(1.5rem, env(safe-area-inset-bottom)); right: 1rem; display: grid; height: 2.75rem; width: 2.75rem; place-items: center; border-radius: 999px; color: #fff; background: rgba(255, 255, 255, 0.14); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
 .film-toggle:hover { background: rgba(255, 255, 255, 0.26); }
 .film-toggle-icon { display: block; height: 0.8rem; width: 0.7rem; border-inline: 0.22rem solid currentColor; }
 .film-toggle-icon[data-state='paused'] { height: 0; width: 0; border-block: 0.45rem solid transparent; border-inline: 0; border-left: 0.75rem solid currentColor; margin-left: 0.15rem; }
@@ -467,6 +466,18 @@ html.anyos-editing [data-reveal] { opacity: 1 !important; transform: none !impor
 .next-cue { display: inline-flex; min-height: 2.75rem; align-items: center; gap: 0.5rem; border-radius: 999px; padding: 0 0.95rem; font-size: 0.9rem; font-weight: 600; line-height: 1; white-space: nowrap; color: #fff; background: rgba(255, 255, 255, 0.13); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); text-shadow: none; transition: background-color 0.2s var(--tl-ease); }
 .next-cue:hover { background: rgba(255, 255, 255, 0.24); }
 .next-cue[hidden] { display: none; }
-.next-cue-label { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.72; }
+.next-cue-label { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.72; }
 .next-cue-wide { display: none; }
 @media (min-width: 640px) { .next-cue-wide { display: inline-flex; } .next-cue-narrow { display: none; } }
+
+/* phones: the fleet's road band and spacing sized so the chapter fits one screen */
+@media (max-width: 1023px) {
+  #fleet :is(.film-poster, .film-video, .fleet-stills) { height: min(70vw, 33svh); margin-top: 0.25rem; }
+  #fleet .fleet-head { padding-top: 0.6rem; }
+  #fleet .fleet-cta { margin-top: 0.75rem; }
+  #fleet .fleet-nav { padding-top: 0.6rem; }
+  #fleet .fleet-note > p { font-size: 0.75rem; line-height: 1.3; }
+  .film[data-play] .film-copy-low { padding-bottom: max(1.5rem, env(safe-area-inset-bottom)); padding-right: 4.25rem; }
+  .trust-facts > div { display: grid; grid-template-columns: 6.5rem 1fr; align-items: baseline; gap: 0.75rem; }
+}
+@media (max-width: 1023px) and (max-height: 740px) { #fleet :is(.film-poster, .film-video, .fleet-stills) { height: min(64vw, 29svh); } }

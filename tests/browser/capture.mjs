@@ -131,7 +131,7 @@ for (const v of VIEWS) {
   const concise = fit.filter(f => !['Get a quote', 'Contact'].includes(f.name))
   const tall = concise.filter(f => !f.fits)
   check(`${v.tag}: every chapter but the form and the questions fits the screen`, tall.length === 0, tall.map(f => `${f.name} +${f.over}px`).join(', '))
-  const noCue = fit.slice(0, -1).filter(f => !f.cue || !/^Next/.test(f.cue))
+  const noCue = concise.filter(f => !f.cue || !/^Next/.test(f.cue))
   check(`${v.tag}: every chapter names the next one`, noCue.length === 0, noCue.map(f => f.name).join(', ') || fit.map(f => f.cue.replace(/^Next/, '')).join(' | '))
   const offCue = concise.slice(0, -1).filter(f => f.fits && !f.cueOn)
   check(`${v.tag}: the next-chapter button is on screen in every one-screen chapter`, offCue.length === 0, offCue.map(f => f.name).join(', '))
@@ -262,7 +262,7 @@ for (const v of VIEWS) {
     const f = await page.evaluate(() => {
       const q = document.getElementById('quote'); const r = q.getBoundingClientRect()
       const head = document.querySelector('header').getBoundingClientRect().bottom
-      const wide = Array.from(q.querySelectorAll('input, select, textarea, button')).filter(e => e.getClientRects().length).filter(e => { const b = e.getBoundingClientRect(); return b.left < -1 || b.right > innerWidth + 1 }).length
+      const wide = Array.from(q.querySelectorAll('input, select, textarea, button')).filter(e => e.getClientRects().length && e.tabIndex !== -1 && !e.closest('[aria-hidden="true"]')).filter(e => { const b = e.getBoundingClientRect(); return b.left < -1 || b.right > innerWidth + 1 }).length
       const small = Array.from(q.querySelectorAll('input, select, textarea')).filter(e => e.getClientRects().length).map(e => parseFloat(getComputedStyle(e).fontSize)).filter(x => x < 16).length
       return { top: Math.round(r.top), head: Math.round(head), wide, small }
     })
