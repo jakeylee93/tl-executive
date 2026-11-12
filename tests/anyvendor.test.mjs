@@ -101,7 +101,10 @@ test('draft preview: right token only, never indexed or cached, no referrer', as
   assert.ok(!/s-maxage|public/.test(ok.headers.get('cache-control') || ''), ok.headers.get('cache-control'))
   assert.match(ok.headers.get('x-robots-tag') || '', /noindex/)
   assert.equal(ok.headers.get('referrer-policy'), 'no-referrer')
-  for (const path of ['/preview', '/preview?token=short', '/preview?token=wrong-token-0123456789abcdef']) assert.equal((await get(ON, path)).status, 404, path)
+  assert.equal(ok.headers.get('content-security-policy'), "frame-ancestors 'self' https://platform.anyvendor.co.uk")
+  assert.ok(!ok.headers.get('x-frame-options'))
+  assert.ok(!ok.html.includes('anyvendor-bridge.js'), 'the bridge is loaded by the page only inside the editor frame')
+  for (const path of ['/preview', '/preview?token=short', '/preview?token=mock-preview-token-0123456789', '/preview?token=00000000-0000-4000-8000-000000000000']) assert.equal((await get(ON, path)).status, 404, path)
 })
 
 test('no origin configured: built-in content, no preview', async () => {

@@ -24,7 +24,7 @@ const CHAPTER: Record<Chapter, () => ReactNode> = {
   contact: () => <HomeContact />,
 }
 
-export function HomePage({ site }: { site: SiteOverrides }) {
+export function HomePage({ site, editorOrigins }: { site: SiteOverrides; editorOrigins?: string[] }) {
   return (
     <>
       <JsonLd data={localBusinessSchema()} />
@@ -36,7 +36,7 @@ export function HomePage({ site }: { site: SiteOverrides }) {
         ))}
       </main>
       <Footer />
-      <AnyVendorContent site={site} />
+      <AnyVendorContent site={site} editorOrigins={editorOrigins} />
     </>
   )
 }

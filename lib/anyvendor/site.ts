@@ -43,6 +43,20 @@ function origin() {
   return !process.env.VERCEL && /^http:\/\/127\.0\.0\.1:\d+$/.test(o) ? o : ''
 }
 
+/**
+ * Origins allowed to frame the draft page and talk to its editor bridge
+ * (anyvendor.bridge/v1). The customer editor's origin is fixed here; a testing
+ * origin can be added per environment with ANYVENDOR_EDITOR_ORIGINS (comma
+ * separated, plain https://host only). next.config.js builds the same list for
+ * the frame-ancestors header.
+ */
+export const EDITOR_ORIGIN = 'https://platform.anyvendor.co.uk'
+export function editorOrigins(): string[] {
+  const extra = (process.env.ANYVENDOR_EDITOR_ORIGINS || '').split(',').map(o => o.trim())
+    .filter(o => /^https:\/\/[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(o))
+  return [EDITOR_ORIGIN].concat(extra.filter(o => o !== EDITOR_ORIGIN))
+}
+
 /** Only same-site paths and https URLs may become an image source. */
 const safeSrc = (v: unknown) => (typeof v === 'string' && (/^\/(?!\/)/.test(v) || /^https:\/\//i.test(v)) ? v : '')
 

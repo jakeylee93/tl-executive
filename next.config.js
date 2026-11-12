@@ -1,3 +1,9 @@
+// Origins that may frame the draft page: the AnyVendor editor, plus any testing
+// origin named for this environment (same rule as lib/anyvendor/site.ts).
+const EDITOR_ORIGINS = ['https://platform.anyvendor.co.uk'].concat(
+  (process.env.ANYVENDOR_EDITOR_ORIGINS || '').split(',').map(o => o.trim())
+    .filter(o => /^https:\/\/[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(o) && o !== 'https://platform.anyvendor.co.uk'))
+
 /** @type {import("next").NextConfig} */
 const nextConfig = {
   images: { unoptimized: true },
@@ -7,6 +13,8 @@ const nextConfig = {
       { key: 'Cache-Control', value: 'private, no-store' },
       { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' },
       { key: 'Referrer-Policy', value: 'no-referrer' },
+      // only the AnyVendor editor may frame the draft page
+      { key: 'Content-Security-Policy', value: `frame-ancestors 'self' ${EDITOR_ORIGINS.join(' ')}` },
     ] }]
   },
 }

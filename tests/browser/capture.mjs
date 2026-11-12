@@ -239,11 +239,99 @@ if (process.env.AV_BASE) {
     await page.waitForTimeout(1200)
     const form = await page.evaluate(() => { const q = document.getElementById('quote'); if (!q) return false; const b = q.getBoundingClientRect(); return b.top < innerHeight && b.bottom > 0 })
     check(`${v.tag}: "Request a quote" still reaches the form with AnyVendor content`, form)
-    await page.goto(AV + '/preview?token=mock-preview-token-0123456789', { waitUntil: 'domcontentloaded' })
+    await page.goto(AV + '/preview?token=3f2b8c1e-5a47-4d09-9e61-7c0a1b2d3e4f', { waitUntil: 'domcontentloaded' })
     await page.waitForTimeout(2500)
     const d = await page.evaluate(() => ({ title: document.querySelector('[data-anyos="hero.title"]')?.textContent, source: document.documentElement.dataset.avSource, robots: document.querySelector('meta[name="robots"]')?.getAttribute('content') }))
     check(`${v.tag}: draft preview shows the draft, noindex`, d.source === 'draft' && d.title === 'Draft headline, not yet published' && /noindex/.test(d.robots || ''), JSON.stringify(d))
     await shot(page, `anyvendor-${v.tag}-draft.jpg`)
+    await ctx.close()
+  }
+
+  // The editor bridge (anyvendor.bridge/v1) end to end in a browser. A stand-in
+  // editor page is served AT the real editor origin (request interception, no
+  // network), frames the draft page exactly as the editor does and speaks the
+  // parent's protocol. A second stand-in at another origin must get nothing.
+  const TOKEN = '3f2b8c1e-5a47-4d09-9e61-7c0a1b2d3e4f'
+  const harness = `<!doctype html><meta charset="utf-8"><title>editor stand-in</title>
+<iframe id="f" sandbox="allow-scripts allow-same-origin" referrerpolicy="no-referrer" style="width:100%;height:860px;border:0" src="${AV}/preview?token=${TOKEN}&av_edit=1"></iframe>
+<script>
+  window.got = []; window.nonce = 'n0nce_' + Math.random().toString(36).slice(2) + 'abcdefghij';
+  var site = new URL(document.getElementById('f').src).origin;
+  addEventListener('message', function (e) { if (e.source === document.getElementById('f').contentWindow) window.got.push({ origin: e.origin, data: e.data }) });
+  window.say = function (type, body) { document.getElementById('f').contentWindow.postMessage(Object.assign({ schema: 'anyvendor.bridge/v1', slug: 'tl-executive-cars', type: type }, body || {}), site) };
+  var n = 0, t = setInterval(function () { if (window.got.length || ++n > 40) return clearInterval(t); window.say('hello', { nonce: window.nonce }) }, 600);
+</script>`
+  for (const v of [VIEWS[0], VIEWS[3]]) {
+    const ctx = await browser.newContext({ viewport: { width: v.width, height: v.height }, deviceScaleFactor: 1, isMobile: v.mobile, hasTouch: v.mobile })
+    const page = await ctx.newPage()
+    const posts = []
+    page.on('request', r => { if (r.method() === 'POST' && r.url().includes('/api/enquiry')) posts.push(r.url()) })
+    await page.route('https://platform.anyvendor.co.uk/**', r => r.fulfill({ contentType: 'text/html', body: harness }))
+    await page.route('https://not-the-editor.example.com/**', r => r.fulfill({ contentType: 'text/html', body: harness }))
+    await page.goto('https://platform.anyvendor.co.uk/business/website/edit')
+    await page.waitForFunction(() => window.got.length > 0, null, { timeout: 30000 }).catch(() => {})
+    await page.waitForTimeout(6000) // the second "ready", once hydration has marked every field
+    const frame = page.frames().find(f => f.url().includes('/preview'))
+    const ready = await page.evaluate(() => window.got.filter(m => m.data && m.data.type === 'ready').pop() || null)
+    const d = ready?.data || {}
+    check(`${v.tag}: bridge handshake: ready echoes the nonce, lists fields and chapters`, !!frame && d.schema === 'anyvendor.bridge/v1' && d.slug === 'tl-executive-cars' && d.nonce === await page.evaluate(() => window.nonce) && (d.fields || []).length >= 60 && (d.chapters || []).join() === 'plan,journeys,contact' && d.capabilities?.text === true && d.capabilities?.image === true && d.capabilities?.chapters === true, JSON.stringify({ fields: (d.fields || []).length, chapters: d.chapters, caps: d.capabilities, origin: ready?.origin }))
+    check(`${v.tag}: bridge messages never carry the token or the page address`, !JSON.stringify(await page.evaluate(() => window.got)).includes(TOKEN) && !JSON.stringify(await page.evaluate(() => window.got.map(m => m.data))).includes('/preview'))
+    if (frame) {
+      // set (text), then make sure the page's own timed re-apply does not put the saved draft back
+      await page.evaluate(() => window.say('set', { field: 'hero.title', value: 'Typed in the editor' }))
+      await page.evaluate(() => window.say('set', { field: 'services.travel_photo', value: { src: '/media/journeys/evenings-1600.webp', alt: 'Evening' } }))
+      await page.evaluate(() => window.say('set', { field: 'hero.intro', value: '<b>bold</b>' }))
+      await page.evaluate(() => window.say('set', { field: 'fleet.note', value: { src: 'javascript:alert(1)', alt: 'x' } }))
+      await page.waitForTimeout(4500)
+      const live = await frame.evaluate(() => ({
+        title: document.querySelector('[data-av-field="hero.title"]')?.textContent,
+        intro: document.querySelector('[data-av-field="hero.intro"]')?.innerHTML,
+        photo: document.querySelector('img[data-av-field="services.travel_photo"]')?.getAttribute('src'),
+        js: !!document.querySelector('[src^="javascript:"]'),
+        edit: document.documentElement.dataset.avEdit, source: document.documentElement.dataset.avSource,
+      }))
+      check(`${v.tag}: bridge set: unsaved text and picture show, as text, and survive the timed re-apply`, live.title === 'Typed in the editor' && live.intro === '&lt;b&gt;bold&lt;/b&gt;' && live.photo === '/media/journeys/evenings-1600.webp' && !live.js && live.source === 'draft', JSON.stringify(live))
+      await page.evaluate(() => window.say('highlight', { field: 'quote.title' }))
+      await page.waitForTimeout(1500)
+      const hi = await frame.evaluate(() => { const el = document.querySelector('[data-av-field="quote.title"]'); const b = el?.getBoundingClientRect(); return { active: el?.hasAttribute('data-av-active'), inView: !!b && b.top >= 0 && b.bottom <= innerHeight } })
+      check(`${v.tag}: bridge highlight outlines the field and scrolls it into view`, hi.active && hi.inView, JSON.stringify(hi))
+      await shot(page, `anyvendor-bridge-${v.tag}-highlight.jpg`)
+      await page.evaluate(() => window.say('chapters', { order: [{ chapter: 'contact', visible: true }, { chapter: 'journeys', visible: false }, { chapter: 'plan', visible: false }] }))
+      await page.waitForTimeout(600)
+      const ch = await frame.evaluate(() => Array.from(document.querySelectorAll('[data-av-chapter]')).map(e => e.getAttribute('data-av-chapter') + (e.hasAttribute('data-av-hidden') ? ':hidden' : '')))
+      check(`${v.tag}: bridge chapters: reorder and hide live; the quote form cannot be hidden`, ch.join() === 'contact,journeys:hidden,plan', ch.join())
+      // a click on an editable element selects it in the editor
+      await page.evaluate(() => window.say('chapters', { order: [{ chapter: 'plan', visible: true }, { chapter: 'journeys', visible: true }, { chapter: 'contact', visible: true }] }))
+      await frame.evaluate(() => { scrollTo(0, 0) })
+      await page.waitForTimeout(600)
+      await frame.evaluate(() => document.querySelector('[data-av-field="hero.title"]').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })))
+      await page.waitForTimeout(400)
+      const sel = await page.evaluate(() => window.got.filter(m => m.data && m.data.type === 'select').map(m => m.data.field))
+      check(`${v.tag}: bridge select: a click on an editable element is reported`, sel.join() === 'hero.title', sel.join())
+      // no enquiry can leave an editing session: a submit is cancelled before the form sees it
+      const sent = await frame.evaluate(() => { const f = document.getElementById('quote'); if (!f) return 'no form'; const ev = new Event('submit', { bubbles: true, cancelable: true }); f.dispatchEvent(ev); return ev.defaultPrevented })
+      await page.waitForTimeout(800)
+      check(`${v.tag}: bridge: a form submit in the editor frame is cancelled and posts nothing`, sent === true && posts.length === 0, `${sent} posts=${posts.length}`)
+      // unknown types and a wrong slug change nothing
+      await page.evaluate(() => { window.say('patch', { field: 'hero.title', value: 'old sketch' }); document.getElementById('f').contentWindow.postMessage({ schema: 'anyvendor.bridge/v1', slug: 'another-business', type: 'set', field: 'hero.title', value: 'other tenant' }, '*') })
+      await page.waitForTimeout(400)
+      check(`${v.tag}: bridge ignores unknown message types and another business's slug`, await frame.evaluate(() => document.querySelector('[data-av-field="hero.title"]')?.textContent) === 'Typed in the editor')
+    }
+    // any other origin: the browser refuses the frame (frame-ancestors), and nothing answers
+    const other = await ctx.newPage()
+    await other.route('https://not-the-editor.example.com/**', r => r.fulfill({ contentType: 'text/html', body: harness }))
+    await other.goto('https://not-the-editor.example.com/')
+    await other.waitForTimeout(5000)
+    const leaked = await other.evaluate(() => window.got.length)
+    const framed = other.frames().some(f => f.url().includes('/preview') && !f.url().startsWith('chrome-error'))
+    let inside = false
+    try { const f = other.frames().find(x => x !== other.mainFrame()); inside = f ? await f.evaluate(() => !!document.querySelector('[data-av-chapter]')) : false } catch { inside = false }
+    check(`${v.tag}: another origin cannot frame the draft and gets no reply`, leaked === 0 && !inside, `messages=${leaked} framed=${framed} rendered=${inside}`)
+    // opened directly (not framed), av_edit=1 does nothing
+    const direct = await ctx.newPage()
+    await direct.goto(`${AV}/preview?token=${TOKEN}&av_edit=1`, { waitUntil: 'domcontentloaded' })
+    await direct.waitForTimeout(2500)
+    check(`${v.tag}: outside a frame the bridge is not loaded`, await direct.evaluate(() => !document.querySelector('script[src="/anyvendor-bridge.js"]') && !('AnyVendorBridge' in window) && document.documentElement.dataset.avEdit === undefined))
     await ctx.close()
   }
 }

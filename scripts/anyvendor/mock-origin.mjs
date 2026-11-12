@@ -7,7 +7,7 @@ import { createServer } from 'node:http'
 import { readFileSync } from 'node:fs'
 
 const read = f => JSON.parse(readFileSync(new URL(`../../integrations/anyvendor/${f}`, import.meta.url), 'utf8'))
-export const TOKEN = 'mock-preview-token-0123456789'
+export const TOKEN = '3f2b8c1e-5a47-4d09-9e61-7c0a1b2d3e4f'
 export const PUBLISHED_TITLE = 'Chauffeur-driven cars'
 export const DRAFT_TITLE = 'Draft headline, not yet published'
 export const NEW_IMAGE = { src: '/media/journeys/occasions-1600.webp', alt: 'A replaced E-Class picture' }

@@ -10,12 +10,22 @@ import type { SiteOverrides } from '@/lib/anyvendor/site'
 // edits, by data-av-key. With built-in content there is nothing to apply.
 // Text is set as text, never HTML. Nothing is touched while the anyOS editor
 // is open, and an element being edited (focused or contenteditable) is left alone.
-export function AnyVendorContent({ site }: { site: SiteOverrides }) {
+export function AnyVendorContent({ site, editorOrigins }: { site: SiteOverrides; editorOrigins?: string[] }) {
   useEffect(() => {
     const root = document.documentElement
     root.dataset.avSource = site.source
     if (site.revision) root.dataset.avRevision = site.revision
-    const busy = (el: Element) => el === document.activeElement || (el as HTMLElement).isContentEditable
+    // In the editor's frame, a field the editor has just changed (an unsaved
+    // "set") is never put back to the saved draft by the timed re-applies below.
+    const touched: Record<string, true> = {}
+    const editing = window.parent !== window && new URLSearchParams(location.search).get('av_edit') === '1'
+    const onMessage = (ev: MessageEvent) => {
+      if (ev.source !== window.parent || !editorOrigins || editorOrigins.indexOf(ev.origin) < 0) return
+      const d = ev.data as { schema?: unknown; type?: unknown; field?: unknown } | null
+      if (d && typeof d === 'object' && d.schema === 'anyvendor.bridge/v1' && d.type === 'set' && typeof d.field === 'string') touched[d.field] = true
+    }
+    if (editing) window.addEventListener('message', onMessage)
+    const busy = (el: Element) => el === document.activeElement || (el as HTMLElement).isContentEditable || touched[(el as HTMLElement).dataset.avField || ''] === true
     const apply = () => {
       if (root.classList.contains('anyos-editing')) return
       document.querySelectorAll<HTMLElement>('[data-anyos], [data-av-key]:not(img)').forEach(el => {
@@ -28,13 +38,13 @@ export function AnyVendorContent({ site }: { site: SiteOverrides }) {
         const key = img.dataset.anyosImg || img.dataset.avKey || ''
         if (site.fields[key]) img.dataset.avField = site.fields[key]
         const pic = site.images[key]
-        if (!pic) return
+        if (!pic || busy(img)) return
         if (img.getAttribute('src') !== pic.src) { img.removeAttribute('srcset'); img.setAttribute('src', pic.src) }
         if (img.alt !== pic.alt) img.alt = pic.alt
       })
     }
     apply()
-    if (site.source === 'built-in') return
+    if (site.source === 'built-in') return () => window.removeEventListener('message', onMessage)
     // a hidden chapter leaves no dead menu link behind
     document.querySelectorAll<HTMLAnchorElement>('header a[href^="/#"]').forEach(a => {
       const id = (a.getAttribute('href') || '').slice(2)
@@ -43,7 +53,7 @@ export function AnyVendorContent({ site }: { site: SiteOverrides }) {
     // the anyOS script applies its own saved content after load; while both
     // are installed, the published AnyVendor content is applied last
     const timers = [400, 1500, 4000].map(ms => window.setTimeout(apply, ms))
-    return () => timers.forEach(t => window.clearTimeout(t))
-  }, [site])
+    return () => { timers.forEach(t => window.clearTimeout(t)); window.removeEventListener('message', onMessage) }
+  }, [site, editorOrigins])
   return null
 }
