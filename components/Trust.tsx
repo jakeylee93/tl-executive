@@ -17,7 +17,7 @@ export function Trust() {
   ]
   return (
     <section id="about" aria-labelledby="about-title" className="on-dark bg-charcoal text-on-dark">
-      <div data-snap data-snap-name="About us" className="chapter page-x grid items-center gap-8 py-7 sm:py-14 lg:grid-cols-12 lg:gap-16">
+      <div data-snap data-snap-name="About us" className="chapter page-x grid items-center gap-8 py-5 sm:py-14 lg:grid-cols-12 lg:gap-16">
         <div className="lg:col-span-5">
           <img src="/brand/tl-badge.svg" alt="" width={1006} height={950} loading="lazy" decoding="async" className="trust-badge mx-auto hidden h-auto sm:block sm:w-[min(40vw,14rem)] lg:w-full lg:max-w-[24rem]" />
         </div>
