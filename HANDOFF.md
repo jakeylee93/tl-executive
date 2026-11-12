@@ -1,5 +1,27 @@
 # Handoff — T&L Executive Cars redesign (18 October 2026, evening: protected candidate)
 
+## 12 November 2026: AnyVendor editor bridge installed (latest; read this first)
+
+Coordinator's instruction: finish the child side of the real bridge against main AnyVendor's protocol (`jakeylee93/anyvendor`, branch `claude/bookedevents-reconstruction`, read at `788f4f7d4`: `docs/backend/HANDOFF-TL-SITE-BRIDGE.md`, `docs/backend/adapters/anyvendor-bridge.js`). Main AnyVendor stays the sole parent integrator and releaser.
+
+- **Code:** `68d6a47` on `claude/tl-executive-redesign-20261018`, pushed. Packet unchanged from `c2f038a` (14 sections, 143 fields, all keys kept).
+- **Preview:** `https://tl-executive-62l2ah8wx-anyos.vercel.app` (`dpl_8D97o3AEB9TKxV3M4qqTqVuzy8Um`, protected, built from `68d6a47` with the setting below). The stored binding still names `tl-executive-d4ny1j06q`, which has no bridge and no content origin: it must be repointed.
+- **What was added:**
+  - `public/anyvendor-bridge.js`: the parent's child script, byte-identical (checked by hash on the deployment).
+  - `components/AnyVendorBridge.tsx`: loads and starts it only on `/preview`, only in a frame, only with `av_edit=1`; slug `tl-executive-cars`; capabilities text, image, chapters; `keepVisible: ['plan']`.
+  - `/preview` sends `Content-Security-Policy: frame-ancestors 'self' https://platform.anyvendor.co.uk`, plus no-store, noindex, no-referrer; no `X-Frame-Options`. Token must be a UUID; anything else, or a token the backend rejects, is 404.
+  - A field the editor has `set` is not put back by the page's timed re-apply.
+- **Config scope (actual):** `ANYVENDOR_CONTENT_ORIGIN=https://anyvendor.co.uk` on the **Preview** environment of `anyos/tl-executive` only. Production and Development have no variables. Editor origin is fixed in code; `ANYVENDOR_EDITOR_ORIGINS` (extra testing origins) is supported and **not set**.
+- **Cloud QA:** run 43216598523 on `68d6a47`: contract 34/34, browser 75/75. Twenty are bridge checks at 390 and 1440 px with a stand-in editor served at the real editor origin: handshake and nonce, no token or address in messages, `set` text and picture, `highlight`, `chapters`, `select`, submit cancelled with nothing posted, unknown type and foreign slug ignored, another origin refused, no bridge outside a frame. Mock content origin throughout.
+- **Verified on the preview:** `/` 200 with built-in chapters (the real endpoint returns 404 for published content: nothing is published yet, so the fallback stands); `/preview` 404 for no token, a malformed token and an unknown UUID; headers as above; `/api/enquiry` dry-run. Production unchanged (`dpl_J5NyesoC12NnKoCgWQC6d5jeqrxG`). Release claim `5d529873` taken and released.
+- **Not verified:** the real draft render and the real edit → save → publish → rollback round trip. I hold no preview token, and the frame is blocked (next point).
+- **Blocker, confirmed:** the preview is behind Vercel deployment protection. An unauthenticated request to it is redirected to Vercel's login with `X-Frame-Options: DENY`, so the editor cannot frame it for anyone without a Vercel session in that browser. Protection was not changed.
+- **Parent or Jake decisions needed:**
+  1. A frameable address for this code. Options: a protection exception for one preview alias of `anyos/tl-executive`, or a public testing alias. I have not created either.
+  2. Repoint the binding from `tl-executive-d4ny1j06q` to the address chosen in 1 (or to `tl-executive-62l2ah8wx` if testing signed in to Vercel).
+  3. If the editor will be opened from the testing alias `anyvendor-git-claude-bookedevents-reconstruction-anyos.vercel.app` and not `platform.anyvendor.co.uk`: say so, and I add it as `ANYVENDOR_EDITOR_ORIGINS` on Preview and redeploy.
+- **Notes for the parent:** the anyOS `edit.js` still loads on `/preview` (shared layout); it makes no request carrying the page address and the page sends no referrer. `ready` lists fields on rendered chapters only, so a hidden chapter's fields appear after it is shown and saved.
+
 ## 11 November 2026, late: AnyVendor coverage and draft safety (latest; read this first)
 
 Coordinator's follow-up: bounded site-side work so main AnyVendor (`claude:bc7de487`) can bind the commissioned T&L site to Jake's account. Same branch, same work claim `abbb0758`. Supersedes the numbers in the section below.
