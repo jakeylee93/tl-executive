@@ -1,5 +1,26 @@
 # Handoff — T&L Executive Cars redesign (18 October 2026, evening: protected candidate)
 
+## 12 November 2026, evening: magnetic one-screen chapters on the testing address (latest; read this first)
+
+Jake's direction via root: the scroll was poor and there was too much scrolling text; make the site flow in clear magnetic chapters like the new Bar People site, keeping T&L's identity, media and facts. Same branch and work claim `abbb0758`.
+
+- **Code:** `ca6e5b1` on `claude/tl-executive-redesign-20261018`, pushed.
+- **Deployed:** `https://tl-executive-testing.vercel.app` → `dpl_FSQzyYQYE7QYDcvTZAUKuiMCRnkt` (`tl-executive-qudzppion`, built from `ca6e5b1`), by `vercel alias set` (was `dpl_8D97o3AEB9TKxV3M4qqTqVuzy8Um`). Release claim `e5045004` taken and released. Production `tl-executive.vercel.app` unchanged (`dpl_J5NyesoC12NnKoCgWQC6d5jeqrxG`). Rollback: `vercel alias set tl-executive-62l2ah8wx-anyos.vercel.app tl-executive-testing.vercel.app`.
+- **What changed:**
+  - Twelve named chapters: Welcome, On the road, Room for everyone, Where to?, three Journeys chapters, The fleet, About us, Reviews, Get a quote, Contact. The page is 12 to 15 screens long (was about 30).
+  - `FilmScene` has a `play` mode: one screen, the clip plays in place once and holds (hero at nightfall, `stopAt 0.5`), Pause/Play button, rewinds when the chapter has left the screen. Nothing is pinned or scrubbed on the home page any more.
+  - Journeys: three full-bleed one-screen chapters; trips closed until opened; airport details in an expandable block.
+  - Fleet: one screen; `seek` drives the clip (next car plays its changeover, other choices cut).
+  - About and Reviews: one chapter each; areas list expandable; "Trusted by" is a short band after Reviews.
+  - Snap: CSS `scroll-snap-type: y proximity` on the document only. No wheel or touch handlers. Off for reduced motion, screens under 540px high, and both editors. Film chapters rest at the top under the clear header; later chapters rest under the solid header.
+  - `components/NextCue.tsx`: "Next: <chapter>" names the chapter that actually follows (chapters can be reordered and hidden).
+  - No text was deleted; nothing was reseeded. Packet unchanged: 14 sections, 143 fields. Live published revision `97cb0e08-e58a-4b4c-95de-e719315c1b4b` (v3) confirmed still served by the content endpoint after the deploy.
+- **Bug found by root and fixed (`ca6e5b1`):** after any seek, the old scroll-scrub tick recomputed the clip time from the scroll position, so the fleet could show the wrong car under the right heading. `tick`/`request` are inert in play mode; regression checks added.
+- **Cloud QA:** run 43268075265 on `ca6e5b1`: contract 34/34, browser 153/153 at 390×844, 375×667, 430×932, 820×1180 and 1440×900. Covers: chapter fit, next cue, text size (none under 11.5px), hero/drive playback and Pause, real wheel scrolling forward and back with settle, mid-chapter rest, long scroll passing several chapters, nothing advancing by itself, fleet tabs and the regression, journeys expanders, form layout, no horizontal overflow, reduced motion, phone menu, the AnyVendor adapter and bridge. Recordings `scroll-phone390.webm` and `scroll-desk1440.webm` are in the run's artifact. Wheel-scroll checks run on the desktop viewport only; phone scrolling was checked by position, not by touch gesture.
+- **Root's own check (reported to me, not re-run here):** 375×812 on the `ca6e5b1` preview: menu → Fleet aligns under the header; S-Class stays selected after scrolling to About and back.
+- **Verified on the alias after the change:** `/` 200 with the twelve chapters and five content chapters in order; `/airport-transfers` 200; `/preview` 404 without a valid token, with no-store, noindex, no-referrer and frame-ancestors; bridge script byte-identical; `/api/enquiry` dry-run.
+- **Not done:** `/airport-transfers` keeps its old layout. `MOTION.md` and parts of `FILM.md` describe the superseded scroll-scrubbed film. The scroll-scrub code path remains in `FilmScene` but no page uses it.
+
 ## 12 November 2026, later: public testing alias now serves the bridge build (latest; read this first)
 
 On root's instruction (Jake authorised; testing address only), the existing alias `https://tl-executive-testing.vercel.app` was reassigned with `vercel alias set` from `dpl_BErvPtLJyCiCdn1vwrAdjEr7Nh2s` (`tl-executive-pn5kq1ksp`, 18 Oct) to `dpl_8D97o3AEB9TKxV3M4qqTqVuzy8Um` (`tl-executive-62l2ah8wx`, code `68d6a47`). The alias was not deleted or recreated; no protection, bypass, domain or project setting was changed; no share link was made. Release claim `4307e40a` taken and released.
