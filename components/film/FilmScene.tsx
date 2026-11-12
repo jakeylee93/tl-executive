@@ -132,7 +132,8 @@ export function FilmScene({
 
     function tick() {
       raf = 0
-      if (section.dataset.pin !== 'on') return
+      // scroll-scrubbing only: in play mode the scroll position never sets the clip's time
+      if (play || section.dataset.pin !== 'on') return
       const p = progress()
       paintCopy(p)
       paintFade(p)
@@ -147,7 +148,7 @@ export function FilmScene({
       // keep easing towards the target while it moves
       if (vid && near && ready && Math.abs(vid.currentTime - target) > 1 / 60) raf = requestAnimationFrame(tick)
     }
-    const request = () => { if (!raf) raf = requestAnimationFrame(tick) }
+    const request = () => { if (!play && !raf) raf = requestAnimationFrame(tick) }
 
     // ---- play mode: the clip plays in place (see the header comment) ----
     let onScreen = false
@@ -191,7 +192,8 @@ export function FilmScene({
       request()
     }
 
-    const onSeeked = () => { seeking = false; request() }
+    // play mode: a finished seek (a cut to the chosen frame) leaves the clip on that frame
+    const onSeeked = () => { seeking = false; if (!play) request() }
     const onReady = () => {
       if (!vid) return
       const v = vid

@@ -146,6 +146,14 @@ for (const v of VIEWS) {
   check(`${v.tag}: the hero clip plays once to nightfall and holds`, heroReady && !!hero && hero.paused && Math.abs(hero.t / hero.d - 0.5) < 0.06, JSON.stringify(hero))
   await shot(page, `hero-${v.tag}-held.jpg`)
   {
+    await page.evaluate(() => window.scrollTo({ top: 180, behavior: 'instant' }))
+    await page.waitForTimeout(500)
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
+    await page.waitForTimeout(700)
+    const again = await page.evaluate(() => { const x = document.querySelector('#top video'); return { f: x.currentTime / x.duration, paused: x.paused } })
+    check(`${v.tag}: the hero's held frame survives scrolling a little and back`, again.paused && Math.abs(again.f - 0.5) < 0.06, JSON.stringify(again))
+  }
+  {
     const tap = (sel) => page.evaluate(sel => {
       const t = Array.from(document.querySelectorAll(sel)).find(e => e.getClientRects().length)
       if (!t) return 'missing ' + sel
@@ -224,6 +232,39 @@ for (const v of VIEWS) {
   const held = await page.evaluate(() => { const x = document.querySelector('#fleet video'); return { f: x.currentTime / x.duration, paused: x.paused } })
   check(`${v.tag}: choosing the next car plays its changeover and holds on it`, moving.t > 0.2 && !moving.paused && held.paused && Math.abs(held.f - 1 / 3) < 0.03, `moving=${JSON.stringify(moving)} held=${JSON.stringify(held)}`)
   await shot(page, `fleet-${v.tag}-1-S-Class.jpg`)
+  // regression (12 Nov): the chosen car's frame must survive scrolling. The scroll
+  // position used to overwrite the clip's time after a seek, so the heading and
+  // the car on screen could disagree.
+  {
+    const frameAt = () => page.evaluate(() => { const x = document.querySelector('#fleet video'); return { f: Math.round(x.currentTime / x.duration * 1000) / 1000, paused: x.paused, tab: document.querySelector('.garage-tab[aria-selected="true"]')?.textContent, card: document.querySelector('#fleet .fleet-card[data-on] [data-vehicle-name]')?.textContent } })
+    const wander = async () => {
+      for (const dy of [-260, 180, 420, -340, 2 * v.height, -2 * v.height - 40, 3 * v.height, 0]) {
+        await page.evaluate(([y, dy]) => window.scrollTo({ top: Math.max(0, y + dy), behavior: 'instant' }), [restOf(fleet, h), dy])
+        await page.waitForTimeout(350)
+      }
+      await page.evaluate(y => window.scrollTo({ top: y, behavior: 'instant' }), restOf(fleet, h))
+      await page.waitForTimeout(500)
+    }
+    await wander()
+    const s1 = await frameAt()
+    // V-Class by a CUT (two holds ahead of E would be a cut; from S it is the next hold, so go back to E first)
+    await page.evaluate(() => document.querySelectorAll('#fleet .garage-tab')[0].click())
+    await page.waitForTimeout(700)
+    const e1 = await frameAt()
+    await page.evaluate(() => document.querySelectorAll('#fleet .garage-tab')[2].click())
+    await page.waitForFunction(() => { const x = document.querySelector('#fleet video'); return !x.seeking && x.paused }, null, { timeout: 6000 }).catch(() => {})
+    await page.waitForTimeout(500)
+    const v0 = await frameAt()
+    await wander()
+    const v1 = await frameAt()
+    await shot(page, `fleet-${v.tag}-regression-V-Class-after-scrolling.jpg`)
+    const near = (a, b) => Math.abs(a - b) < 0.03
+    check(`${v.tag}: the chosen car stays on screen after seeking and scrolling (S-Class, then E, then V-Class by a cut)`,
+      near(s1.f, 1 / 3) && s1.tab === 'S-Class' && /S-Class/.test(s1.card || '') && near(e1.f, 0) && near(v0.f, 2 / 3) && near(v1.f, 2 / 3) && v1.paused && v1.tab === 'V-Class' && /V-Class/.test(v1.card || ''),
+      JSON.stringify({ s1, e1, v0, v1 }))
+    await page.evaluate(() => document.querySelectorAll('#fleet .garage-tab')[1].click())
+    await page.waitForTimeout(600)
+  }
   for (const [n, name] of [[2, 'V-Class'], [3, 'Tourneo']]) {
     await page.evaluate(n => document.querySelectorAll('#fleet .garage-tab')[n].click(), n)
     await page.waitForFunction(n => { const x = document.querySelector('#fleet video'); return x.paused && Math.abs(x.currentTime / x.duration - n / 3) < 0.03 }, n, { timeout: 12000 }).catch(() => {})
