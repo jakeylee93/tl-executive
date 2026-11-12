@@ -1,22 +1,22 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 import { VEHICLES, slug } from '@/lib/site'
 import { VEHICLE_EVENT } from '@/lib/prefill'
 import { FilmScene, type FilmSource } from '../film/FilmScene'
 import { Icon } from '../Icon'
+import { NextCue } from '../NextCue'
 import { QuoteLink } from '../QuoteLink'
 
 // The fleet (FILM.md): the four published vehicles on the opening film's
-// night road, London behind, each photographed at the same spot. One video
-// of three Kling 3.0 shots, played by scroll: the car drives off and the next
-// one pulls up where it stood, E-Class → S-Class → V-Class → Tourneo. The
-// scroll holds on each parked car (TIMELINE); tabs and Previous / Next
-// scroll to it, so the cars drive there. The four parked stills are the
-// anyOS images (fleet.<slug>.image): they show while the video loads, with
-// reduced motion and in the editor, and a replaced image is shown over the
-// film while its car is chosen.
+// night road, London behind, each photographed at the same spot. One screen.
+// One video of three Kling 3.0 shots holds on each parked car; choosing the
+// next car plays its changeover (the car drives off and the next pulls up
+// where it stood), any other choice cuts to that car. The four parked stills
+// are the anyOS images (fleet.<slug>.image): they show while the video loads,
+// with reduced motion and in the editor, and a replaced image is shown over
+// the film while its car is chosen.
 
 const STILL = (key: string) => `/media/fleet-road/${key}`
 const stillSet = (key: string) => `${STILL(key)}-960.webp 960w, ${STILL(key)}-1600.webp 1600w, ${STILL(key)}-2560.webp 2560w`
@@ -29,21 +29,11 @@ const FILM: FilmSource = {
   posterTall: `${STILL(FIRST)}-1600.webp`,
   posterTallSet: stillSet(FIRST),
 }
-// [scroll progress, video fraction]: hold, drive, hold, drive, hold, drive, hold
-const TIMELINE = [[0, 0], [0.08, 0], [0.3, 1 / 3], [0.38, 1 / 3], [0.6, 2 / 3], [0.68, 2 / 3], [0.9, 1], [1, 1]]
-const STOPS = [0.04, 0.34, 0.64, 0.95]
-const carAt = (p: number) => (p < 0.19 ? 0 : p < 0.49 ? 1 : p < 0.79 ? 2 : 3)
-
 export function Fleet() {
   const [active, setActive] = useState(0)
   const [chosen, setChosen] = useState('')
   const [photo, setPhoto] = useState<boolean[]>(VEHICLES.map(() => false))
   const last = VEHICLES.length - 1
-
-  const onProgress = useCallback((p: number) => {
-    const i = carAt(p)
-    setActive(a => (a === i ? a : i))
-  }, [])
 
   // The quote form announces the car it holds.
   useEffect(() => {
@@ -74,17 +64,7 @@ export function Fleet() {
 
   const go = (next: number, focus = false) => {
     const i = Math.max(0, Math.min(last, next))
-    const sec = document.getElementById('fleet')
-    const track = sec?.querySelector<HTMLElement>('[data-film-track]')
-    const stage = sec?.querySelector<HTMLElement>('[data-film-stage]')
-    if (sec?.dataset.pin === 'on' && track && stage) {
-      const top = track.getBoundingClientRect().top + window.scrollY
-      const span = track.offsetHeight - stage.clientHeight
-      const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      window.scrollTo({ top: top + STOPS[i] * span, behavior: smooth ? 'smooth' : 'auto' })
-    } else {
-      setActive(i)
-    }
+    setActive(i)
     if (focus) document.getElementById(`fleet-tab-${slug(VEHICLES[i].name)}`)?.focus()
   }
   const onKey = (e: KeyboardEvent<HTMLButtonElement>, i: number) => {
@@ -97,7 +77,7 @@ export function Fleet() {
   const next = VEHICLES[Math.min(last, active + 1)]
 
   return (
-    <FilmScene id="fleet" film={FILM} track="600svh" timeline={TIMELINE} onProgress={onProgress} label="The fleet" className="fleet-film">
+    <FilmScene id="fleet" film={FILM} play seek={active / last} snapName="The fleet" label="The fleet" className="fleet-film">
       <div className="fleet-stills">
         {VEHICLES.map((v, i) => {
           const key = slug(v.name)
@@ -172,6 +152,7 @@ export function Fleet() {
             ))}
           </div>
           <div className="garage-steps">
+            <NextCue className="next-cue-wide mr-2" />
             <button type="button" className="garage-step" onClick={() => go(active - 1)} disabled={active === 0} aria-label={`Previous car: ${prev.display}`}>
               <Icon name="arrowRight" className="h-5 w-5 rotate-180" />
             </button>
@@ -181,7 +162,10 @@ export function Fleet() {
             </button>
           </div>
         </div>
-        <p data-av-key="fleet.note" className="fleet-note page-x">Pictures show each model. Your car may differ in year, colour and specification.</p>
+        <div className="fleet-note page-x">
+          <p data-av-key="fleet.note">Pictures show each model. Your car may differ in year, colour and specification.</p>
+          <NextCue className="next-cue-narrow" />
+        </div>
       </div>
     </FilmScene>
   )

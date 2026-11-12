@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 
 // One continuous shot, played by native scroll. The section pins a
@@ -18,6 +18,15 @@ import type { ReactNode } from 'react'
 // pairs, piecewise linear) replaces the straight progress → time mapping, so
 // a section can hold on chosen frames (the fleet stops on each car), and
 // `onProgress` reports the pinned progress to the section's own UI.
+//
+// `play` (12 Nov 2026, the magnetic chapters): the section is ONE screen and
+// nothing is pinned or scrubbed. The clip plays in place when the chapter is
+// on screen, runs once to `stopAt` (a fraction of its length) and holds that
+// frame; it rewinds when the chapter has left the screen. A Pause/Play button
+// is shown. With `seek` (a fraction) the owner drives it instead: the clip
+// plays forward to that frame when it is the next hold, and cuts otherwise
+// (the fleet's car changeovers). Copy blocks' data-in then refers to the
+// clip's own progress. Reduced motion and the editors still get the poster.
 
 // wide/tall omitted = a still scene: the poster is pinned with its copy, no video
 export type FilmSource = { wide?: string; tall?: string; posterWide: string; posterTall: string; posterWideSet?: string; posterTallSet?: string }
@@ -31,7 +40,9 @@ const smooth = (a: number, b: number, v: number) => {
 
 export function FilmScene({
   id, film, track = '230svh', end = 1, overlap, fadeIn = 0, timeline, onProgress, label, children, priority = false, className = '',
+  play = false, stopAt = 1, seek, snapName,
 }: {
+  play?: boolean; stopAt?: number; seek?: number; snapName?: string
   id: string; film: FilmSource; track?: string; end?: number; overlap?: string; fadeIn?: number
   timeline?: number[][]; onProgress?: (p: number) => void
   label?: string; children: ReactNode; priority?: boolean; className?: string
@@ -41,6 +52,12 @@ export function FilmScene({
   const report = useRef(onProgress)
   report.current = onProgress
   const tl = timeline ? JSON.stringify(timeline) : ''
+  const [paused, setPaused] = useState(false)
+  const pausedRef = useRef(false)
+  const seekRef = useRef(seek)
+  seekRef.current = seek
+  const driveRef = useRef<() => void>(() => {})
+  useEffect(() => { driveRef.current() }, [seek])
 
   useEffect(() => {
     const el = root.current
@@ -59,7 +76,7 @@ export function FilmScene({
     let near = false
     let src = ''
 
-    const still = () => mqReduce.matches || document.documentElement.classList.contains('anyos-editing')
+    const still = () => mqReduce.matches || document.documentElement.classList.contains('anyos-editing') || document.documentElement.dataset.avEdit === '1'
 
     // H.264 where it plays (Safari, Chrome, Edge); the VP9 twin elsewhere
     const mp4 = !vid || vid.canPlayType('video/mp4; codecs="avc1.640028"') !== ''
@@ -132,6 +149,33 @@ export function FilmScene({
     }
     const request = () => { if (!raf) raf = requestAnimationFrame(tick) }
 
+    // ---- play mode: the clip plays in place (see the header comment) ----
+    let onScreen = false
+    let playRaf = 0
+    const goal = () => (seekRef.current === undefined ? stopAt : clamp(seekRef.current)) * Math.max(0, (vid?.duration || 0) - 0.04)
+    function watch() { // stop exactly on the hold frame
+      playRaf = 0
+      if (!vid) return
+      paintCopy(vid.duration ? vid.currentTime / vid.duration : 1)
+      if (vid.paused) return
+      if (vid.currentTime >= goal()) { vid.pause(); vid.currentTime = goal(); paintCopy(vid.duration ? goal() / vid.duration : 1); return }
+      playRaf = requestAnimationFrame(watch)
+    }
+    function drive() {
+      if (!play || !vid) return
+      if (!ready || !vid.duration) { paintCopy(1); return }
+      if (section.dataset.pin !== 'on' || pausedRef.current || !onScreen) { vid.pause(); return }
+      const t = goal()
+      const gap = t - vid.currentTime
+      if (Math.abs(gap) < 0.06) { vid.pause(); paintCopy(vid.currentTime / vid.duration); return }
+      // an owner-driven clip plays to the NEXT hold only; any other move is a cut
+      if (gap < 0 || (seekRef.current !== undefined && gap > vid.duration / 3 + 0.4)) { vid.pause(); vid.currentTime = t; paintCopy(t / vid.duration); return }
+      const pr = vid.play()
+      if (pr && typeof pr.catch === 'function') pr.catch(() => { paintCopy(1) })
+      if (!playRaf) playRaf = requestAnimationFrame(watch)
+    }
+    driveRef.current = drive
+
     function decide() {
       const pin = !still()
       section.dataset.pin = pin ? 'on' : 'off'
@@ -141,6 +185,7 @@ export function FilmScene({
         stage.style.pointerEvents = ''
         return
       }
+      if (play) { if (priority || near) choose(); paintCopy(ready && vid && vid.duration ? vid.currentTime / vid.duration : (vid ? 0 : 1)); drive(); return }
       paintFade(progress())
       if (priority || near) choose()
       request()
@@ -152,12 +197,13 @@ export function FilmScene({
       const v = vid
       ready = true
       section.dataset.ready = 'on'
+      if (play) { drive(); return }
       // some mobile browsers only decode frames after a play() call
       const pr = v.play()
       if (pr && typeof pr.then === 'function') pr.then(() => { v.pause(); request() }).catch(() => request())
       else { v.pause(); request() }
     }
-    const onError = () => { section.dataset.ready = 'off' }
+    const onError = () => { section.dataset.ready = 'off'; if (play) paintCopy(1) }
     if (vid) {
       vid.addEventListener('seeked', onSeeked)
       vid.addEventListener('loadeddata', onReady)
@@ -170,17 +216,32 @@ export function FilmScene({
     const io = new IntersectionObserver(([e]) => {
       near = e.isIntersecting
       if (near && section.dataset.pin === 'on' && !src) choose()
-      if (near) request()
+      if (near && !play) request()
     }, { rootMargin: '120% 0px 120% 0px' })
     io.observe(section)
+    // play mode: run while most of the chapter is on screen; rewind once it has gone
+    const seen = play ? new IntersectionObserver(([e]) => {
+      onScreen = e.intersectionRatio >= 0.55
+      if (e.intersectionRatio === 0 && vid && ready && seekRef.current === undefined && !pausedRef.current) { vid.pause(); vid.currentTime = 0 }
+      drive()
+    }, { threshold: [0, 0.55] }) : null
+    seen?.observe(section)
+    // a clip that never loads must not leave its timed copy hidden
+    const late = play ? window.setTimeout(() => { if (!ready) paintCopy(1) }, 4000) : 0
 
     decide()
-    window.addEventListener('scroll', request, { passive: true })
-    window.addEventListener('resize', request)
+    if (!play) {
+      window.addEventListener('scroll', request, { passive: true })
+      window.addEventListener('resize', request)
+    }
     mqReduce.addEventListener?.('change', decide)
-    mqPortrait.addEventListener?.('change', () => { if (section.dataset.pin === 'on') { choose(); request() } })
+    mqPortrait.addEventListener?.('change', () => { if (section.dataset.pin === 'on') { choose(); if (!play) request() } })
     return () => {
       io.disconnect()
+      seen?.disconnect()
+      if (late) window.clearTimeout(late)
+      if (playRaf) cancelAnimationFrame(playRaf)
+      driveRef.current = () => {}
       vid?.removeEventListener('seeked', onSeeked)
       vid?.removeEventListener('loadeddata', onReady)
       vid?.removeEventListener('error', onError)
@@ -189,7 +250,7 @@ export function FilmScene({
       mqReduce.removeEventListener?.('change', decide)
       if (raf) cancelAnimationFrame(raf)
     }
-  }, [film, priority, end, fadeIn, tl])
+  }, [film, priority, end, fadeIn, tl, play, stopAt])
 
   return (
     <section
@@ -199,11 +260,14 @@ export function FilmScene({
       data-pin="on"
       data-ready="off"
       data-overlap={overlap ? '' : undefined}
+      data-play={play ? '' : undefined}
+      data-snap={play ? '' : undefined}
+      data-snap-name={snapName}
       className={`film on-photo relative text-white ${overlap ? '' : 'bg-[#08090a]'} ${className}`}
       style={overlap ? { marginTop: `calc(-1 * ${overlap})` } : undefined}
       aria-label={label}
     >
-      <div className="film-track" data-film-track style={{ height: track }}>
+      <div className="film-track" data-film-track style={play ? undefined : { height: track }}>
         <div className="film-stage" data-film-stage>
           <picture>
             <source media={PORTRAIT} srcSet={film.posterTallSet || film.posterTall} sizes="100vw" type="image/webp" />
@@ -223,6 +287,17 @@ export function FilmScene({
           {film.wide && <video ref={videoRef} className="film-video" muted playsInline preload="auto" aria-hidden="true" tabIndex={-1} disablePictureInPicture />}
           <div className="film-shade" aria-hidden="true" />
           {children}
+          {play && film.wide && seek === undefined ? (
+            <button
+              type="button"
+              className="film-toggle"
+              aria-pressed={paused}
+              aria-label={paused ? 'Play the film' : 'Pause the film'}
+              onClick={() => { pausedRef.current = !pausedRef.current; setPaused(pausedRef.current); driveRef.current() }}
+            >
+              <span aria-hidden="true" data-state={paused ? 'paused' : 'playing'} className="film-toggle-icon" />
+            </button>
+          ) : null}
         </div>
       </div>
     </section>

@@ -12,7 +12,7 @@ const STEPS = [
 
 export function PlanSection() {
   return (
-    <section id="plan" aria-labelledby="plan-title" className="on-light relative bg-white py-14 sm:py-20 lg:py-24">
+    <section id="plan" data-snap data-snap-name="Get a quote" aria-labelledby="plan-title" className="chapter-open on-light relative bg-white py-10 sm:py-14 lg:py-16">
       <div className="page-x">
         <div className="grid gap-6 lg:grid-cols-12 lg:items-end">
           <div className="lg:col-span-6">

@@ -6,7 +6,7 @@ import { Icon } from './Icon'
  *  ask for most (closed until opened). */
 export function HomeContact() {
   return (
-    <section id="contact" aria-labelledby="contact-title" className="on-light bg-mist py-14 sm:py-16 lg:py-20">
+    <section id="contact" data-snap data-snap-name="Contact" aria-labelledby="contact-title" className="chapter-open on-light bg-mist py-10 sm:py-14 lg:py-16">
       <div className="page-x grid gap-10 lg:grid-cols-12 lg:gap-16">
         <div className="lg:col-span-5">
           <h2 id="contact-title" data-av-key="contact.title" className="t-h3 text-ink">Prefer to talk?</h2>
